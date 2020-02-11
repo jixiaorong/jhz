@@ -1,0 +1,216 @@
+html,
+body {
+    height: 100%;
+    width: 100%;
+    background-color: #f7f7fa;
+}
+
+
+/*2.reset css*/
+
+html,
+body,
+a,
+div,
+p,
+ul,
+li,
+ol,
+span,
+a,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+i,
+em,
+input,
+textarea,
+button,
+::after,
+::before {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -webkit-overflow-scrolling: touch;
+    /* 用于 ios5+ */
+}
+
+/****/
+@media (min-width: 320px) {
+    html {
+        font-size: 42.6667px;
+    }
+}
+
+@media (min-width: 360px) {
+    html {
+        font-size: 48px;
+    }
+}
+
+@media (min-width: 375px) {
+    html {
+        font-size: 50px;
+    }
+}
+
+@media (min-width: 384px) {
+    html {
+        font-size: 51.2px;
+    }
+}
+@media (min-width: 412px) {
+    html {
+        font-size: 54.9334px;
+    }
+}
+@media (min-width: 414px) {
+    html {
+        font-size: 55.2px;
+    }
+}
+
+@media (min-width: 448px) {
+    html {
+        font-size: 59.7333px;
+    }
+}
+
+@media (min-width: 480px) {
+    html {
+        font-size: 48px;
+    }
+}
+
+@media (min-width: 512px) {
+    html {
+        font-size: 68.2667px;
+    }
+}
+
+@media (min-width: 544px) {
+    html {
+        font-size: 72.5333px;
+    }
+}
+
+@media (min-width: 576px) {
+    html {
+        font-size: 76.8px;
+    }
+}
+
+@media (min-width: 608px) {
+    html {
+        font-size: 81.0667px;
+    }
+}
+
+@media (min-width: 640px) {
+    html {
+        font-size: 85.3333px;
+    }
+}
+
+@media (min-width: 750px) {
+    html {
+        font-size: 100px;
+    }
+}
+
+
+
+/* 移动端屏蔽长按复制start */
+* {
+    -webkit-touch-callout: none;
+    /*系统默认菜单被禁用*/
+    -webkit-user-select: none;
+    /*webkit浏览器*/
+    -khtml-user-select: none;
+    /*早期浏览器*/
+    -moz-user-select: none;
+    /*火狐*/
+    -ms-user-select: none;
+    /*IE10*/
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+input {
+    -webkit-user-select: auto;
+    /*webkit浏览器*/
+    -webkit-appearance: none;
+    font-family: "PingFang", "PingFangSC-Regular", "PingFangSC-Light", "PingFangSC-Thin", "微软雅黑", Arial, sans-serif;
+    /*去除IOS input默认样式*/
+
+}
+
+textarea {
+    -webkit-user-select: auto;
+}
+
+/* 移动端屏蔽长按复制end */
+body {
+    font-family: "PingFang","PingFangSC-Regular",
+     "PingFangSC-Light","PingFangSC-Thin","微软雅黑", Arial, sans-serif;
+    font-size: 0.28rem;
+    -webkit-font-smoothing: antialiased;
+    /*chrome、safari*/
+    -moz-osx-font-smoothing: grayscale;
+    position: relative;
+}
+
+a {
+    color: #333;
+    text-decoration: none;
+}
+
+a:active,
+a:hover {
+    text-decoration: none;
+    -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+    -webkit-user-select: none;
+    -moz-user-focus: none;
+    -moz-user-select: none;
+}
+
+input,
+textarea,
+select {
+    outline: none;
+    border: none;
+    resize: none;
+    font-family: "Helvetica";
+
+
+}
+
+input[type="submit"] {
+    outline: none;
+    border: none;
+    resize: none;
+    -webkit-box-shadow: 0 0 0 2000px #fff inset;
+}
+
+ul,
+ol,
+li {
+    list-style: none;
+}
+
+i {
+    font-style: normal;
+}
+
+
+/*a,button,input{-webkit-tap-highlight-color:rgba(255,0,0,0);}*/
+
+button {
+    border: none;
+    outline-style: none;
+}
+

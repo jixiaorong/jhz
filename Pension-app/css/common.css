@@ -1,0 +1,22 @@
+/**页面主体框架**/
+.pageFrame{display:flex;height:100%;flex-direction: column;background-color: #f7f7f7;}
+.pageHeader{width:100%;height:0.88rem;display:flex;justify-content: space-between;padding:0 0.32rem;align-items: center;background-color: #fff;}
+.headerMiddle{flex:1;text-align: center;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;}
+.headerMiddle-text{font-size:0.36rem;color:#333;font-weight: bold;width:80%;}
+.headerLeft,.headerRight{width:1.2rem;height:100%;display:flex;align-items: center;}
+.headerLeft{text-align: left;}
+.headerRight{text-align: right;flex-direction: row-reverse;}
+.headerLeft span,.headerRight span{font-size:0.28rem;color:#333;}
+.headerLeft img,.headerRight img{width:0.3rem;height:0.3rem;padding:10rem 0;}
+.headerLeft img:nth-child(2){margin-left:20px;}
+.pageContent{flex:1;overflow-y: auto;}
+.pageFooter{height:0.9rem;}
+
+.pd30{padding:0 0.3rem;}
+.f28c6a{font-size:0.28rem;color:#6a6a6a;}
+/*背景颜色*/
+/*青绿*/
+.Darkgreen{background-color: #2dcdb0;}
+
+/*按钮*/
+.btn-big{width:100%;height:100%;border:none;font-size:0.3rem;color:#fff;}

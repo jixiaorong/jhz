@@ -1,0 +1,17 @@
+/* 折线图 */
+.broken_line {
+    background-color: #fff;
+}
+.chartsFrame{background-color: #fff;padding-top:0.4rem;border-top:1px solid #efefef;}
+.chartsInfo1{display:flex;flex-direction: row;justify-content: space-between;align-items: center;}
+.chartsInfo1 label > span{font-size:0.6rem;color:#333;font-family: '黑体';}
+
+.sexFrame{background-color: #fff;padding:0.4rem 0 0.2rem;display:flex;flex-direction: row;}
+.sexFrame li{display:flex;flex-direction: column; height:0.88rem;width:50%;align-items: center;text-align: center;}
+.sexFrame li:first-child {border-right:1px solid #efefef;}
+.sexFrame li p{margin-bottom:0.1rem;}
+.sexFrame li span{font-size:0.36rem;color:#333;font-family: '黑体';}
+.sexFrameColor{display:flex;flex-direction: row;}
+.sexFrameColor li{flex:1; width:50%;height:0.03rem;}
+.sexFrameColor li:nth-child(1){background-color: #f97e7b;}
+.sexFrameColor li:nth-child(2){background-color: #4d99f7;}
