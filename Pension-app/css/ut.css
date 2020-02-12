@@ -1,0 +1,20 @@
+.ut-list{padding:0 0.3rem;margin-top:0.2rem;margin-bottom:0.2rem;background-color: #fff;}
+.ut-list li{height:0.9rem;border-bottom:1px solid #eee;display:flex;justify-content: space-between;align-items: center;}
+.ut-list li ._text{display:inline-block;line-height: 0.88rem; height:0.88rem;width:2rem;text-align: right;margin-right:0.1rem;color:#333;font-size:0.46rem;}
+.ut-list li label i{display:inline-block;width:0.16rem;height:0.26rem;background: url("../images/icon-more.png") no-repeat center;background-size: 0.16rem 0.26rem;}
+.ut-list ._title{font-size:0.32rem;color:#333;}
+.ut-list ._title span{font-size:0.26rem;color:#868686;margin-left:0.1rem;}
+
+.msgPopupWrap{width:6rem;margin-left: -3rem;}
+.msgPopupWrap{overflow: visible;}
+.msgPopupBtn{border-bottom-left-radius: 0.15rem;border-bottom-right-radius: 0.15rem;overflow: hidden;}
+.msgPopupText{padding: 0.5rem 0.3rem 1rem;display:flex;align-items: center;flex-direction: row;justify-content: center;}
+.ut-select{width:2rem;height:0.8rem;position:relative;border:1px solid #ccc;border-radius:0.2rem;}
+.ut-select > span{font-size:0.38rem;color:#666;line-height: 0.8rem;display:block;width:100%;text-align: center;}
+.ut-select ul{position:absolute;width:100%; top:0.9rem;background-color:#fff;border-radius:0.1rem;overflow: hidden;border:1px solid #ccc;display:none; }
+.ut-select ul li{height:0.8rem;text-align: center;font-size:0.34rem;color:#666;line-height: 0.8rem;border-top:1px solid #ddd;}
+.ut-select ul li:first-child{border-top:none;}
+.ut-selectInput{height:0.8rem;width:2.5rem;color:#666;font-size:0.38rem;border:1px solid #ccc;border-radius:0.2rem;margin-left:0.2rem;text-align: center;}
+
+.pageFooter{display:flex;}
+.pageFooter .btn-big{width:50%;}
