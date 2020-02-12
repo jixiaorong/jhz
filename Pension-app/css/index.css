@@ -29,7 +29,13 @@
 .collectionList ._itemL div > p{font-size:0.26rem;color:#999999;margin-top:0.1rem;}
 .userInfo{padding:0.3rem;margin:0.25rem 0;background-color: #fff;}
 .userInfo > h2{font-size:0.34rem;color:#333;font-weight: normal;}
-.userInfo > h3{font-size:0.28rem;color:#333;font-weight: normal;margin-top:0.3rem;}
+.userInfo > h3{font-size:0.28rem;color:#333;font-weight: normal;margin-top:0.3rem;margin-bottom:0.1rem;}
 .userInfo > h3 > span{font-size:0.26rem;color:#999;margin-left:0.15rem;}
-.userInfo img{width:0.35rem;height:0.35rem;}
+.userInfo img{width:0.35rem;height:0.35rem;margin-right:0.15rem;}
+.userInfo p{display:flex;align-items: center;margin-top:0.1rem;}
+.userInfo p span{margin-left:0.2rem;}
+
+.index-frame{display:flex;height:100%;flex-direction: column;}
+.nullData{flex:1;display:flex;background-color: #fff;justify-content: center;align-items: center;}
+.nullData > img{width:3.45rem;height:3.12rem;}
 
