@@ -6,7 +6,7 @@
 .chartsInfo1{display:flex;flex-direction: row;justify-content: space-between;align-items: center;}
 .chartsInfo1 label > span{font-size:0.6rem;color:#333;font-family: '黑体';}
 
-.sexFrame{background-color: #fff;padding:0.4rem 0 0.2rem;display:flex;flex-direction: row;}
+.sexFrame{background-color: #fff;padding:0.2rem 0 ;display:flex;flex-direction: row;}
 .sexFrame li{display:flex;flex-direction: column; height:0.88rem;width:50%;align-items: center;text-align: center;}
 .sexFrame li:first-child {border-right:1px solid #efefef;}
 .sexFrame li p{margin-bottom:0.1rem;}
@@ -15,3 +15,21 @@
 .sexFrameColor li{flex:1; width:50%;height:0.03rem;}
 .sexFrameColor li:nth-child(1){background-color: #f97e7b;}
 .sexFrameColor li:nth-child(2){background-color: #4d99f7;}
+.collectionFrame{background-color: #fff;}
+.collectionHeader{display:flex;justify-content: space-between;padding-top:0.15rem;align-items: center;}
+.collectionHeader span:nth-child(1){font-size:0.34rem;color:#333;}
+.collectionHeader span:nth-child(2){font-size:0.26rem;color:#868686;display: flex;align-items: center;}
+.collectionHeader span:nth-child(2) img{width:0.17rem;height:0.27rem;margin-left:0.1rem;}
+.collectionList{}
+.collectionList ._item{display:flex;justify-content: space-between;padding:0.45rem 0 0.15rem;}
+.collectionList ._item > img{height:1.8rem;width:3rem;}
+.collectionList ._itemL > p{font-size:0.28rem;color:#333;margin-top:0.1rem;}
+.collectionList ._itemL > p:nth-child(1){margin-top:0;}
+.collectionList ._itemL div{margin-top:0.2rem;}
+.collectionList ._itemL div > p{font-size:0.26rem;color:#999999;margin-top:0.1rem;}
+.userInfo{padding:0.3rem;margin:0.25rem 0;background-color: #fff;}
+.userInfo > h2{font-size:0.34rem;color:#333;font-weight: normal;}
+.userInfo > h3{font-size:0.28rem;color:#333;font-weight: normal;margin-top:0.3rem;}
+.userInfo > h3 > span{font-size:0.26rem;color:#999;margin-left:0.15rem;}
+.userInfo img{width:0.35rem;height:0.35rem;}
+

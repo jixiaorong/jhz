@@ -12,7 +12,8 @@
 .pageContent{flex:1;overflow-y: auto;}
 .pageFooter{height:0.9rem;}
 
-.pd30{padding:0 0.3rem;}
+.pd30{padding:0.3rem;}
+.mt25{margin-top:0.25rem;}
 .f28c6a{font-size:0.28rem;color:#6a6a6a;}
 /*背景颜色*/
 /*青绿*/
