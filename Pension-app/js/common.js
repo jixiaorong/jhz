@@ -1,4 +1,8 @@
 
+//定义全局变量
+var _data = {
+    timerToast: null //toast定时器
+};
 var commonTools = {
     //筛选
     /**

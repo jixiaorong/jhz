@@ -43,3 +43,48 @@
 .msgPopupBtn input[type=button]:nth-child(2) {border-left: 1px solid #eee;}
 .msgPopupActivn {color: #2dcdb0 !important;font-weight: bold;}
 .msgPopupsingle {background-color: #7a6af6 !important;border-top: 1px solid #7a6af6 !important;color: #fff !important;}
+
+/** Toast **/
+#Eject {
+    display: none;
+    position: fixed;
+    width: 100%;
+    bottom: 10%;
+    z-index: 105;
+    opacity: 1;
+    overflow: hidden;
+    justify-content: center;
+    text-align: center;
+  }
+  
+  #Eject2 {
+    display: none;
+    position: fixed;
+    width: 100%;
+    bottom: 22%;
+    z-index: 105;
+    opacity: 1;
+    overflow: hidden;
+    justify-content: center;
+    text-align: center;
+  }
+  
+  #Eject p,
+  #Eject2 p {
+    z-index: 2;
+    color: #fff;
+    font-size: 0.26rem;
+    padding: 0.5rem 0.3rem;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: inline-block;
+    max-width: 80%;
+    border-radius: 0.12rem;
+  }
+  
+  #Eject2 p {
+    margin: 0;
+    border-radius: none;
+    line-height: 0.38rem;
+  }
+  
+  

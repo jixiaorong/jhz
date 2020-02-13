@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>心率检测</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'>
+    <link rel="stylesheet" type="text/css" href="../../css/base.css">
+    <link rel="stylesheet" href="../../css/common.css">
+    <link rel="stylesheet" href="../../css/inputData.css">
+    <script type="text/javascript" src="../../js/jquery.min.js"></script>
+    <script type="text/javascript" src="../../js/fontSize.js"></script>
+</head>
+
+<body>
+    <div class="pageFrame">
+        <!--页头-->
+        <div class="pageHeader">
+            <div class="headerLeft">
+                <img src="../../images/header/btn_return.png" />
+            </div>
+            <div class="headerMiddle">
+                <span class="headerMiddle-text">心率检测</span>
+            </div>
+            <div class="headerRight">
+                <!-- <span>机器检测</span> -->
+            </div>
+        </div>
+        <!--内容-->
+        <div class="pageContent">
+            <!-- 录入内容列表 -->
+            <div class="input_cont">
+                <div class="input_line">
+                    <div class="input_left"><span class="input_key">心率</span><span class="unit_">(BPM)</span></div>
+                    <div class="input_right">
+                        <input type="number" id="heartRate" placeholder="请输入心率">
+                        <img src="../../images/right_arrow.png" alt="">
+                    </div>
+                </div>
+                <div class="input_line">
+                    <div class="input_left"><span class="input_key">心率正常范围</span><span class="unit_">(%)</span></div>
+                    <div class="input_right">
+                        <input type="number" id="rateRange" placeholder="请输入心率正常范围">
+                        <img src="../../images/right_arrow.png" alt="">
+                    </div>
+                </div>
+                <div class="input_line">
+                    <div class="input_left"><span class="input_key">节律正常范围 </span><span class="unit_">(%)</span></div>
+                    <div class="input_right">
+                        <input type="number" id="rhythm" placeholder="请输入节律正常范围">
+                        <img src="../../images/right_arrow.png" alt="">
+                    </div>
+                </div>
+            </div>
+            <!-- 上传心电图 -->
+            <div class="input_ecgimg">
+                <p class="ecg_title">心电图</p>
+                <div class="up_scan">
+                    <span class="scan_line"></span>
+                    <span class="scan_line"></span>
+                    <span class="scan_line"></span>
+                    <span class="scan_line"></span>
+                    <p class="get_img">选择图片</p>
+                    <p>(*jpg格式 5M以内)</p>
+                </div>
+                <div class="change_img">
+                    <img src="" class="" alt="">
+                </div>
+
+                <input type="file" id="getImg" hidden>
+            </div>
+        </div>
+        <!--页尾-->
+        <div class="pageFooter">
+            <!-- <input class="btn-big Darkgreen" type="button" value="下一步"> -->
+            <span class="pre_btn">上一页</span><span class="next_btn">下一页</span>
+        </div>
+    </div>
+</body>
+<script src="../../js/NativeCommon.js"></script>
+<script src="../../js/common.js"></script>
+<script>
+    var localData = localStorage.getItem("LS") ? JSON.parse(localStorage.getItem("LS")) : {};//本地的存储信息
+    var local = {
+        token: localData.token,
+        uuid: "",
+        oldData: {},//接口返回的上一次的数据
+        newImgUrl: "",//新上传的图片的urlpe
+        type:"1",//0 检测  1手动
+    }
+
+
+    $(function () {
+        // common.ajaxFun("get", "/getTargetecgDetail/" + local.token + "/" + local.uuid, "", getEcgSuccess, getEcgfail)
+        // 请求成功
+        function getEcgSuccess(data) {
+            console.log(data);
+            if (data.code == 1000) {
+                var newData = data.data;
+                local.oldData = newData
+                $("#heartRate").val(newData.rate)
+                $("#rateRange").val(newData.ratenormalrange)
+                $("#rhythm").val(newData.jlnormalrange)
+                if (newData.ecgimagefile) {
+                    $(".up_scan").hide();
+                    $(".change_img").show();
+                    $(".change_img img").attr("src", imgUrl + newData.ecgimagefile)
+                }
+
+            }
+        }
+
+        // 请求失败
+        function getEcgfail() {
+
+        }
+    })
+
+
+    // 获取本地的心电图
+    $(".get_img").click(function () {
+        $("#getImg").click()
+    })
+
+    $(".change_img img").click(function () {
+        $("#getImg").click()
+    })
+
+    $("#getImg").change(function () {
+        $(".up_scan").hide();
+        $(".change_img").show()
+        var file = this.files[0];
+        console.log(file);
+        if (!/image\/\w+/.test(file.type)) {
+            alert("请确保文件为图像类型");
+            return false;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            alert("您传入的图片大于5M请重新上传");
+            return false;
+        }
+        // postEcgImg(file);//上传图片
+        var reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = function (e) {
+            // console.log(this.result)
+            $(".change_img img").attr("src", this.result)
+        }
+    })
+
+    // 无token上传图片
+    function postEcgImg(file) {
+        common.ajaxFun("post", "/api/uploadImg", {
+            img: file,
+            type: "2"
+        }, postImgSuccess, postImgFail)
+    }
+    // 上传图片成功
+    function postImgSuccess(data) {
+        if (data.code == 1000) {
+            local.newImgUrl = data.data.url
+        }
+    }
+    // 上传图片失败
+    function postImgFail() {
+
+    }
+
+    // 新增心率数据
+    function addNewData() {
+        if ($("#heartRate").val() != local.oldData.rate || $("#rateRange").val() != local.oldData.ratenormalrange ||
+            $("#rhythm").val() != local.oldData.jlnormalrange || local.newImgUrl) {
+            var postData = {
+                collectoruuid: "",//采集员uuid 
+                // datastring :"",//检测数据
+                ecgimagefile: local.newImgUrl,//心电图图片文件服务器存储路径 ,
+                formid: "",//表单id ,
+                jlnormalrange: $("#rhythm").val(),// 节律正常范围 ,
+                mechanismuuid: "",//机构uuid ,
+                rate: $("#heartRate").val(),//平均心率 ,
+                ratenormalrange: $("#rateRange").val(),//心率正常范围,
+                token: local.token,//token ,
+                type: local.type,// 数据来源 0检测 1手写
+                useruuid: "",//用户uuid
+            }
+            common.ajaxFun("post", "/addTargetecg", postData, addSuccess, addFail);
+        }
+
+
+        function addSuccess(data) {
+            if (data.code == 1000) {
+                window.location.href = "./inputPressFat.html"
+            }
+        }
+
+        function addFail() {
+
+        }
+    }
+
+
+    // 上一页
+    $(".headerLeft").click(function () {
+        window.history.go(-1);
+    })
+    $(".pre_btn").click(function () {
+        window.history.go(-1);
+    })
+
+    //下一页
+    $(".next_btn").click(function () {
+        // addNewData()
+        window.location.href = "./inputBloodOxygex.html"
+    })
+</script>
+
+</html>

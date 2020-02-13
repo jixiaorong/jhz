@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>血液血氧检测</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'>
+    <link rel="stylesheet" type="text/css" href="../../css/base.css">
+    <link rel="stylesheet" href="../../css/common.css">
+    <link rel="stylesheet" href="../../css/inputData.css">
+    <script type="text/javascript" src="../../js/jquery.min.js"></script>
+    <script type="text/javascript" src="../../js/fontSize.js"></script>
+</head>
+
+<body>
+    <div class="pageFrame">
+        <!--页头-->
+        <div class="pageHeader">
+            <div class="headerLeft">
+                <img src="../../images/header/btn_return.png" />
+            </div>
+            <div class="headerMiddle">
+                <span class="headerMiddle-text">血液血氧检测</span>
+            </div>
+            <div class="headerRight">
+                <!-- <span>机器检测</span> -->
+            </div>
+        </div>
+        <!--内容-->
+        <div class="pageContent">
+            <!-- 录入内容列表 -->
+            <div class="input_ecgimg input_ecgimg1">
+                <p class="ecg_title">血液检测</p>
+                <!-- 录入内容列表 -->
+                <div class="input_cont" style="padding: 0;">
+                    <div class="input_line">
+                        <div class="input_left"><span class="input_key">总胆固醇</span><span class="unit_">(mmol/L)</span>
+                        </div>
+                        <div class="input_right">
+                            <input type="number" id="blood1" placeholder="请输入总胆固醇值">
+                            <img src="../../images/right_arrow.png" alt="">
+                        </div>
+                    </div>
+                    <div class="input_line">
+                        <div class="input_left"><span class="input_key">尿酸</span><span class="unit_">(μmol/L)</span>
+                        </div>
+                        <div class="input_right">
+                            <input type="number" id="blood2" placeholder="请输入尿酸值">
+                            <img src="../../images/right_arrow.png" alt="">
+                        </div>
+                    </div>
+                    <div class="input_line">
+                        <div class="input_left"><span class="input_key">血糖 </span><span class="unit_">(mmol/L)</span>
+                        </div>
+                        <div class="input_right">
+                            <input type="number" id="blood3" placeholder="请输入血糖值">
+                            <img src="../../images/right_arrow.png" alt="">
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="input_ecgimg input_ecgimg1">
+                <p class="ecg_title">血氧检测</p>
+                <!-- 录入内容列表 -->
+                <div class="input_cont" style="padding: 0;">
+                    <div class="input_line">
+                        <div class="input_left"><span class="input_key">血氧</span><span class="unit_">(%)</span></div>
+                        <div class="input_right">
+                            <input type="number" id="bloodOxygen" placeholder="请输入血氧值">
+                            <img src="../../images/right_arrow.png" alt="">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--页尾-->
+        <div class="pageFooter">
+            <!-- <input class="btn-big Darkgreen" type="button" value="下一步"> -->
+            <span class="pre_btn">上一页</span><span class="next_btn">下一页</span>
+        </div>
+    </div>
+</body>
+<script src="../../js/NativeCommon.js"></script>
+<script>
+
+    var local = {
+        token: "",
+        blood1id: "",//总胆固醇的id
+        blood2id: "",//尿酸的id
+        blood3id: "",//血糖的id
+        bloodOxyenid: "",//血氧的id
+        blood1: {},//旧的总胆固醇
+        blood2: {},//旧的尿酸
+        blood3: {},//旧的血糖
+        oldOxyData: {},//旧的血氧值
+        type: "1",//手动
+        caccountuuid: "",//采集人账号uuid 
+        formid: "",// 表单id ,
+        mechanismuuid: "",//机构端uuid
+        useruuid: "",// userinfo的uuid
+        blolean1:false,
+        blolean2:false,
+        blolean3:false,
+        blolean4:false,
+    }
+
+
+    // 获取旧的总胆固醇
+    function getOldBlood1() {
+        common.ajaxFun("get", "/getChoDetail/" + local.token + "/" + local.blood1id, "", getBlood1Success, getBloodFail)
+        // 请求成功
+        function getBlood1Success(data) {
+            console.log(data);
+            if (data.code == 1000) {
+                var newData = data.data;
+                local.blood1 = newData.cho
+                $("#blood1").val(newData.cho)
+
+            }
+        }
+    }
+    // 尿酸
+    function getOldBlood2() {
+        common.ajaxFun("get", "/getUaDetail/" + local.token + "/" + local.blood2id, "", getBlood2Success, getBloodFail)
+        // 请求成功
+        function getBlood2Success(data) {
+            console.log(data);
+            if (data.code == 1000) {
+                var newData = data.data;
+                local.blood2 = newData.ua
+                $("#blood2").val(newData.ua)
+
+            }
+        }
+    }
+
+    // 血氧
+    function getOldBlood3() {
+        common.ajaxFun("get", "/getBloodsugarucmDetail/" + local.token + "/" + local.blood3id, "", getBlood3Success, getBloodFail)
+        // 请求成功
+        function getBlood3Success(data) {
+            console.log(data);
+            if (data.code == 1000) {
+                var newData = data.data;
+                local.blood3 = newData.bloodsugar
+                $("#blood3").val(newData.bloodsugar)
+
+            }
+        }
+    }
+
+    // 请求失败
+    function getBloodFail() {
+
+    }
+
+    // 获取旧的血氧值
+    function getOldOxygen() {
+        common.ajaxFun("get", "/getBloodOxygenDetail/" + local.token + "/" + local.bloodOxyenid, "", getOxyenSuccess, getOxyenFail)
+        // 请求成功
+        function getOxyenFail(data) {
+            console.log(data);
+            if (data.code == 1000) {
+                var newData = data.data;
+                local.oldOxyData = newData
+                $("#bloodOxygen").val(newData.bloodoxygen)
+            }
+        }
+
+        // 请求失败
+        function getOxyenFail() {
+
+        }
+    }
+
+    // 上一页
+    $(".headerLeft").click(function () {
+        window.history.go(-1);
+    })
+    $(".pre_btn").click(function () {
+        window.history.go(-1);
+    })
+
+    // 处理数据
+    function dealData(type, val) {
+        var newData1 = {
+            caccountuuid: local.caccountuuid,//采集人账号uuid 
+            formid: local.formid,// 表单id ,
+            mechanismuuid: local.mechanismuuid,//机构端uuid
+            token: local.token,//token 
+            type: local.type,// 数据来源 0检测 1手写
+            useruuid: local.useruuid,// userinfo的uuid
+        }
+        switch (type) {
+            case "1"://胆固醇
+                newData1.cho = val
+                break;
+            case "2"://尿酸 
+                newData1.ua = val
+                break;
+            case "3"://血糖
+                newData1.bloodsugar = val
+                break;
+            case "4"://血氧
+                newData1.bloodoxygen  = val
+                break;
+        }
+        return newData1
+    }
+
+
+    // 确定所以接口都返回成功了
+    function allOk(){
+        if(blolean1 && blolean2 && blolean3 && blolean4){
+            
+        }
+    }
+
+    // 添加胆固醇数据
+    function addNewData() {
+        // 添加胆固醇数据
+        if ($("#blood1").val() != local.blood1) {
+            var newData = dealData("1", $("#blood1").val())
+            common.ajaxFun("post", "/addCho", newData, Blood1Success, addFail)
+        }
+        // // 添加尿酸数据
+        if ($("#blood2").val() != local.blood2) {
+            var newData = dealData("2", $("#blood2").val())
+            common.ajaxFun("post", "/addUa", newData, Blood2Success, addFail)
+        }
+        // // 添加血糖数据
+        if ($("#blood3").val() != local.blood3) {
+            var newData = dealData("3", $("#blood3").val())
+            common.ajaxFun("post", "/addBloodSugar", newData, Blood3Success, addFail)
+        }
+        // 血氧
+        if ($("#bloodOxygen").val() != local.oldOxyData) {
+            var newData = dealData("4", $("#bloodOxygen").val())
+            common.ajaxFun("post", "/addBloodOxygen", newData, Blood4Success, addFail)
+        }
+        function Blood1Success(data) {
+            if (data.code == 1000) {
+
+            }
+        }
+        function Blood2Success(data) {
+            if (data.code == 1000) {
+
+            }
+        }
+        function Blood3Success(data) {
+            if (data.code == 1000) {
+
+            }
+        }
+        function Blood4Success(data) {
+            if (data.code == 1000) {
+
+            }
+        }
+    }
+    
+   
+
+    // 添加失败
+    function addFail() {
+
+    }
+
+    //下一页
+    $(".next_btn").click(function () {
+        // addNewData()
+        window.location.href = "./inputPressFat.html"
+    })
+</script>
+
+</html>

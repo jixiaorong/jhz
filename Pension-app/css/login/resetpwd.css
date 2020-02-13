@@ -1,0 +1,47 @@
+.font28_86 {
+    font-size: 0.28rem;
+    color: #868686;
+    margin: 0.32rem;
+
+}
+
+.input_pwd {
+    height: 0.9rem;
+    background-color: #fff;
+    display: flex;
+    align-items: center;
+    padding: 0.32rem;
+}
+.input_pwd span{
+width: 1.5rem;
+}
+input {
+    font-size: 0.28rem;
+    color: #333;
+    /* margin-left: 0.4rem; */
+}
+
+input::-webkit-input-placeholder {
+    font-size: 0.28rem;
+    color: #868686;
+}
+
+
+.border_{
+    border-top: 1px solid #eee;
+}
+.Btn {
+    border: none;
+    height: 0.88rem;
+    width: 5.4rem;
+    font-size: 0.32rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-align: center;
+    line-height: 0.88rem;
+    margin: 1.02rem;
+    color: #fff;
+    background-color: #24c0a5;
+    border: 1px solid #24c0a5;
+    border-radius: 0.88rem;
+}

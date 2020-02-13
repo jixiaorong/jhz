@@ -1,0 +1,129 @@
+/* 录入内容列表 */
+.input_cont{
+    margin-top: 0.2rem;
+    background-color: #fff;
+    padding: 0 0.32rem;
+}
+.unit_{
+    font-size: 0.26rem;
+    color: #868686;
+}
+.input_key{
+    font-size: 0.32rem;
+    color: #333333;
+    margin-right: 0.1rem;
+}
+.input_line{
+    border-bottom: 1px solid #eee;
+    height: 1.24rem;
+    line-height: 1.24rem;
+    display: flex;
+    display: -webkit-flex;
+    align-items: center;
+    justify-content: space-around;
+}
+.input_left,.input_right{
+    flex: 1;
+}
+.input_right input{
+    text-align: end;
+    height:0.8rem;
+    font-size:0.4rem;
+    color: #333;
+    width:3rem;
+}
+ .input_right input::-webkit-input-placeholder{
+    font-size: 0.26rem;
+    color: #868686;
+}
+.input_right img{
+    width: 0.14rem;
+    height: 0.22rem;
+    margin-left: 0.16rem;
+}
+/* 上传心电图 */
+.input_ecgimg{
+    margin-top: 0.2rem;
+    padding: 0.38rem 0.32rem  1.08rem;
+    background-color: #fff;
+}
+.input_ecgimg1{
+    padding-bottom: 0;
+}
+.ecg_title{
+    color: #333;
+    font-size: 0.36rem;
+}
+.up_scan{
+    width: 5.68rem;
+    height: 3.8rem;
+    margin: 1.08rem auto 0;
+    position: relative;
+    text-align: center;
+    font-size: 0.26rem;
+    color: #868686;
+    padding-top: 1.28rem;
+}
+.scan_line{
+    position: absolute;
+    width: 0.32rem;
+    height: 0.32rem;
+}
+.scan_line:nth-child(1){
+    top: 0;
+    left: 0;
+    border-top: 2px solid #2dcdb0;
+    border-left: 2px solid #2dcdb0;
+}
+.scan_line:nth-child(2){
+    top: 0;
+    right: 0;
+    border-top: 2px solid #2dcdb0;
+    border-right: 2px solid #2dcdb0;
+}
+.scan_line:nth-child(3){
+    bottom: 0;
+    left: 0;
+    border-bottom: 2px solid #2dcdb0;
+    border-left: 2px solid #2dcdb0;
+}
+.scan_line:nth-child(4){
+    bottom: 0;
+    right: 0;
+    border-bottom: 2px solid #2dcdb0;
+    border-right: 2px solid #2dcdb0;
+}
+.get_img{
+    width: 2.1rem;
+    height: 0.68rem;
+    background-color: #2dcdb0;
+    margin:0 auto 0.16rem;
+    border-radius: 0.06rem;
+    color: #fff;
+    font-size: 0.3rem;
+    line-height: 0.68rem;
+}
+.change_img{
+    display: none;
+    width: 100%;
+    padding-top: 0.52rem;
+}
+.change_img img{
+    width: 100%;
+}
+/* 底部按钮 */
+.pre_btn,.next_btn{
+    display: inline-block;
+    width: 50%;
+    height: 100%;
+    font-size: 0.32rem;
+    color: #fff;
+    line-height: 0.9rem;
+    text-align: center;
+}
+.pre_btn{
+    background-color: #f6b12b;
+}
+.next_btn{
+    background-color: #2dcdb0;
+}
