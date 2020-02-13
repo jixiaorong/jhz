@@ -120,3 +120,29 @@
 .zcnotice span{
     color: #2dceaf;
 }
+/* examine */
+.examine_status {
+    padding:0 .3rem;
+    text-align:center;
+}
+.examine_status img{
+    display:block;
+    width:1.2rem;
+    height:1.2rem;
+    margin:.85rem auto .25rem auto;
+}
+.examine_status .title{
+    color: #2dceaf;
+    font-size: .32rem;
+    font-weight:600;
+}
+.examine_status .text{
+    font-size:.26rem;
+    line-height:.6rem;
+    color:#868686;
+    margin:.25rem;
+}
+#aginRegister{
+    border-radius:0;
+    margin-top:1.4rem;
+}
