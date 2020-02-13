@@ -43,7 +43,24 @@
 .msgPopupBtn input[type=button]:nth-child(2) {border-left: 1px solid #eee;}
 .msgPopupActivn {color: #2dcdb0 !important;font-weight: bold;}
 .msgPopupsingle {background-color: #7a6af6 !important;border-top: 1px solid #7a6af6 !important;color: #fff !important;}
+/* 无数据 */
+.cur_notdata{
+  position: absolute;
+  bottom:200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width:100%;
+  font-size: 0.34rem;
+  color: #868686;
 
+}
+.cur_notdata img{
+  width: 3.75rem;
+  height: 3.39rem;
+  margin-bottom: 0.4rem;
+}
 /** Toast **/
 #Eject {
     display: none;

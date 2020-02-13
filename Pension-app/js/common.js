@@ -336,11 +336,11 @@ var commonTools = {
      * **/
     currentNotData() {
         var html = `<div class="cur_notdata">
-        <img  src="../../images/null_data.png"/>
+        <img  src="../../images/wushuju.png"/>
         <p>啊哦？暂无数据哦</p>
     </div>`;
-        $("body").append(html);
-        $("body").addClass("fixedWrap");
+        $(".pageFrame").append(html);
+        $(".pageFrame").addClass("fixedWrap");
         // $(".cur_notdata_bg").css("top",commonTools.stateHeader());
     },
 
