@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="../../css/login/login.css?version=1.2.1">
     <script type="text/javascript" src="../../js/jquery.min.js"></script>
     <script type="text/javascript" src="../../js/fontSize.js"></script>
+    <script type="text/javascript" src="../../js/common.js"></script>
+    <script src="../../js/lib/common.js"></script>
 </head>
 
 <body>
@@ -17,7 +19,7 @@
         <!--页头-->
         <div class="pageHeader">
             <div class="headerLeft">
-                <img src="../../images/header/btn_return.png" id="goback"/>
+                <img src="../../images/header/btn_return.png" id="goback" />
             </div>
             <div class="headerMiddle">
                 <span class="headerMiddle-text">注册</span>
@@ -36,15 +38,15 @@
                     </div>
                     <div class="row">
                         <input type="text" class="input code" placeholder="请输入验证码" />
-                        <div class="getCodeBtn2"  id="getCodeBtn">获取验证码</div>
+                        <div class="getCodeBtn2" id="getCodeBtn">获取验证码</div>
                         <div class="getCodeBtn2 wid50 countdown"></div>
                     </div>
                     <div class="row">
-                        <input type="password" class="input password" placeholder="请设置登录密码" />
+                        <input type="password" class="input password" placeholder="请设置登录密码" id="pwd" />
                         <i class="see_icon nosee isSee"><img src="../../images/login/nosee.png" /></i>
                     </div>
                     <div class="row">
-                        <input type="password" class="input confirmpassword" placeholder="确认密码" />
+                        <input type="password" class="input password" placeholder="确认密码" id="confirmpwd" />
                         <i class="see_icon nosee isSee"><img src="../../images/login/nosee.png" /></i>
                     </div>
                 </div>
@@ -55,44 +57,50 @@
                 </div>
 
                 <div class="loginBtn btnActive" id="nextStep">下一步</div>
-                
+
             </div>
         </div>
     </div>
 </body>
 <script src="../../js/NativeCommon.js"></script>
 <script>
+    var usertype = 1; //1：采集员 ，2：用户
     var countdown = 60; //倒计时60s
     var Timer = ''; //定时器控制器
     var code = '';  //验证码
     var regexPhone = /^1[1,3,5,6,7,8,9]\d{9}$/;  //手机号验证规则
+    var rgx = /(?=.*?[a-zA-Z])(?=.*?[0-9])[a-zA-Z0-9]{6,}$/; //验证密码
+    var da = JSON.parse(localStorage.getItem('LS'));
+    console.log(da);
+    console.log(HOST)
+    document.body.addEventListener('touchstart', function () { }); //移动端给元素添加:active效果
 
-    document.body.addEventListener('touchstart', function() {}); //移动端给元素添加:active效果
 
-    //密码值是否显示切换功能
-    $('.isSee').click(function () {
+    //是否显示密码
+    $('.row .isSee').click(function () {
         var isSee = $(this).hasClass('nosee');
         if (isSee) {
-            $(this).removeClass('nosee');
-            $(this).find('img').attr('src', '../../images/login/see.png');
-            $('.password').attr('type', 'text');
+            $(this).parent('.row').children('.isSee').removeClass('nosee');
+            $(this).parent('.row').find('img').attr('src', '../../images/login/see.png');
+            $(this).parent('.row').children('.password').attr('type', 'text');
         } else {
-            $(this).addClass('nosee');
-            $(this).find('img').attr('src', '../../images/login/nosee.png');
-            $('.password').attr('type', 'password');
+            $(this).parent('.row').children('.isSee').addClass('nosee');
+            $(this).parent('.row').find('img').attr('src', '../../images/login/nosee.png');
+            $(this).parent('.row').children('.password').attr('type', 'password');
         }
 
     })
+
     //倒计时
     function CountDown() {
         $('#getCodeBtn').hide();
-        $('.countdown').show().text(countdown+'s');
+        $('.countdown').show().text(countdown + 's');
         countdown--;
         Timer = setInterval(function () {
-            $('.countdown').show().text(countdown+'s');
+            $('.countdown').show().text(countdown + 's');
             countdown--;
             //console.log(countdown)
-            if (countdown == 0) {
+            if (countdown == -1) {
                 clearInterval(Timer);
                 countdown = 60;
                 $('#getCodeBtn').show();
@@ -100,89 +108,192 @@
             }
         }, 1000)
     }
-    
-    //发送短信验证码事件
+
+    //发送短信验证
     $('#getCodeBtn').click(function () {
-        var phone = $('.form').find('.phone').val();
-        if (regexPhone.test(phone)) {//手机号正确
-            if (countdown == 60) {
-                var params = {
-                    phonenum: phone,
-                    smscodeType: 1, //短信类型 0:登录，1:注册，2：忘记密码
-                }
+        var phone = $.trim($('.form').find('.phone').val());
 
-                $.ajax({
-                    type : "POST",
-                    contentType: "application/json;charset=UTF-8",
-                    url : HOST + "/api/sendMsg",
-                    data : JSON.stringify(params),
-                    success : function(res) {
-                        console.log(res);
-                        if(res.data == '1000'){
-                            CountDown(); //开始倒计时
-                        }else{
-                            commonTools.Eject(res.msg);
-                        }
-                    },
-                    error : function(e){
-                        console.log(e.status);
-                        console.log(e.responseText);
+        if (phone != '') {
+            if (regexPhone.test(phone)) {//手机号正确
+                if (countdown == 60) {
+                    var params = {
+                        phonenum: phone,
+                        smscodeType: 1, //短信类型 0:登录，1:注册，2：忘记密码
                     }
-                });
+                    $.ajax({
+                        type: "POST",
+                        contentType: "application/json;charset=UTF-8",
+                        url: HOST + "/api/sendMsg",
+                        data: JSON.stringify(params),
+                        success: function (res) {
+                            console.log(res);
+                            if (res.code == '1000') {
+                                CountDown(); //开始倒计时
+                            } else {
+                                commonTools.Eject(res.msg);
+                            }
+                        },
+                        error: function (e) {
+                            console.log(e.status);
+                            console.log(e.responseText);
+                        }
+                    });
+                }
+            } else {//手机号错误
+                commonTools.Eject('手机号格式错误');
+                $('.form').find('.phone').focus();
+                return false;
             }
-
-        } else {//手机号错误
-            commonTools.Eject('手机号格式错误');
+        } else {
+            commonTools.Eject('手机号不能为空');
             $('.form').find('.phone').focus();
+            return false;
         }
+
 
     })
 
     //下一步
     $('#nextStep').on('click', function () {
-        var params = {
-            caccountuuid: caccountuuid, //采集员账号uuid
-            idcardeffectivetime: idcardeffectivetime, //身份证有效期 ,
-            issueorganization: issueorganization, //发证机关 ,
-            nation: nation, //民族 ,
-            password: password, //密码 ,
-            useraccount: useraccount, //账号 ,
-            useraddress: useraddress, //地址 ,
-            userage: userage, //生日 ,
-            useridcard: useridcard, //身份证号 ,
-            useridcardimg: useridcardimg, //: 身份证正面图片路径 ,
-            useridcardimgb: useridcardimgb, //身份证背面图片路径 ,
-            username: username, //姓名 ,
-            userphone: userphone, //电话 ,
-            usersex: usersex, //性别 1男 2女
+
+        var phone = $.trim($('.phone').val());
+        var code = $.trim($('.code').val());
+        var pwd = $.trim($('#pwd').val());
+        var confirmpwd = $.trim($('#confirmpwd').val());
+        console.log(regexPhone.test(phone))
+        console.log("phone:" + phone + " &code:" + code + " &pwd:" + pwd + " &confirmpwd:" + confirmpwd)
+        if (phone == '') {
+            commonTools.Eject('请输入手机号');
+            return false;
         }
+        if (!regexPhone.test(phone)) {
+            commonTools.Eject('手机号格式错误');
+            return false;
+        }
+        if (code == '') {
+            commonTools.Eject('请输入验证码');
+            return false;
+        }
+        if (pwd == '') {
+            commonTools.Eject('设置密码为空');
+            return false;
+        }
+        if (pwd != confirmpwd) {
+            commonTools.Eject('两次密码不一致，请重新填写密码');
+            return false;
+        }
+        if (rgx.test(da.password) || !MYCOMMON.isUsername(da.pwd) || !MYCOMMON.isUsername(da.confirmpwd)) {
+            commonTools.Eject('密码格式错误');
+        }
+
+        //验证码验证
         $.ajax({
-            type : "POST",
+            type: "GET",
             contentType: "application/json;charset=UTF-8",
-            url : HOST + "/api/userRegister",
-            data : JSON.stringify(params),
-            success : function(res) {
+            url: HOST + "/api/check/" + phone + "/" + code + "/1",
+            success: function (res) {
                 console.log(res);
-                if(res.data == '1000'){
-                    // da.userInfo = res.data;
-                    // localStorage.setItem('LS',JSON.stringify(da));
-                    // console.log(localStorage.getItem('LS',JSON.stringify(da)))
+                if (res.code == '1000') {
+                    PostRegisterAjax(phone, pwd); //提交注册
+                }else{
+                    commonTools.Eject(res.msg);
                 }
-                
+
             },
-            error : function(e){
+            error: function (e) {
                 console.log(e.status);
                 console.log(e.responseText);
             }
         });
+
     })
 
-     //用户协议
-     $('#agreement').click(function(){
-        window.location.href="../tips/userAgreement.html";
+    //注册请求
+    function PostRegisterAjax(phone, code) {
+        if (usertype == '1') { //采集员
+            var params = {
+                collectoraccount: collectoraccount, //采集员账号uuid
+                idcardeffectivetime: idcardeffectivetime,//身份证有效期 ,
+                issueorganization: issueorganization, //发证机关 ,
+                mechanismuuid: mechanismuuid, //机构uuid
+                nation: nation,
+                password: pwd,
+                useraddress: useraddress,
+                userage: userage,
+                useridcard: useridcard,
+                useridcardimg: useridcardimg,
+                useridcardimgb: useridcardimgb,
+                username: username,
+                userphone: phone,
+                usersex: usersex
+            }
+            // $.ajax({
+            //     type: "POST",
+            //     contentType: "application/json;charset=UTF-8",
+            //     url: HOST + "/api/userRegister",
+            //     data: JSON.stringify(params),
+            //     success: function (res) {
+            //         console.log(res);
+            //         if (res.code == '1000') {
+            //             // da.userInfo = res.data;
+            //             // localStorage.setItem('LS',JSON.stringify(da));
+            //             // console.log(localStorage.getItem('LS',JSON.stringify(da)))
+            //         }
+
+            //     },
+            //     error: function (e) {
+            //         console.log(e.status);
+            //         console.log(e.responseText);
+            //     }
+            // });
+        } else if (usertype == '2') { //普通用户
+            var params = {
+                caccountuuid: caccountuuid, //采集员账号uuid
+                idcardeffectivetime: idcardeffectivetime, //身份证有效期 ,
+                issueorganization: issueorganization, //发证机关 ,
+                nation: nation, //民族 ,
+                password: pwd, //密码 ,
+                useraccount: useraccount, //账号 ,
+                useraddress: useraddress, //地址 ,
+                userage: userage, //生日 ,
+                useridcard: useridcard, //身份证号 ,
+                useridcardimg: useridcardimg, //: 身份证正面图片路径 ,
+                useridcardimgb: useridcardimgb, //身份证背面图片路径 ,
+                username: username, //姓名 ,
+                userphone: phone, //电话 ,
+                usersex: usersex, //性别 1男 2女
+            }
+            $.ajax({
+                type: "POST",
+                contentType: "application/json;charset=UTF-8",
+                url: HOST + "/registerCollector",
+                data: JSON.stringify(params),
+                success: function (res) {
+                    console.log(res);
+                    if (res.code == '1000') {
+                        commonTools.Eject("注册成功");
+                        window.loaction.href = "login.html"
+                        // da.userInfo = res.data;
+                        // localStorage.setItem('LS',JSON.stringify(da));
+                        // console.log(localStorage.getItem('LS',JSON.stringify(da)))
+                    } else {
+
+                    }
+
+                },
+                error: function (e) {
+                    console.log(e.status);
+                    console.log(e.responseText);
+                }
+            });
+        }
+    }
+    //用户协议
+    $('#agreement').click(function () {
+        window.location.href = "../tips/userAgreement.html";
     })
     //返回上一页
-    $('#goback').click(function(){
+    $('#goback').click(function () {
         window.history.back(-1);
     })
 </script>
