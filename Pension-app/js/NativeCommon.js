@@ -1,8 +1,10 @@
-var HOST   = "http://interactive.jinhuaze-health.com:18099/"; // 正式环境微服务项目接口地址
+// var HOST   = "http://interactive.jinhuaze-health.com:18099/"; // 正式环境微服务项目接口地址
 var imgUrl = "https://image.jinhuaze-health.com/"; // 正式环境图片地址
 
+var HOST   = "http://47.94.3.197:28180/"; // 测试地址
 
-var _LocalTesting = false; //true本地测试
+
+var _LocalTesting = true; //true本地测试
 var testImg = false; //是否是测试图片
 
 var common = {
