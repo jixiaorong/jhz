@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>血脂血压检测</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'>
+    <link rel="stylesheet" type="text/css" href="../../css/base.css">
+    <link rel="stylesheet" href="../../css/common.css">
+    <link rel="stylesheet" href="../../css/inputData.css">
+    <script type="text/javascript" src="../../js/jquery.min.js"></script>
+    <script type="text/javascript" src="../../js/fontSize.js"></script>
+</head>
+
+<body>
+    <div class="pageFrame">
+        <!--页头-->
+        <div class="pageHeader">
+            <div class="headerLeft">
+                <img src="../../images/header/btn_return.png" />
+            </div>
+            <div class="headerMiddle">
+                <span class="headerMiddle-text">血脂血压检测</span>
+            </div>
+            <div class="headerRight">
+                <!-- <span>机器检测</span> -->
+            </div>
+        </div>
+        <!--内容-->
+        <div class="pageContent">
+            <!-- 录入内容列表 -->
+            <div class="input_ecgimg input_ecgimg1">
+                <p class="ecg_title">血脂检测</p>
+                <!-- 录入内容列表 -->
+                <div class="input_cont" style="padding: 0;">
+                    <div class="input_line">
+                        <div class="input_left"><span class="input_key">总胆固醇</span><span class="unit_">(mmol/L)</span>
+                        </div>
+                        <div class="input_right">
+                            <input type="number" id="fat1" placeholder="请输入总胆固醇值">
+                            <img src="../../images/right_arrow.png" alt="">
+                        </div>
+                    </div>
+                    <div class="input_line">
+                        <div class="input_left"><span class="input_key">高密度脂蛋白</span><span class="unit_">(mmol/L)</span>
+                        </div>
+                        <div class="input_right">
+                            <input type="number" id="fat2" placeholder="请输入高密度脂蛋白值">
+                            <img src="../../images/right_arrow.png" alt="">
+                        </div>
+                    </div>
+                    <div class="input_line">
+                        <div class="input_left"><span class="input_key">低密度脂蛋白 </span><span
+                                class="unit_">(mmol/L)</span>
+                        </div>
+                        <div class="input_right">
+                            <input type="number" id="fat3" placeholder="请输入低密度脂蛋白值">
+                            <img src="../../images/right_arrow.png" alt="">
+                        </div>
+                    </div>
+                    <div class="input_line">
+                        <div class="input_left"><span class="input_key">甘油三酯 </span><span class="unit_">(mmol/L)</span>
+                        </div>
+                        <div class="input_right">
+                            <input type="number" id="fat4" placeholder="请输入甘油三酯值">
+                            <img src="../../images/right_arrow.png" alt="">
+                        </div>
+                    </div>
+                    <div class="input_line">
+                        <div class="input_left"><span class="input_key">总胆固醇/高密度蛋白 </span><span class="unit_"></span>
+                        </div>
+                        <div class="input_right">
+                            <input type="number" id="fat5" placeholder="请输入TC/HDL值">
+                            <img src="../../images/right_arrow.png" alt="">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="input_ecgimg input_ecgimg1">
+                <p class="ecg_title">血压检测</p>
+                <!-- 录入内容列表 -->
+                <div class="input_cont" style="padding: 0;">
+                    <div class="input_line">
+                        <div class="input_left"><span class="input_key">高压</span><span class="unit_">(mmHg)</span></div>
+                        <div class="input_right">
+                            <input type="number" id="heightPress" placeholder="请输入高压值">
+                            <img src="../../images/right_arrow.png" alt="">
+                        </div>
+                    </div>
+                    <div class="input_line">
+                        <div class="input_left"><span class="input_key">低压</span><span class="unit_">(mmHg)</span>
+                        </div>
+                        <div class="input_right">
+                            <input type="number" id="lowPress" placeholder="请输入低压值">
+                            <img src="../../images/right_arrow.png" alt="">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--页尾-->
+        <div class="pageFooter">
+            <!-- <input class="btn-big Darkgreen" type="button" value="下一步"> -->
+            <span class="pre_btn">上一页</span><span class="next_btn">下一页</span>
+        </div>
+    </div>
+</body>
+<script src="../../js/NativeCommon.js"></script>
+<script>
+
+    var local = {
+        token: "",
+        bloodpressureid: "",//血压的id
+        oldPressData: {},//旧的血压值
+        oldFatData: {},//旧的血脂值
+        isNextFat: false,
+        isNext: false,
+    }
+
+    // 获取旧的血压值
+    function getOldPress() {
+        common.ajaxFun("get", "/getBloodpressureDetail/" + local.token + "/" + local.bloodpressureid, "", getPressSuccess, getPressFail)
+        // 请求成功
+        function getPressSuccess(data) {
+            console.log(data);
+            if (data.code == 1000) {
+                var newData = data.data;
+                local.oldPressData = newData
+                $("#heightPress").val(newData.hbp)
+                $("#lowPress").val(newData.lbp)
+
+            }
+        }
+
+        // 请求失败
+        function getPressFail() {
+
+        }
+    }
+
+    // 获取旧的血脂
+    function getOldFat() {
+        common.ajaxFun("get", "/getBloodpressureDetail/" + local.token + "/" + local.bloodpressureid, "", getFatSuccess, getFatFail)
+        // 请求成功
+        function getFatSuccess(data) {
+            console.log(data);
+            if (data.code == 1000) {
+                var newData = data.data;
+                local.oldFatData = newData
+                // $("#heightPress").val(newData.hbp)
+                // $("#lowPress").val(newData.lbp)
+
+            }
+        }
+
+        // 请求失败
+        function getFatFail() {
+
+        }
+    }
+
+
+    $(function () {
+        // getOldPress()
+        // getOldFat
+
+    })
+
+
+    // 添加血脂
+    function addFat() {
+        if ($("#heartRate").val() != local.oldData.rate || $("#rateRange").val() != local.oldData.ratenormalrange ||
+            $("#rhythm").val() != local.oldData.jlnormalrange || local.newImgUrl) {
+            var postData = {
+                collectoruuid: "",//采集员uuid 
+                // datastring :"",//检测数据
+                ecgimagefile: local.newImgUrl,//心电图图片文件服务器存储路径 ,
+                formid: "",//表单id ,
+                jlnormalrange: "",// 节律正常范围 ,
+                mechanismuuid: "",//机构uuid ,
+                rate: "",//平均心率 ,
+                ratenormalrange: "",//心率正常范围,
+                token: "",//token ,
+                type: "",// 数据来源 0检测 1手写
+                useruuid: "",//用户uuid
+            }
+            common.ajaxFun("post", "/addTargetecg", postData, addSuccess, addFail);
+            function addSuccess(data) {
+                if (data.code == 1000) {
+                    isNextFatF = true;
+                    if (isNextFat && isNext) {
+                        window.location.href = "./inputBloodOxygex.html"
+                    }
+                }
+            }
+        }}
+
+        // 添加血压
+        function addPress() {
+            if ($("#heightPress").val() != local.oldPressData.hbp || $("#lowPress").val() != local.oldPressData.lbp) {
+                var postData = {
+                    collectoruuid: "",//采集员uuid 
+                    formid: "",//表单id ,
+                    hbp: "",// 收缩压  ,
+                    lbp: "",//舒张压  ,
+                    mechanismuuid: "",//机构端uuid,
+                    token: "",//token ,
+                    type: "",// 数据来源 0检测 1手写
+                    useruuid: "",//用户uuid
+                }
+                common.ajaxFun("post", "/addBloodPressure", postData, addPresSuccess, addPresFail);
+
+                function addPresSuccess(data) {
+                    if (data.code == 1000) {
+                        isNext = true;
+                        if (isNextFat && isNext) {
+                            window.location.href = "./inputPressFat.html"
+                        }
+                    }
+                }
+            }
+        }
+
+        function addFail() {
+
+        }
+
+        // 返回上一页
+        $(".headerLeft").click(function () {
+            window.history.go(-1);
+        })
+        $(".pre_btn").click(function () {
+            window.history.go(-1);
+        })
+
+        //下一页
+        $(".next_btn").click(function () {
+            // addFat();
+            // addPress()
+            window.location.href = "./inputBloodOxygex.html"
+        })
+</script>
+
+</html>
