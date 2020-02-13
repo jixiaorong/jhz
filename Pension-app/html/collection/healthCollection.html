@@ -35,11 +35,11 @@
         <div class="pageContent">
             <div class="history">
                 <p>药物过敏史</p>
-                <textarea name="" id="" cols="30" rows="3" placeholder="请输入药物过敏史"></textarea>
+                <textarea name="" id="allergy" cols="30" rows="3" placeholder="请输入药物过敏史"></textarea>
             </div>
             <div class="history">
                 <p>暴露史</p>
-                <textarea name="" id="" cols="30" rows="3" placeholder="请输入暴露史"></textarea>
+                <textarea name="" id="Exposure" value='' cols="30" rows="3" placeholder="请输入暴露史"></textarea>
             </div>
             <div class="history">
                 <div class="topic">
@@ -47,36 +47,7 @@
                 </div>
                 <div class="choosePwd">
                     <ul id="evaluateFlag">
-                        <li>
-                            <input type="checkbox" id="diabetes" name="chronic" value="糖尿病" />
-                            <label for="diabetes"></label>
-                            <span>糖尿病</span>
-                        </li>
-                        <li>
-                            <input type="checkbox" id="arthritis" name="chronic" value="类风湿性关节炎" />
-                            <label for="arthritis"></label>
-                            <span>类风湿性关节炎</span>
-                        </li>
-                        <li>
-                            <input type="checkbox" id="ulcer" name="chronic" value="消化性溃疡" />
-                            <label for="ulcer"></label>
-                            <span>消化性溃疡</span>
-                        </li>
-                        <li>
-                            <input type="checkbox" id="hypertension" name="chronic" value="高血压" />
-                            <label for="hypertension"></label>
-                            <span>高血压</span>
-                        </li>
-                        <li>
-                            <input type="checkbox" id="Renalfailure" name="chronic" value="慢性肾功能衰竭" />
-                            <label for="Renalfailure"></label>
-                            <span>慢性肾功能衰竭</span>
-                        </li>
-                        <li>
-                            <input type="checkbox" id="Heartfailure" name="chronic" value="慢性心率衰竭" />
-                            <label for="Heartfailure"></label>
-                            <span>慢性心率衰竭</span>
-                        </li>
+
                     </ul>
 
                 </div>
@@ -92,25 +63,152 @@
 <script src="../../js/NativeCommon.js"></script>
 <script src="../../js/minirefresh/minirefresh.js"></script>
 <script>
+   var ls= localStorage.getItem("LS")
     var parem = {
         token: 'da24284f2c8544ac82a6c95eb5713ece',
-    }; 
+        // token: ls.token,
+        caccountuuid: 'd89d34b602c947d88895b00fecd5c40a',
+        collectoruuid: "03e3c9bdc82d42fdb6eb8f02262c5867",  //采集人帐号id
+        mechanismuuid: "beea1e018c034c4fbd783a28210915a0",   //机构段uuid
+        useruuid: "b1f8c362c3ba415ca5456195406c95af",       //userinfo的uuid
+        formid: '16',
+
+
+    };
+    var ale, expo;
+    var chronicdiseaseid = '5'; //慢性病
+    var exposureid = '7'; //暴露史
+    var allergyid = '4'; //过敏史
+    var allergy = ''//过敏史
+    var Exposure = ''//暴露史
+    var chronicdisease = ''//慢性病
+    var ss = ['2']
+    common.ajaxFun("get", "getOptionList/" + parem.token, '', success, 'err')
+    common.ajaxFun("get", "getExposureById/" + parem.token + "/" + exposureid, '', Esuccess, 'Eerr')
+    common.ajaxFun("get", "getAllergyById/" + parem.token + "/" + allergyid, '', Asuccess, 'Aerr')
+
+    $('#allergy').bind('input propertychange', 'textarea', function () {
+        console.log($("#allergy").val())
+        allergy = $("#allergy").val()
+
+    });
+    $('#Exposure').bind('input propertychange', 'textarea', function () {
+        console.log($("#Exposure").val())
+        Exposure = $("#Exposure").val()
+
+    });
 
     //声明函数
     function beginGet() {
         //jquery获取复选框值    
-        var chk_value = [];//定义一个数组    
+        var chk_value = [];//定义一个数组
+
         $('input[name="chronic"]:checked').each(function () {//遍历每一个名字为interest的复选框，其中选中的执行函数    
             chk_value.push($(this).val());//将选中的值添加到数组chk_value中    
+            chronicdisease = chk_value.join(',')
         });
-        console.log(chk_value)
+        console.log(chronicdisease)
+        if (chronicdisease != '' && chronicdisease != ss) {
+            parem.chronicdisease = chronicdisease
+            common.ajaxFun("post", "submitChronic", parem, succe, 'serr')
+        }
+        console.log(allergy)
+        if (allergy != '' && allergy != ale) {
+            console.log("zouzou")
+            parem.allergy = allergy
+            common.ajaxFun("post", "submitAllergy", parem, SAsucce, 'SAerr')
+        }
+        if (Exposure != '' && Exposure != expo) {
+            console.log("zouzou11")
+            parem.Exposure = Exposure
+            common.ajaxFun("post", "submitExposure", parem, SEsucce, 'SEerr')
+        }
     }
+    //提取暴露史
+    function SEsucce(data) {
+        console.log(data)
+        if (data.code == '1000' && data.msg == '操作成功') {
+            exposureid = data.data
+        }
+    }
+    function SEerr() { }
+    //提交过敏史
+    function SAsucce(data) {
+        console.log(data)
+        if (data.code == '1000' && data.msg == '操作成功') {
+            allergyid = data.data
+        }
+    }
+    function SAerr() { }
+    //获取过敏史成功
+    function Asuccess(data) {
+        console.log(data)
+        if (data.code == '1000' && data.msg == '操作成功') {
+            $("#allergy").val(data.data.allergy)
+            ale = data.data.allergy
+        }
+    }
+    //获取过敏史失败
+    function Aerr() { }
+    //获取暴露史成功
+    function Esuccess(data) {
+        console.log(data)
+        if (data.code == '1000' && data.msg == '操作成功') {
+            console.log(data.data.exposure)
+            expo = data.data.exposure
+            $("#Exposure").val(data.data.exposure)
+        }
+    }
+    //获取暴露史失败
+    function Eerr() { }
+    //获取慢性病详情
+    function Csuccess(data) {
+        console.log(data)
+        if (data.code == '1000' && data.msg == '操作成功') {
+            ss = data.data.chronicdisease
+            ss = ss.split(',');
+            //检测是不是数组的实例
+            for (var i = 0; i < ss.length; i++) {
+                var s = ss[i]
+                $("#" + s).prop("checked", 'checked')
+            }
+        }
 
-
+    }
+    function Cerr() { }
+    //提交慢性病成功
+    function succe(data) {
+        console.log(data)
+        if (data.code == '1000' && data.msg == "操作成功") {
+            chronicdiseaseid = data.data
+        }
+    }
+    function serr() { }
     function success(data) {
         console.log(data)
         if (data.code == '1000' && data.msg == '操作成功') {
+            var chooselist = data.data
+            var html = ''
+            // var list=''
+            var i = -1;
+            chooselist.forEach(function (val, index) {
 
+
+                // if (i < ss.length-1) {
+
+                //     i++
+
+                //     console.log(i)
+                // }
+
+                html += `   <li>
+                            <input type="checkbox" id="${val.optionid}" name="chronic" value="${val.optionid}" />
+                            <label for="${val.optionid}"></label>
+                            <span>${val.optionname}</span>
+                        </li>`
+            })
+            $("#evaluateFlag").append(html)
+            common.ajaxFun("get", "/getChronicById/" + parem.token + "/" + chronicdiseaseid, '', Csuccess, 'Cerr')
         }
     }
 
