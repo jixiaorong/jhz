@@ -8,12 +8,11 @@
     <!--轮播swiper -->
     <link rel="stylesheet" type="text/css" href="../../css/base.css">
     <link rel="stylesheet" href="../../css/common.css">
-    <script type="text/javascript" src="../../js/lib/jquery.min.js"></script>
     <link rel="stylesheet" type="text/css" href="../../css/login/resetpwd.css">
     <script type="text/javascript" src="../../js/jquery.min.js"></script>
     <script type="text/javascript" src="../../js/fontSize.js"></script>
     <script type="text/javascript" src="../../js/common.js"></script>
-
+    <script src="../../js/lib/common.js"></script>
 </head>
 
 <body>
@@ -125,10 +124,12 @@
              pageda.password = $.trim($("#password").val());
              pageda.confirm = $.trim($("#repsword").val());
             var orpsword = $.trim($("#orpsword").val());
-            console.log("orpsword:"+orpsword)
+            console.log("password:"+pageda.password )
+            console.log("confirm:"+pageda.confirm)
+            console.log(rgx.test( pageda.password))
+            console.log(MYCOMMON.isUsername( pageda.password))
             if ( pageda.password != '' &&  pageda.confirm != '') {
-                if (!rgx.test( pageda.password) || !MYCOMMON.isUsername( pageda.password) || !MYCOMMON.isUsername(da
-                    .confirm)) {
+                if (!rgx.test( pageda.password) || !MYCOMMON.isUsername( pageda.password) || !MYCOMMON.isUsername(da.confirm)) {
                     commonTools.Eject('密码格式错误');
                     isJump = true
                     return false;
@@ -202,8 +203,6 @@
                 url: HOST + "/api/findPwd",
                 data: JSON.stringify(params),
                 success: function (res) {
-                    console.log("设置密码：")
-                    console.log(res)
                     Success(res)
                 },
                 error: function (e) {
@@ -264,7 +263,10 @@
          * 保存登录数据成功
          * **/
         function LoginSucess(data) {
-            window.location.replace("login.html");
+            setTimeout(function(){
+                window.location.replace("login.html");
+            },600)
+            
         }
 
         //返回上一页
