@@ -36,6 +36,7 @@
 .userInfo p span{margin-left:0.2rem;}
 
 .index-frame{display:flex;height:100%;flex-direction: column;}
-.nullData{flex:1;display:flex;background-color: #fff;justify-content: center;align-items: center;}
+.nullData{flex:1;display:flex;background-color: #fff;justify-content: center;align-items: center;flex-direction: column;}
 .nullData > img{width:3.45rem;height:3.12rem;}
+.nullData > p{font-size:0.34rem;color:#666;margin-top:1rem;}
 

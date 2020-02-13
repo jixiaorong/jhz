@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>身份证扫描</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'>
+    <link rel="stylesheet" type="text/css" href="../../css/base.css">
+    <link rel="stylesheet" href="../../css/common.css">
+    <link rel="stylesheet" href="../../css/registerID.css">
+    <script src="../../js/jquery.min.js"></script>
+    <script type="text/javascript" src="../../js/fontSize.js"></script>
+    <script src="../../js/common.js"></script>
+    <style>
+        ._btn button{
+            border-radius: 5px !important;
+        }
+        
+    </style>
+
+</head>
+
+<body>
+    <div class="pageFrame">
+        <!--页头-->
+        <div class="pageHeader">
+            <div class="headerLeft">
+                <!--<img src="../images/header/header-close.png"/>-->
+                <img src="../../images/header/btn_return.png"/>
+                <!--<img src="../images/header/header-Scan.png"/>-->
+            </div>
+            <div class="headerMiddle">
+                <span class="headerMiddle-text">身份证扫描</span>
+            </div>
+            <div class="headerRight">
+                <!--<span>忘记密码</span>-->
+            </div>
+        </div>
+        <div class="pageContent">
+            <div class="scanID">
+                <div class="boxID">
+                    <div class="headID">
+                        <span>证件照正面</span>
+                        <span>清空</span>
+                    </div>
+                    <div class="contentID">
+                        <img src="../../images/ID_default2.png" >
+                    </div>
+                </div>
+
+                <div class="boxID">
+                    <div class="headID">
+                        <span>证件照反面</span>
+                        <span>清空</span>
+                    </div>
+                    <div class="contentID">
+                        <img src="../../images/ID_default2.png">
+                    </div>
+                </div>
+                <!-- 扫描获取的信息，默认不显示 -->
+                <div class="scanInfo">
+                    <div class="item">
+                        <span>姓名</span>
+                        <span>李丽</span>
+                    </div>
+                    <div class="item">
+                        <span>身份证号码</span>
+                        <span>123456789012345678</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="_btn">
+                <button id="subBtn">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../js/NativeCommon.js"></script>
+
+    <script>
+        var currDel = null // 当前要删除的对象
+
+        var curr = {
+            token: '',
+            imei: '',
+            wuuid: ""
+        }
+
+     
+        function ajaxList() {
+            // 2获取提醒列表GET 
+            common.ajaxFun("get", "a3server/appClock/clocklistv2/" + curr.token + "/" + curr.imei + "/" + curr.wuuid, '',
+                'SuccessRemind',
+                'Error');
+
+        }
+        // var data =  {"code":"1000","msg":"操作成功","time":"2020-01-14 16:54:28","data":{"notdoneList":[{"clockid":319,"clocktype":0,"clocktime":"18:37","cycle":"3","customname":""}],"isdoneList":[{"clockid":283,"clocktype":3,"clocktime":"13:04","cycle":"4,5","customname":"开始看看到你你翻翻那你那你先忙们下面你从哪你从哪看看羡慕羡慕等你"},{"clockid":287,"clocktype":3,"clocktime":"15:06","cycle":"1","customname":" 1"},{"clockid":315,"clocktype":2,"clocktime":"15:33","cycle":"1","customname":""},{"clockid":316,"clocktype":3,"clocktime":"15:34","cycle":"2","customname":"ghh"},{"clockid":317,"clocktype":1,"clocktime":"15:34","cycle":"3","customname":""},{"clockid":318,"clocktype":2,"clocktime":"15:37","cycle":"1","customname":""},{"clockid":320,"clocktype":1,"clocktime":"15:40","cycle":"1","customname":""}]}};
+
+        //         SuccessRemind(data) 
+        function SuccessRemind(data) {
+            console.log('SuccessRemind')
+            console.log(JSON.stringify(data))
+
+
+            var notdoneList = data.data || [];
+            var notdoneHtml = '';
+
+            if (data.code == '1000') {
+                commonTools.closeCurrentNotData();
+
+                // 待完成列表
+                if (notdoneList.length) {
+                    $(".incompleteItem").show()
+                    $("#incompleteUl").html('')
+                    notdoneList.forEach(function (val, index) {
+                        // 处理图标和文字
+                        let remindSrc = '../../images/a3/remind/icon-custom.png'
+                        let remindText = val.customname || ''
+                        if (val.clocktype == '0') {
+                            remindText = '吃药'
+                            remindSrc = '../../images/a3/remind/icon-drug.png'
+                        } else if (val.clocktype == '1') {
+                            remindText = '喝水'
+                            remindSrc = '../../images/a3/remind/icon-water.png'
+                        } else if (val.clocktype == '2') {
+                            remindText = '运动'
+                            remindSrc = '../../images/a3/remind/icon-motion.png'
+                        }
+
+                        // 处理星期
+                        let weekStr = ''
+                        if (val.cycle) {
+                            weekStr = weekNumToText(val.cycle)
+                        }
+
+                        notdoneHtml += `<li >  
+                                <div class="alarmremindItem" clocktype="${val.clocktype}" 
+                                    clockid="${val.clockid}" clocktime="${val.clocktime}"  
+                                    customname="${val.customname}"  cycle="${val.cycle}">
+                                    <img class="alarmremindItem-1" src="${remindSrc}" />
+                                    <div class="alarmremindItem-2">
+                                        <h3  class="yincangor">${remindText}</h3>
+                                        <p>${val.clocktime} 提醒 <span>${weekStr}</span></p>
+                                    </div>
+                                    <div class="alarmremindItem-3">
+                                        <img src="../../images/a3/icon-next.png" />
+                                    </div>
+                                    <div class="del"  clockid=${val.clockid}>删除</div>
+                                </div>
+                            </li>`
+                    })
+                    $("#incompleteUl").append(notdoneHtml)
+                    //列表点击事件
+                    $(".alarmremindItem").off().on("click", function () {
+                        var obj = {
+                            isAdd: 0,
+                            clocktype: $(this).attr("clocktype") || '', //闹钟类型 0:吃药提醒 1:喝水提醒 2:运动提醒 3:自定义 ,
+                            clockid: $(this).attr("clockid") || '',
+                            clocktime: $(this).attr("clocktime") || '',
+                            customname: $(this).attr("customname") || '',
+                            cycle: $(this).attr("cycle") || '',
+                            imei: curr.imei
+                        }
+                        common.openwin('new/html/a3/remind/remindCreateTheme', '', obj);
+                    })
+                } else {
+                    $(".incompleteItem").hide()
+                }
+
+                // 已完成和未完成 都没有数据
+                if (notdoneList.length == 0) {
+                    $('.incompleteItem').hide()
+                    commonTools.closeLoading(true);
+                    commonTools.currentNotData(true);
+                }
+
+            } else {
+                ladiFailFn(data); //加载失败
+            }
+
+            commonTools.closeLoading(true);
+
+
+            //滑动开始
+            var inputLis = document.querySelectorAll("ul li");
+            inputLis.forEach(function (ele) {
+                ele.addEventListener('touchstart', function (ev) {
+                    var oldX = ev.targetTouches[0].pageX;
+                    // console.log(oldX);
+
+                    function fnMove(ev) {
+                        var newX = ev.targetTouches[0].pageX - oldX;
+                        if (newX > 18) {
+                            ele.style.transform = 'translateX(' + newX + 'px)';
+                        }
+
+
+                    }
+
+                    function fnEnd(ev) {
+                        ele.removeEventListener('touchmove', fnMove, false);
+                        ele.removeEventListener('touchend', fnEnd, false);
+
+                        var changeX = ev.changedTouches[0].pageX;
+
+                        if ((oldX - changeX) > 50) {
+                            ele.style.transition = '0.5s all ease';
+                            ele.style.transform = 'translateX(-2rem)';
+                        } else {
+                            ele.style.transform = 'translateX(0)';
+                        }
+                    }
+                    ele.addEventListener('touchmove', fnMove, false);
+                    ele.addEventListener('touchend', fnEnd, false);
+                }, false)
+
+            })
+
+
+            // 监听删除
+            var inputItems = document.querySelectorAll(".del");
+            console.log('获取删除元素：' + JSON.stringify(inputItems))
+            inputItems.forEach(function (ele, index) {
+                ele.addEventListener('click', function (event) {
+                    event.stopPropagation();
+                    currDel = ele
+
+                    common.ajaxFun("get", "a3server/appClock/deleteclock/" + curr.token + "/" + curr
+                        .imei + "/" + $(this).attr('clockid') + "/" + curr.wuuid, '', 'SuccessDel', 'ErrorDel');
+
+                }, false)
+            })
+
+        }
+
+        function Error() {
+            commonTools.closeLoading(true);
+            commonTools.closeCurrentNotData(true);
+        }
+
+
+    </script>
+
+</body>
+
+</html>

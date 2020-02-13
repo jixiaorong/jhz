@@ -708,7 +708,6 @@ var commonTools = {
     interface : function(data){
         switch (data.code) {
             case '1000' :
-                console.log(data);
                 break;
             case '1002' :
                 alert("用户未登录")
