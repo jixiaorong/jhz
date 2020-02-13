@@ -261,11 +261,21 @@
     })
 
     function loginSuccess(res) {
-        da.userInfo = res.data;
-        localStorage.setItem('LS', JSON.stringify(da));
+        var examinestatus  = res.data.examinestatus ;// 采集员审核状态 0待审核 1已通过 2已拒绝 
+        var type = res.data.type;// 账号类型 1采集员 2用户 ,
+        
+        if(type == 1 && examinestatus == 2){
+            window.location.href = "examineFail.html"; //审核失败
+        }if(type == 1 && examinestatus == 0){
+            window.location.href = "examineFail.html"; //等待审核中
+        }else{
+            da.userInfo = res.data;
+            localStorage.setItem('LS', JSON.stringify(da));
 
-        console.log(localStorage.getItem('LS', JSON.stringify(da)))
-        window.location.href = "../index.html";
+            console.log(localStorage.getItem('LS', JSON.stringify(da)))
+            window.location.href = "../index.html";
+        }
+        
     }
 
     //忘记密码
