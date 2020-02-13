@@ -1,0 +1,40 @@
+.container{
+    padding: 0.32rem;
+}
+.container .safetytip{
+    font-size:0.28rem;
+    color:#868686;
+}
+.input_{
+background-color: #fff;
+height: 0.9rem;
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 0 0.32rem;
+}
+input{
+    font-size: 0.28rem;
+    color: #333;   
+     
+}
+input ::-webkit-input-placeholder{
+    font-size: 0.28rem;
+    color: #868686; 
+}
+.code1{
+ font-size: 0.26rem;
+ color: #868686;
+ display: block;
+ background-color: #ccc;    
+ padding:0.13rem 0.22rem;
+ border-radius: 0.4rem;
+}
+.code2{
+    font-size: 0.26rem;
+    color: #fff;
+    display: block;
+    background-color: #24c0a5;
+    padding:0.13rem 0.22rem;
+    border-radius: 0.4rem;
+   }
