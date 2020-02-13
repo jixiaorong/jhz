@@ -6,16 +6,20 @@
     <title>首页</title>
     <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'>
     <link rel="stylesheet" type="text/css" href="../../css/base.css">
+    <script type="text/javascript" src="../../js/jquery.min.js"></script>
+    <script type="text/javascript" src="../../js/common.js"></script>
     <link rel="stylesheet" href="../../css/common.css">
     <link rel="stylesheet" href="../../css/collection/recording.css">
     <link rel="stylesheet" href="../../js/minirefresh/minirefresh.css">
-    <script type="text/javascript" src="../../js/jquery.min.js"></script>
+   
     <script type="text/javascript" src="../../js/fontSize.js"></script>
+ 
 </head>
 
 
 
 <body>
+     
     <div class="pageFrame">
         <!--页头-->
         <div class="pageHeader">
@@ -36,7 +40,7 @@
             <div class="sou">
                 <div class="suo">
                     <img src="../../images/header/search_.png" alt="" class="sear">
-                    <input type="text" placeholder="快速搜索姓名">
+                    <input type="text" placeholder="快速搜索姓名" id="name">
                 </div>
             </div>
             <!-- minirefresh开头的class请勿修改 -->
@@ -60,28 +64,38 @@
 <script src="../../js/NativeCommon.js"></script>
 <script src="../../js/minirefresh/minirefresh.js"></script>
 <script>
+    
+    var ls= localStorage.getItem("LS")
     var parem = {
         num: '5',
         page: 0,
-        searchword: '额ric',  //用户姓名/身份证号查询 完整身份证号查询 如果不是进行模糊姓名查询 ,
+        searchword: '',  //用户姓名/身份证号查询 完整身份证号查询 如果不是进行模糊姓名查询 ,
         token: 'da24284f2c8544ac82a6c95eb5713ece',
 
 
 
     };
+
+    $('#name').bind('input propertychange', function () {
+        console.log($("#name").val())
+        parem.searchword = $("#name").val()
+        postAjax()
+    });
     postAjax()
-    function postAjax(){
+    function postAjax() {
         common.ajaxFun("post", "/getFormList", parem, success, "err")
     }
 
-    
+
     function success(data) {
+        commonTools.closeCurrentNotData()
         console.log(data)
         if (data.code == '1000' && data.msg == '操作成功') {
             var data = data.data;
             var Record = data.list;
-            var allCount=data.count 
+            var allCount = data.count
             var html = ''
+            $("#recordList").empty();
             Record.forEach(function (val, index) {
                 html += `  <li>
                         <div>
@@ -90,8 +104,8 @@
                                 <p>性别：${val.usersex == '1' ? '男' : '女'}</p>
                             </div>
                             <div class="recor-status">
-                                <p>录入状态：未录入</p>
-                                <p>录入日期：2020-01-02</p>
+                                <p>录入状态：<i style="${val.status =='1'?"":"color:red"}">${val.status =='1'?"已完成":"未完成"}</i></p>
+                                <p>录入日期：${val.createtime }</p>
                             </div>
                         </div>
                         <div>
@@ -100,6 +114,17 @@
                     </li>`
             })
             $("#recordList").append(html)
+
+          if(allCount == '0'){
+            commonTools.currentNotData();
+            $(".minirefresh-downwrap").hide(); //隐藏 刷新动画
+            miniRefresh.options.down.isLock = true; //不能上拉
+          }else{
+            $(".minirefresh-downwrap").show(); //显示 刷新动画
+            miniRefresh.options.down.isLock = false; //不能上拉
+            commonTools.closeCurrentNotData()
+          }
+           
             miniRefresh.endDownLoading(true, "已是最新数据");
             miniRefresh.endUpLoading($("#recordList li").length >= allCount ? true : false);
         }
