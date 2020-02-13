@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>登录-重置密码</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'>
+    <!--轮播swiper -->
+    <link rel="stylesheet" type="text/css" href="../../css/base.css">
+    <link rel="stylesheet" href="../../css/common.css">
+    <script type="text/javascript" src="../../js/lib/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../css/login/resetpwd.css">
+    <script type="text/javascript" src="../../js/jquery.min.js"></script>
+    <script type="text/javascript" src="../../js/fontSize.js"></script>
+
+</head>
+
+<body>
+    <div class="pageFrame">
+        <!--页头-->
+        <div class="pageHeader">
+            <div class="headerLeft">
+                <img src="../../images/header/header-back.png" id="goback" />
+            </div>
+            <div class="headerMiddle">
+                <span class="headerMiddle-text">重置密码</span>
+            </div>
+            <div class="headerRight">
+                <!-- <span></span> -->
+            </div>
+        </div>
+
+        <!--内容-->
+        <div class="pageContent">
+                <p class="font28_86" id="tisi">当前为<span id="myTel" style="margin:0 0.1rem;"></span>的手机号重置登录密码</p>
+                <div id="ymm" class="input_pwd" style="display:none;">
+                    <span>原密码</span>
+                    <input type="password" placeholder="请输入原密码" id="orpsword">
+                </div>
+                <div class="input_pwd border_">
+                    <span>设置密码</span>
+                    <input type="password" placeholder="请设置登录密码" id="password">
+                </div>
+                <div class="input_pwd border_">
+                    <span>确认密码</span>
+                    <input type="password" placeholder="请再次输入登录密码" id="repsword">
+                </div>
+                <p class="font28_86">您的密码需是6位以上的数字和英文字母的组合，区分
+                    大小写</p>
+                <div class="Btn Btn-Activn Btn-radius" id="btn">
+                    确认
+                </div>
+        </div>
+    </div>
+
+   
+    <script src="../../js/NativeCommon.js"></script>
+
+    <script>
+        var da = {
+            phonenum: '18842316080',
+            smscode: '7641',
+            password: '',
+            confirm: '',
+            type: '2', //2为忘记密码 0为修改密码 1为初次设置密码
+            id: ''
+        };
+
+        var isJump = true;
+
+        var rgx = /(?=.*?[a-zA-Z])(?=.*?[0-9])[a-zA-Z0-9]{6,}$/; //验证密码
+        var userdata = {
+            "token": "",
+            "userId": 0,
+            "userInfo": {
+                "address": "",
+                "age": "",
+                "areaid": "0",
+                "areaname": "",
+                "bloodtype": "",
+                "checkuserstatus": "",
+                "cityid": "467",
+                "cityname": "沈阳市",
+                "faceimage": "",
+                "muuid": "",
+                "occupation": "",
+                "phone": "",
+                "sex": "1",
+                "username": ""
+            }
+        };
+        common.getBaseInfo();
+
+        function pushData(data) {
+            data = common.disposeData(data);
+            $("#title").text(data.title);
+            $("#myTel").text(commonTools.splitTel(data.phonenum));
+            da.phonenum = data.phonenum;
+            da.smscode = data.smscode;
+            da.type = data.type;
+            da.id = data.id;
+            if (data.type == '0') {
+                $("#ymm").show();
+            } else {
+                $("#ymm").hide();
+                $("#tisi").text("您的手机号已注册，为确保安全请您设置登录密码")
+            }
+            commonTools.closeLoading(); //关闭加载动画
+        }
+
+        //获取本人信息
+        function BaseInfo(data) {
+            if (!data || data.token == '') {
+
+            } else {
+                userdata = data;
+            }
+        }
+
+
+        $("#btn").click(function () {
+
+            da.password = $.trim($("#password").val());
+            da.confirm = $.trim($("#repsword").val());
+            var orpsword = $.trim($("#orpsword").val());
+            if (da.password != '' && da.confirm != '') {
+                if (!rgx.test(da.password) || !MYCOMMON.isUsername(da.password) || !MYCOMMON.isUsername(da
+                    .confirm)) {
+                    commonTools.Eject('密码格式错误');
+                    isJump = true
+                    return false;
+                }
+            }
+
+
+            //如果是首次登陆 smscode传token
+            if (da.type == '1') {
+                da.smscode = userdata.token;
+
+
+            }
+
+            //如果修改密码smscode 传原密码
+            if (da.type == '0') {
+
+                if (orpsword == '') {
+                    commonTools.Eject('原密码不能为空');
+                    isJump = true
+                    return false;
+                }
+
+
+
+                if (orpsword != '' && da.password != '' && da.confirm != '' && !rgx.test(da.password) || !MYCOMMON.isUsername(da.password) || !MYCOMMON.isUsername(da
+                    .confirm)) {
+                    commonTools.Eject('密码格式错误');
+                }
+
+                da.smscode = orpsword;
+            }
+
+
+            if (da.password == '') {
+                commonTools.Eject('密码不能为空');
+                isJump = true
+                return false;
+            }
+
+            if (da.confirm == '') {
+                commonTools.Eject('确认密码不能为空');
+                isJump = true
+                return false;
+            }
+            if (orpsword == da.password && orpsword == da.confirm) {
+                commonTools.Eject('新密码与原密码相同');
+                isJump = true
+                return false;
+            }
+            if (da.password != da.confirm) {
+                commonTools.Eject('两次密码不同，请重新输入');
+                isJump = true;
+                return false;
+            }
+
+            if (!isJump) {
+                return false;
+            }
+            isJump = false;
+
+            common.ajaxFun("post", "member/api/resetPassword", da, 'Success', 'Error');
+            // common.ajaxFun("post","member/api/validMsg",da,Success,Error);
+        });
+
+
+        /**
+         * 请求成功
+         * **/
+        function Success(data) {
+            if (data.code == '1000') {
+                if (da.type == '0') {
+                    isJump = false;
+                    commonTools.Eject('密码修改成功', function () {
+                        Determine()
+
+                    });
+                } else if (da.type == '2') {
+                    isJump = false;
+                    Determine();
+                } else if (da.type == '1') {
+                    isJump = false;
+                    commonTools.Eject('密码设置成功', function () {
+                        Determine()
+                    });
+                }
+
+            } else {
+                isJump = true;
+                commonTools.Eject(data.msg);
+            }
+        }
+
+        function Determine() {
+            userdata.token = '';
+            userdata.userId = 0;
+            userdata.userInfo.username = '';
+            userdata.userInfo.phone = '';
+            userdata.userInfo.age = '';
+            userdata.userInfo.faceimage = '';
+            userdata.userInfo.muuid = '';
+            common.setBaseInfo(userdata);
+            common.sinGout();
+
+        }
+
+        /**
+         * 请求失败
+         * **/
+        function Error() {
+            isJump = true;
+            commonTools.Eject("网络连接异常");
+        }
+        /**
+         * 保存登录数据成功
+         * **/
+        function LoginSucess(data) {
+            common.openwin('new/html/login/phoneLogin', '', '');
+            common.goback();
+        }
+
+        //返回上一页
+        $('#goback').click(function () {
+            window.history.back(-1);
+        })
+    </script>
+</body>
+
+</html>
