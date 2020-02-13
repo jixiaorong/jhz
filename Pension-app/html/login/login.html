@@ -50,7 +50,7 @@
                     </div>
                     <div class="row">
                         <input type="text" class="input code" placeholder="请输入验证码" />
-                        <div class="getCodeBtn getCodeBtnActive"  id="getCodeBtn">获取验证码</div>
+                        <div class="getCodeBtn getCodeBtnActive" id="getCodeBtn">获取验证码</div>
                         <div class="getCodeBtn wid50 countdown"></div>
                     </div>
                 </div>
@@ -67,13 +67,12 @@
 </body>
 <script src="../../js/NativeCommon.js"></script>
 <script>
+    // collectoruuid: "03e3c9bdc82d42fdb6eb8f02262c5867",
+    // mechanismuuid: "beea1e018c034c4fbd783a28210915a0",
+    // useruuid: "b1f8c362c3ba415ca5456195406c95af"
     var da = {
-        token: 'da24284f2c8544ac82a6c95eb5713ece',  //token
-        userInfo: {
-            collectoruuid: "03e3c9bdc82d42fdb6eb8f02262c5867",
-            mechanismuuid: "beea1e018c034c4fbd783a28210915a0",
-            useruuid: "b1f8c362c3ba415ca5456195406c95af"
-        }, //登录的用户信息
+        token: '',  //da24284f2c8544ac82a6c95eb5713ece
+        userInfo: {}, //登录的用户信息
         TData: {}, //页面跳转需要传递的数据
     }
     var HOST = 'http://47.94.3.197:28180/';
@@ -81,8 +80,8 @@
     var Timer = ''; //定时器控制器
     var code = '';  //验证码
     var regexPhone = /^1[1,3,5,6,7,8,9]\d{9}$/;  //手机号验证规则
-    
-    document.body.addEventListener('touchstart', function() {}); //移动端给元素添加:active效果
+    // localStorage.clear('LS')
+    document.body.addEventListener('touchstart', function () { }); //移动端给元素添加:active效果
 
     //切换登录方式
     $('#tab').children('.li').on('click', function () {
@@ -110,17 +109,17 @@
         }
 
     })
-    
+
     //倒计时
     function CountDown() {
         $('#getCodeBtn').hide();
-        $('.countdown').show().text(countdown+'s');
+        $('.countdown').show().text(countdown + 's');
         countdown--;
         Timer = setInterval(function () {
-            $('.countdown').show().text(countdown+'s');
+            $('.countdown').show().text(countdown + 's');
             countdown--;
             //console.log(countdown)
-            if (countdown == 0) {
+            if (countdown == -1) {
                 clearInterval(Timer);
                 countdown = 60;
                 $('#getCodeBtn').show();
@@ -128,41 +127,48 @@
             }
         }, 1000)
     }
-    
+
     //发送短信验证码事件
     $('#getCodeBtn').click(function () {
         var phone = $.trim($('.phone').val());
-        if (regexPhone.test(phone)) {//手机号正确
-            if (countdown == 60) {
-                var params = {
-                    phonenum: phone,
-                    smscodeType: 0, //短信类型 0:登录，1:注册，2：忘记密码
+        if (phone != '') {
+            if (regexPhone.test(phone)) {//手机号正确
+                if (countdown == 60) {
+                    var params = {
+                        phonenum: phone,
+                        smscodeType: 0, //短信类型 0:登录，1:注册，2：忘记密码
+                    }
+
+                    $.ajax({
+                        type: "POST",
+                        contentType: "application/json;charset=UTF-8",
+                        url: HOST + "/api/sendMsg",
+                        data: JSON.stringify(params),
+                        success: function (res) {
+                            console.log(res);
+                            if (res.code == '1000') {
+                                CountDown(); //开始倒计时
+                            } else {
+                                commonTools.Eject(res.msg)
+                            }
+                        },
+                        error: function (e) {
+                            console.log(e.status);
+                            console.log(e.responseText);
+                        }
+                    });
+
                 }
 
-                $.ajax({
-                    type : "POST",
-                    contentType: "application/json;charset=UTF-8",
-                    url : HOST + "/api/sendMsg",
-                    data : JSON.stringify(params),
-                    success : function(res) {
-                        console.log(res);
-                        if(res.code == '1000'){
-                            CountDown(); //开始倒计时
-                        }else{
-                            commonTools.Eject(res.msg)
-                        }
-                    },
-                    error : function(e){
-                        console.log(e.status);
-                        console.log(e.responseText);
-                    }
-                });
-                
+            } else {//手机号错误
+                commonTools.Eject('手机号格式错误');
+                $('.form').find('.phone').focus();
+                return false;
             }
-
-        } else {//手机号错误
-            commonTools.Eject('手机号格式错误');
+        } else {
+            commonTools.Eject('手机号不能为空');
             $('.form').find('.phone').focus();
+            return false;
         }
 
     })
@@ -179,33 +185,33 @@
                 password: password,
             }
             console.log(params)
-            if(params.useraccount == ''){
+            if (params.useraccount == '') {
                 commonTools.Eject('请输入登录账号');
                 return false;
             }
-            if(params.password == ''){
+            if (params.password == '') {
                 commonTools.Eject('请输入登录密码');
                 return false;
             }
-            
+
 
             $.ajax({
-                type : "POST",
+                type: "POST",
                 contentType: "application/json;charset=UTF-8",
-                url : HOST + "/api/userLogin",
-                data : JSON.stringify(params),
-                success : function(res) {
+                url: HOST + "/api/userLogin",
+                data: JSON.stringify(params),
+                success: function (res) {
                     console.log(res);
-                    
-                    if(res.code == '1000'){
+
+                    if (res.code == '1000') {
                         loginSuccess(res);
-                    }else{
+                    } else {
                         commonTools.Eject(res.msg);
                         return false;
                     }
-                   
+
                 },
-                error : function(e){
+                error: function (e) {
                     console.log(e.status);
                     console.log(e.responseText);
                 }
@@ -215,38 +221,38 @@
             var msgcode = $.trim($('.code').val());
             var params = {
                 useraccount: useraccount,
-                msgcode: msgcode ,
+                msgcode: msgcode,
             }
             console.log(params)
-            if(params.useraccount == ''){
+            if (params.useraccount == '') {
                 commonTools.Eject('请输入手机号');
                 return false;
             }
-            if(regexPhone.test(params.useraccount) == ''){
+            if (!regexPhone.test(params.useraccount)) {
                 commonTools.Eject('手机号格式错误');
                 return false;
             }
-            if(params.msgcode == ''){
+            if (params.msgcode == '') {
                 commonTools.Eject('请输入验证码');
                 return false;
             }
-            
+
             $.ajax({
-                type : "POST",
+                type: "POST",
                 contentType: "application/json;charset=UTF-8",
-                url : HOST + "/api/userLoginByCode",
-                data : JSON.stringify(params),
-                success : function(res) {
+                url: HOST + "/api/userLoginByCode",
+                data: JSON.stringify(params),
+                success: function (res) {
                     console.log(res);
-                    if(res.code == '1000'){
+                    if (res.code == '1000') {
                         loginSuccess(res);
-                    }else{
+                    } else {
                         commonTools.Eject(res.msg);
                         return false;
                     }
-                   
+
                 },
-                error : function(e){
+                error: function (e) {
                     console.log(e.status);
                     console.log(e.responseText);
                 }
@@ -254,21 +260,21 @@
         }
     })
 
-    function loginSuccess(res){
+    function loginSuccess(res) {
         da.userInfo = res.data;
-        localStorage.setItem('LS',JSON.stringify(da));
-        
-        console.log(localStorage.getItem('LS',JSON.stringify(da)))
-        window.location.href="../index.html";
+        localStorage.setItem('LS', JSON.stringify(da));
+
+        console.log(localStorage.getItem('LS', JSON.stringify(da)))
+        window.location.href = "../index.html";
     }
 
     //忘记密码
-    $('#forgetpas').click(function(){
-        window.location.href="forgotpwd.html";
+    $('#forgetpas').click(function () {
+        window.location.href = "forgotpwd.html";
     })
     //注册
-    $('#register').click(function(){
-        window.location.href="register.html";
+    $('#register').click(function () {
+        window.location.href = "register.html";
     })
 </script>
 
