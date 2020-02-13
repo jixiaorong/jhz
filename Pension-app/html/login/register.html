@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>注册</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <link rel="stylesheet" type="text/css" href="../../css/base.css">
+    <link rel="stylesheet" href="../../css/common.css">
+    <link rel="stylesheet" href="../../css/login/login.css?version=1.2.1">
+    <script type="text/javascript" src="../../js/jquery.min.js"></script>
+    <script type="text/javascript" src="../../js/fontSize.js"></script>
+</head>
+
+<body>
+    <div class="pageFrame">
+        <!--页头-->
+        <div class="pageHeader">
+            <div class="headerLeft">
+                <img src="../../images/header/header-back.png" id="goback"/>
+            </div>
+            <div class="headerMiddle">
+                <span class="headerMiddle-text">注册</span>
+            </div>
+            <div class="headerRight">
+                <!-- <span></span> -->
+            </div>
+        </div>
+
+        <!--内容-->
+        <div class="pageContent">
+            <div class="login_form register_form">
+                <div class="form">
+                    <div class="row">
+                        <input type="text" class="input phone" placeholder="请输入手机号" />
+                    </div>
+                    <div class="row">
+                        <input type="text" class="input code" placeholder="请输入验证码" />
+                        <div class="getCodeBtn2"  id="getCodeBtn">获取验证码</div>
+                        <div class="getCodeBtn2 wid50 countdown"></div>
+                    </div>
+                    <div class="row">
+                        <input type="password" class="input password" placeholder="请设置登录密码" />
+                        <i class="see_icon nosee isSee"><img src="../../images/login/nosee.png" /></i>
+                    </div>
+                    <div class="row">
+                        <input type="password" class="input confirmpassword" placeholder="确认密码" />
+                        <i class="see_icon nosee isSee"><img src="../../images/login/nosee.png" /></i>
+                    </div>
+                </div>
+
+                <div class="zcnotice">
+                    <div class="text">注册代表同意</div>
+                    <span id="agreement">《用户协议》</span>
+                </div>
+
+                <div class="loginBtn btnActive" id="nextStep">下一步</div>
+                
+            </div>
+        </div>
+    </div>
+</body>
+<script src="../../js/NativeCommon.js"></script>
+<script>
+    var countdown = 60; //倒计时60s
+    var Timer = ''; //定时器控制器
+    var code = '';  //验证码
+    var regexPhone = /^1[1,3,5,6,7,8,9]\d{9}$/;  //手机号验证规则
+
+    document.body.addEventListener('touchstart', function() {}); //移动端给元素添加:active效果
+
+    //密码值是否显示切换功能
+    $('.isSee').click(function () {
+        var isSee = $(this).hasClass('nosee');
+        if (isSee) {
+            $(this).removeClass('nosee');
+            $(this).find('img').attr('src', '../../images/login/see.png');
+            $('.password').attr('type', 'text');
+        } else {
+            $(this).addClass('nosee');
+            $(this).find('img').attr('src', '../../images/login/nosee.png');
+            $('.password').attr('type', 'password');
+        }
+
+    })
+    //倒计时
+    function CountDown() {
+        $('#getCodeBtn').hide();
+        $('.countdown').show().text(countdown+'s');
+        countdown--;
+        Timer = setInterval(function () {
+            $('.countdown').show().text(countdown+'s');
+            countdown--;
+            //console.log(countdown)
+            if (countdown == 0) {
+                clearInterval(Timer);
+                countdown = 60;
+                $('#getCodeBtn').show();
+                $('.countdown').hide();
+            }
+        }, 1000)
+    }
+    
+    //发送短信验证码事件
+    $('#getCodeBtn').click(function () {
+        var phone = $('.form').find('.phone').val();
+        if (regexPhone.test(phone)) {//手机号正确
+            if (countdown == 60) {
+                var params = {
+                    phonenum: phone,
+                    smscodeType: 1, //短信类型 0:登录，1:注册，2：忘记密码
+                }
+
+                $.ajax({
+                    type : "POST",
+                    contentType: "application/json;charset=UTF-8",
+                    url : HOST + "/api/sendMsg",
+                    data : JSON.stringify(params),
+                    success : function(res) {
+                        console.log(res);
+                        if(res.data == '1000'){
+                            CountDown(); //开始倒计时
+                        }else{
+                            commonTools.Eject(res.msg);
+                        }
+                    },
+                    error : function(e){
+                        console.log(e.status);
+                        console.log(e.responseText);
+                    }
+                });
+            }
+
+        } else {//手机号错误
+            commonTools.Eject('手机号格式错误');
+            $('.form').find('.phone').focus();
+        }
+
+    })
+
+    //下一步
+    $('#nextStep').on('click', function () {
+        var params = {
+            caccountuuid: caccountuuid, //采集员账号uuid
+            idcardeffectivetime: idcardeffectivetime, //身份证有效期 ,
+            issueorganization: issueorganization, //发证机关 ,
+            nation: nation, //民族 ,
+            password: password, //密码 ,
+            useraccount: useraccount, //账号 ,
+            useraddress: useraddress, //地址 ,
+            userage: userage, //生日 ,
+            useridcard: useridcard, //身份证号 ,
+            useridcardimg: useridcardimg, //: 身份证正面图片路径 ,
+            useridcardimgb: useridcardimgb, //身份证背面图片路径 ,
+            username: username, //姓名 ,
+            userphone: userphone, //电话 ,
+            usersex: usersex, //性别 1男 2女
+        }
+        $.ajax({
+            type : "POST",
+            contentType: "application/json;charset=UTF-8",
+            url : HOST + "/api/userRegister",
+            data : JSON.stringify(params),
+            success : function(res) {
+                console.log(res);
+                if(res.data == '1000'){
+                    // da.userInfo = res.data;
+                    // localStorage.setItem('LS',JSON.stringify(da));
+                    // console.log(localStorage.getItem('LS',JSON.stringify(da)))
+                }
+                
+            },
+            error : function(e){
+                console.log(e.status);
+                console.log(e.responseText);
+            }
+        });
+    })
+
+     //用户协议
+     $('#agreement').click(function(){
+        window.location.href="../tips/userAgreement.html";
+    })
+    //返回上一页
+    $('#goback').click(function(){
+        window.history.back(-1);
+    })
+</script>
+
+</html>
