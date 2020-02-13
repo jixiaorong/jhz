@@ -1,0 +1,28 @@
+.history{width:100%;background-color: #fff;margin-bottom: 0.2rem;padding: 0.32rem 0.32rem;}
+.history p{font-size: 0.3rem;color: #333;font-weight: 700;margin-bottom: 0.1rem;}
+.topic{display: flex;align-items: center;justify-content: space-between;}
+.topic span{display: inline-block;border:1px solid #2dcdb0;font-size: 0.24rem;color: #2dcdb0;padding: 0.02rem 0.15rem;}
+#checkboxFourInput{
+    visibility: hidden;
+}
+#checkboxFourInput+label{
+    background-color: white;
+    border-radius: 50px;
+    border: 2px solid #b55959;
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 20px;
+}
+#checkboxFourInput:checked + label{
+    background-color: #fff;
+
+}
+#checkboxFourInput:checked + label:after{
+    content:2022;
+   
+    /* border-radius:100%; */
+    color: #2dcdb0;
+}

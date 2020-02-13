@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>首页</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'>
+    <link rel="stylesheet" type="text/css" href="../../css/base.css">
+    <link rel="stylesheet" href="../../css/common.css">
+    <link rel="stylesheet" href="../../css/collection/healthCollection.css">
+    <link rel="stylesheet" href="../../js/minirefresh/minirefresh.css">
+    <script type="text/javascript" src="../../js/jquery.min.js"></script>
+    <script type="text/javascript" src="../../js/fontSize.js"></script>
+</head>
+
+
+
+<body>
+    <div class="pageFrame">
+        <!--页头-->
+        <div class="pageHeader">
+            <div class="headerLeft">
+                <img src="../../images/header/btn_return.png" />
+                <!--<img src="../images/header/header-Scan.png"/>-->
+            </div>
+            <div class="headerMiddle">
+                <span class="headerMiddle-text">健康采集</span>
+            </div>
+            <div class="headerRight">
+                <!--<span>忘记密码</span>-->
+            </div>
+        </div>
+
+        <!--内容-->
+        <div class="pageContent">
+            <div class="history">
+                <p>药物过敏史</p>
+                <textarea name="" id="" cols="30" rows="3" placeholder="请输入药物过敏史"></textarea>
+            </div>
+            <div class="history">
+                    <p>暴露史</p>
+                    <textarea name="" id="" cols="30" rows="3" placeholder="请输入暴露史"></textarea>
+            </div>
+            <div class="history">
+                <div class="topic"><p>慢性病</p> <span>多选 </span> </div>
+                  <div class="choosePwd">
+                        <input type="checkbox" id="checkboxFourInput" name="chronic" value="1"/>
+                        <label for="checkboxFourInput"></label>
+                      <!-- <form action="">
+                          <input type="checkbox" name="chronic" value="1"> 
+                            <input type="checkbox" name="chronic"  value='2'>类风湿性关节炎
+                            <input type="checkbox" name="chronic" value="3">消化性溃疡
+                      </form> -->
+                      
+                  </div>
+                   
+            </div>
+        </div>
+        <!--页尾-->
+        <div class="pageFooter">
+            <input class="btn-big Darkgreen" type="button" value="提交">
+        </div>
+    </div>
+</body>
+<script src="../../js/NativeCommon.js"></script>
+<script src="../../js/minirefresh/minirefresh.js"></script>
+<script>
+    var parem = {
+        num: '5',
+        page: 0,
+        searchword: '额ric',  //用户姓名/身份证号查询 完整身份证号查询 如果不是进行模糊姓名查询 ,
+        token: 'da24284f2c8544ac82a6c95eb5713ece',
+
+
+
+    };
+    postAjax()
+    function postAjax() {
+        common.ajaxFun("post", "/getFormList", parem, success, "err")
+    }
+
+
+    function success(data) {
+        console.log(data)
+        if (data.code == '1000' && data.msg == '操作成功') {
+
+        }
+    }
+    function err() { }
+
+</script>
+
+</html>

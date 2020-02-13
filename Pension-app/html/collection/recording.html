@@ -1,0 +1,135 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>首页</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'>
+    <link rel="stylesheet" type="text/css" href="../../css/base.css">
+    <link rel="stylesheet" href="../../css/common.css">
+    <link rel="stylesheet" href="../../css/collection/recording.css">
+    <link rel="stylesheet" href="../../js/minirefresh/minirefresh.css">
+    <script type="text/javascript" src="../../js/jquery.min.js"></script>
+    <script type="text/javascript" src="../../js/fontSize.js"></script>
+</head>
+
+
+
+<body>
+    <div class="pageFrame">
+        <!--页头-->
+        <div class="pageHeader">
+            <div class="headerLeft">
+                <img src="../../images/header/btn_return.png" />
+                <!--<img src="../images/header/header-Scan.png"/>-->
+            </div>
+            <div class="headerMiddle">
+                <span class="headerMiddle-text">采集记录</span>
+            </div>
+            <div class="headerRight">
+                <!--<span>忘记密码</span>-->
+            </div>
+        </div>
+
+        <!--内容-->
+        <div class="pageContent">
+            <div class="sou">
+                <div class="suo">
+                    <img src="../../images/header/search_.png" alt="" class="sear">
+                    <input type="text" placeholder="快速搜索姓名">
+                </div>
+            </div>
+            <!-- minirefresh开头的class请勿修改 -->
+            <div id="minirefresh" class="minirefresh-wrap" style="margin-top:0.72rem;">
+                <div class="minirefresh-scroll">
+                    <div class="recordList">
+                        <ul id="recordList">
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <!--页尾-->
+        <div class="pageFooter">
+            <!-- <input class="btn-big Darkgreen" type="button" value="扫描采集"> -->
+        </div>
+    </div>
+</body>
+<script src="../../js/NativeCommon.js"></script>
+<script src="../../js/minirefresh/minirefresh.js"></script>
+<script>
+    var parem = {
+        num: '5',
+        page: 0,
+        searchword: '额ric',  //用户姓名/身份证号查询 完整身份证号查询 如果不是进行模糊姓名查询 ,
+        token: 'da24284f2c8544ac82a6c95eb5713ece',
+
+
+
+    };
+    postAjax()
+    function postAjax(){
+        common.ajaxFun("post", "/getFormList", parem, success, "err")
+    }
+
+    
+    function success(data) {
+        console.log(data)
+        if (data.code == '1000' && data.msg == '操作成功') {
+            var data = data.data;
+            var Record = data.list;
+            var allCount=data.count 
+            var html = ''
+            Record.forEach(function (val, index) {
+                html += `  <li>
+                        <div>
+                            <div class="recor-name">
+                                <p>姓名：${val.username}</p>
+                                <p>性别：${val.usersex == '1' ? '男' : '女'}</p>
+                            </div>
+                            <div class="recor-status">
+                                <p>录入状态：未录入</p>
+                                <p>录入日期：2020-01-02</p>
+                            </div>
+                        </div>
+                        <div>
+                            <img src="${val.useridcardimg}" alt="">
+                        </div>
+                    </li>`
+            })
+            $("#recordList").append(html)
+            miniRefresh.endDownLoading(true, "已是最新数据");
+            miniRefresh.endUpLoading($("#recordList li").length >= allCount ? true : false);
+        }
+    }
+    function err() { }
+    // 上拉加载
+    var miniRefresh = new MiniRefresh({
+        container: '#minirefresh',
+        isScrollBar: false,
+        down: {
+            callback: function () {
+                // 下拉事件
+                $("#recordList").empty();
+                parem.page = 0;
+                // commonTools.loading();
+                postAjax();
+            }
+        },
+        up: {
+            isAuto: false,
+            loadFull: {
+                isEnable: false,
+            },
+            callback: function () {
+                parem.page++;
+                postAjax();
+
+            }
+        }
+    });
+</script>
+
+</html>
