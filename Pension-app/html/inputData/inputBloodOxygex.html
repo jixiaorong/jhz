@@ -83,7 +83,9 @@
 </body>
 <script src="../../js/NativeCommon.js"></script>
 <script>
+    console.log(localStorage.getItem("LS"))
     var localInfo = localStorage.getItem("LS") ? JSON.parse(localStorage.getItem("LS")) : {};//本地的存储信息
+    
     var localData = {
         token: "da24284f2c8544ac82a6c95eb5713ece",
         form: {

@@ -93,11 +93,19 @@
     </div>
     <!--页尾-->
     <div class="pageFooter">
-        <input class="btn-big Darkyellow" type="button" value="上一步">
-        <input class="btn-big Darkgreen" type="button" value="下一步">
+        <input id="prev" class="btn-big Darkyellow" type="button" value="上一步">
+        <input id="next" class="btn-big Darkgreen" type="button" value="下一步">
     </div>
 </div>
+<script src="../../../js/NativeCommon.js"></script>
 <script>
+    var ls = {
+        token : 'da24284f2c8544ac82a6c95eb5713ece',
+        caccountuuid : '03e3c9bdc82d42fdb6eb8f02262c5867',
+        // caccountuuid : '222222',
+        mechanismuuid: "beea1e018c034c4fbd783a28210915a0",
+        useruuid: "b1f8c362c3ba415ca5456195406c95af",
+    }
     var info = {
         name : '',
         id : '',
@@ -244,9 +252,73 @@
     }
 
 
+    //获取个人信息
+    common.ajaxFun("get", "getUrineDetail/"+ls.token+'/5' , "", Success, Error);
 
+    //图表数据成功
+    function Success(data){
+        console.log(data);
+        if(commonTools.interface(data)){
+            //判断没有数据
+            if(data.data == ''){
+
+                return false;
+            }
+        }
+    }
+
+    //图表数据失败
+    function Error(){
+        commonTools.Eject("网络连接异常")
+    }
+
+
+    //提交数据
+    $("#next").click(function(){
+        var data ={
+            "bil": $("#BIL").text(),
+            "bld": $("#BLD").text(),
+            "caccountuuid": ls.caccountuuid,
+            "cre": $("#CR").text(),
+            "formid": 16,
+            "glu": $("#GLU").text(),
+            "ket": $("#KET").text(),
+            "leu": $("#WBC").text(),
+            "mca": $("#mAib").text(),
+            "mechanismuuid": ls.mechanismuuid,
+            "nit": $("#NIT").text(),
+            "ph": $("#pH").text(),
+            "pro": $("#PRO").text(),
+            "sg": $("#SG").text(),
+            "token": ls.token,
+            "type": 1,
+            "uca": $("#NG").text(),
+            "uro": $("#UBG").text(),
+            "useruuid": ls.useruuid,
+            "vc": $("#VC").text(),
+        }
+
+        //提交接口
+        common.ajaxFun("post", "addUrine" , data, submitSuccess, submitError);
+    })
+
+    //提交成功
+    function submitSuccess(data){
+        console.log(data);
+        if(commonTools.interface(data)){
+            //判断没有数据
+            if(data.data == ''){
+
+                return false;
+            }
+        }
+    }
+
+    //提交失败
+    function submitError(){
+        commonTools.Eject("网络连接异常")
+    }
 
 </script>
 </body>
-<script src="../../../js/NativeCommon.js"></script>
 </html>
