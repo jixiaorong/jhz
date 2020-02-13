@@ -11,6 +11,7 @@
     <link rel="stylesheet" type="text/css" href="../../css/login/verification.css">
     <script type="text/javascript" src="../../js/jquery.min.js"></script>
     <script type="text/javascript" src="../../js/fontSize.js"></script>
+    <script type="text/javascript" src="../../js/common.js"></script>
     <style>
         input {
             position: absolute;
@@ -21,6 +22,7 @@
             opacity: 0.9;
             z-index: -999;
             outline: none;
+            opacity:0;
         }
     </style>
     <script src="../../js/lib/Screening_function.js"></script>
@@ -43,34 +45,34 @@
 
         <!--内容-->
         <div class="pageContent">
-                <p class="font28_86">输入发送到以下电话号码的验证码</p>
-                <p class="font34_60" id="myTel"></p>
-                <div class="code_num">
-                    <div class="container" id="test">
-                        <div class="val-box" id="val-box">
-                            <input id="val-code-input" type="tel" maxlength="4" onkeyup="module.checkForNum(this)"
-                                onselectstart="return false;" onblur="module.checkForNum(this)" />
-                            <div name="val-item"></div>
-                            <div name="val-item"></div>
-                            <div name="val-item"></div>
-                            <div name="val-item"></div>
-                        </div>
+            <p class="font28_86">输入发送到以下电话号码的验证码</p>
+            <p class="font34_60" id="myTel"></p>
+            <div class="code_num">
+                <div class="container" id="test">
+                    <div class="val-box" id="val-box">
+                        <input id="val-code-input" type="tel" maxlength="4" onkeyup="module.checkForNum(this)"
+                            onselectstart="return false;" onblur="module.checkForNum(this)" />
+                        <div name="val-item"></div>
+                        <div name="val-item"></div>
+                        <div name="val-item"></div>
+                        <div name="val-item"></div>
                     </div>
                 </div>
-        
-                <div id="djs" class="login-div">
-                    <span class="font28_81">请稍后</span>
-                    <span id="outTime" class="code1">60</span>
-                </div>
-                <div id="fs" class="login-div">
-                    <!--<p class="font28_81">没有收到验证码？</p>-->
-                    <span class="font28_81">点击</span>
-                    <a href="javascript:;" id="sendCode">发送验证码</a>
-                </div>
+            </div>
+
+            <div id="djs" class="login-div">
+                <span class="font28_81">请稍后</span>
+                <span id="outTime" class="code1">60</span>
+            </div>
+            <div id="fs" class="login-div">
+                <!--<p class="font28_81">没有收到验证码？</p>-->
+                <span class="font28_81">点击</span>
+                <a href="javascript:;" id="sendCode">发送验证码</a>
+            </div>
         </div>
     </div>
 
-    
+
     <script type="text/javascript"
         src="http://api.map.baidu.com/api?v=2.0&ak=QYOFLMzGwijnSGp0DgaL0jg239iLHw3E"></script>
     <script src="../../js/NativeCommon.js"></script>
@@ -80,7 +82,7 @@
             outTime: 60,   //倒计时时间
             Timer: null,     //倒计时控制器
             n: 0,    //倒计时实际秒数
-            isLogin: '0',   //  0 登录   1注册   2忘记密码
+            isLogin: 2,   //  0 登录   1注册   2忘记密码
             isCode: true,    //限制只能一次验证码验证请求
             isSubmit: false,   //是否再次发送短信验证码
             code: ''    //验证码
@@ -91,24 +93,8 @@
         var valCodeLength = 0;
         var userdata = {} //用户信息
 
-
-        function pushData(data) {
-            data = common.disposeData(data);
-            $('#myTel').text(commonTools.splitTel(data.phonenum));   //用户输入的手机号
-            $("#title").text(data.title);      //修改header名字
-            $("#outTime").text(_this.outTime + 's');      //倒计时时间
-            _this.phone = data.phonenum;   //手机号
-            _this.isLogin = data.smscodeType;   //验证码类型
-
-
-            clearInterval(_this.Timer);//清除倒计时
-            _this.Timer = null;    //清除倒计时
-
-            $("#djs").show();
-            module.startRun(data);
-        }
-
-
+        var da = JSON.parse(localStorage.getItem('LS'));
+        console.log(da)
         var module = {
             /**
              * 页面开始运行
@@ -131,27 +117,40 @@
                     }
                 }, 1000);
             },
-
             /**
              * 提交验证码
              * **/
             codeAjax: function (code) {
                 if (_this.isCode) {
-                    var da = {
+                    var params = {
                         phonenum: _this.phone,   //手机号
                         smscodeType: _this.isLogin,    //验证类型  0 登录 ， 2忘记密码
+                        //smscodeType:2,
                         msg: code,   //验证码
                         devtype: common.ostype(),
                         // devId : common.getDevId(),//common.getDevId()
                         devId: '',//common.getDevId()
                     };
-                    // common.ajaxFun("post","member/api/validMsg",da,codeSuccess,codeError);
-                    common.ajaxFun("post", "member/api/validMsg", da, 'codeSuccess', 'codeError');
+                    console.log("提交验证码：")
+                    console.log(params)
+                     //验证码验证
+                        $.ajax({
+                            type: "GET",
+                            contentType: "application/json;charset=UTF-8",
+                            url: HOST + "/api/check/" + params.phonenum + "/" + params.msg + "/"+params.smscodeType,
+                            success: function (res) {
+                                console.log(res);
+                                codeSuccess(res)
+
+                            },
+                            error: function (e) {
+                                codeError(e)
+                            }
+                        });
                     _this.isCode = false;  //禁止再次发送
                 }
 
             },
-
             /**
              * 检测输入格式
              * **/
@@ -159,6 +158,19 @@
                 obj.value = obj.value.replace(/[\D]/g, '');
             }
         }
+        
+        //页面参数初始化
+        var data = da.TData;
+        $('#myTel').text(commonTools.splitTel(data.phonenum));   //用户输入的手机号
+        $("#outTime").text(_this.outTime + 's');      //倒计时时间
+        _this.phone = data.phonenum;   //手机号
+        _this.isLogin = data.smscodeType;   //短信类型 0:登录，1:注册，2：忘记密码
+
+        clearInterval(_this.Timer);//清除倒计时
+        _this.Timer = null;    //清除倒计时
+        $("#djs").show();
+        module.startRun(data);
+
 
         /***********************************************************************************************
          * 事件
@@ -172,12 +184,23 @@
             if (!_this.isSubmit) {
                 return false;
             }
-            var da = {
+            var params = {
                 phonenum: _this.phone,
                 smscodeType: _this.isLogin,    // 2为 忘记密码
             };
-            // common.ajaxFun("post","member/api/sendMsg",da,phoneSuccess,phoneErr);
-            common.ajaxFun("post", "member/api/sendMsg", da, 'phoneSuccess', 'phoneErr');
+            $.ajax({
+                type: "POST",
+                contentType: "application/json;charset=UTF-8",
+                url: HOST + "/api/sendMsg",
+                data: JSON.stringify(params),
+                success: function (res) {
+                    console.log(res)
+                    phoneSuccess(res)
+                },
+                error: function (e) {
+                    phoneErr(e)
+                }
+            });
         });
 
 
@@ -283,50 +306,20 @@
                 commonTools.Eject("验证成功");
 
 
-                _this.isLogin = data.data.status.toString();
-                userdata = data.data.user;
-                //新用户注册
-                if (data.data.status == 1) {
-                    /**
-                     * 百度地图定位
-                     * **/
-                    var map = new BMap.Map("allmap");
-                    var geolocation = new BMap.Geolocation();
-                    geolocation.getCurrentPosition(function (r) {
-                        if (this.getStatus() == BMAP_STATUS_SUCCESS) {
-                            if (r.accuracy == null) {
-                                //用户决绝地理位置授权   赋予默认值
-                                userdata.userInfo.cityid = 467;
-                                userdata.userInfo.cityname = "沈阳市";
-                                userdata.userInfo.sex = '1';
-                                userdata.userInfo.age = Screening.timestampToTime((new Date()).getTime());
-                                common.setBaseInfo(userdata);
-                                return;
-                            }
-                            common.ajaxFun("get", "base/api/getCityIdByName/" + r.address.city, '', 'locaSuccess',
-                                'locaError');
-                        }
-                    }, {
-                        enableHighAccuracy: true
-                    });
-                }
-                //忘记密码
-                else if (data.data.status == 2) {
-                    var da = {
-                        title: '重置密码',
-                        phonenum: _this.phone,
-                        smscode: _this.code,
-                        type: _this.isLogin
-                    };
-                    //忘记密码进来，跳到重置密码
-                    setTimeout(function () {
-                        common.openwin('new/html/login/resetpwd', '', da);
-                        common.goback();
-                    }, 2000);
-                } else {
-                    common.setBaseInfo(data.data.user);
-                    common.goback();
-                }
+                var TData = {
+                    title: '重置密码',
+                    phonenum: _this.phone,
+                    smscode: _this.code,
+                    type: _this.isLogin
+                };
+                da.TData = TData;
+                console.log(da)
+                localStorage.setItem('LS',JSON.stringify(da));
+                
+                //忘记密码进来，跳到重置密码
+                setTimeout(function () {
+                    window.location.href = "resetpwd.html";
+                }, 2000);
 
             } else {
                 commonTools.Eject(data.msg)
@@ -393,8 +386,8 @@
             }
         }
 
-         //重置密码
-         $('#forgetpas').click(function () {
+        //重置密码
+        $('#forgetpas').click(function () {
             window.location.href = "resetpwd.html";
         })
 
