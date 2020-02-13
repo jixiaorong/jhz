@@ -10,6 +10,7 @@
     <script type="text/javascript" src="../js/jquery.min.js"></script>
     <script type="text/javascript" src="../js/fontSize.js"></script>
     <link rel="stylesheet" href="../css/index.css">
+    <script src="../js/common.js"></script>
 
 </head>
 
@@ -98,12 +99,17 @@
 <script src="../js/echarts.min.js"></script>
 <script src="../js/NativeCommon.js"></script>
 <script>
-    var da = {
+    /*var da = {
         token : '1234567890',    //token
         userInfo : {},    //登录的用户信息
         TData : {}     //页面跳转需要传递的数据
     }
-    localStorage.setItem('LS',JSON.stringify(da));
+    localStorage.setItem('LS',JSON.stringify(da));*/
+    var ls = localStorage.getItem("LS")
+    var ls = {
+        token : 'da24284f2c8544ac82a6c95eb5713ece'
+    }
+
     var _info = {
         EpageN: 0, //当前页数
         pageN: 0, //当前页数
@@ -307,5 +313,36 @@
         });
     }
 
+
+    //获取图表数据
+
+
+    //获取最新一条数据
+    common.ajaxFun("get", "getNewestForm/" + ls.token + ""+"/1", "", newsuccess, newerror);
+    
+    //获取最新一条数据成功
+    function newsuccess(res) {
+        if(commonTools.interface(res)){
+            var str = `
+                <div class="_item">
+                    <div class="_itemL">
+                        <p>姓名: <span>${res.data.username}</span></p>
+                        <p>性别: <span>${res.data.usersex == 1 ? '男' : '女'}</span></p>
+                        <div>
+                            <p>录入状态: <span>${res.data.status == 0 ? '未完成' : '已完成'}</span></p>
+                            <p>录入日期: <span>${res.data.createtime}</span></p>
+                        </div>
+                    </div>
+                    <img src="${HOST+res.data.useridcardimg}">
+                </div>
+            `;
+            $(".collectionList").append(str);
+        }
+    }
+    
+    //获取最新一条数据失败
+    function newerror() {
+        commonTools.Eject("网络连接异常")
+    }
 </script>
 </html>

@@ -697,6 +697,20 @@ var commonTools = {
 
         }
         return returnAge;
+    },
+    /**
+     * 接口返回接口过滤
+     * **/
+    interface : function(data){
+        switch (data.code) {
+            case '1000' :
+                console.log(data);
+                break;
+            case '1002' :
+                alert("用户未登录")
+                break;
+        }
+        return true;
     }
 };
 
