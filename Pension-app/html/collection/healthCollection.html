@@ -38,27 +38,54 @@
                 <textarea name="" id="" cols="30" rows="3" placeholder="请输入药物过敏史"></textarea>
             </div>
             <div class="history">
-                    <p>暴露史</p>
-                    <textarea name="" id="" cols="30" rows="3" placeholder="请输入暴露史"></textarea>
+                <p>暴露史</p>
+                <textarea name="" id="" cols="30" rows="3" placeholder="请输入暴露史"></textarea>
             </div>
             <div class="history">
-                <div class="topic"><p>慢性病</p> <span>多选 </span> </div>
-                  <div class="choosePwd">
-                        <input type="checkbox" id="checkboxFourInput" name="chronic" value="1"/>
-                        <label for="checkboxFourInput"></label>
-                      <!-- <form action="">
-                          <input type="checkbox" name="chronic" value="1"> 
-                            <input type="checkbox" name="chronic"  value='2'>类风湿性关节炎
-                            <input type="checkbox" name="chronic" value="3">消化性溃疡
-                      </form> -->
-                      
-                  </div>
-                   
+                <div class="topic">
+                    <p>慢性病</p> <span>多选 </span>
+                </div>
+                <div class="choosePwd">
+                    <ul id="evaluateFlag">
+                        <li>
+                            <input type="checkbox" id="diabetes" name="chronic" value="糖尿病" />
+                            <label for="diabetes"></label>
+                            <span>糖尿病</span>
+                        </li>
+                        <li>
+                            <input type="checkbox" id="arthritis" name="chronic" value="类风湿性关节炎" />
+                            <label for="arthritis"></label>
+                            <span>类风湿性关节炎</span>
+                        </li>
+                        <li>
+                            <input type="checkbox" id="ulcer" name="chronic" value="消化性溃疡" />
+                            <label for="ulcer"></label>
+                            <span>消化性溃疡</span>
+                        </li>
+                        <li>
+                            <input type="checkbox" id="hypertension" name="chronic" value="高血压" />
+                            <label for="hypertension"></label>
+                            <span>高血压</span>
+                        </li>
+                        <li>
+                            <input type="checkbox" id="Renalfailure" name="chronic" value="慢性肾功能衰竭" />
+                            <label for="Renalfailure"></label>
+                            <span>慢性肾功能衰竭</span>
+                        </li>
+                        <li>
+                            <input type="checkbox" id="Heartfailure" name="chronic" value="慢性心率衰竭" />
+                            <label for="Heartfailure"></label>
+                            <span>慢性心率衰竭</span>
+                        </li>
+                    </ul>
+
+                </div>
+
             </div>
         </div>
         <!--页尾-->
         <div class="pageFooter">
-            <input class="btn-big Darkgreen" type="button" value="提交">
+            <input class="btn-big Darkgreen" type="button" onclick="beginGet()" value="提交">
         </div>
     </div>
 </body>
@@ -66,17 +93,17 @@
 <script src="../../js/minirefresh/minirefresh.js"></script>
 <script>
     var parem = {
-        num: '5',
-        page: 0,
-        searchword: '额ric',  //用户姓名/身份证号查询 完整身份证号查询 如果不是进行模糊姓名查询 ,
         token: 'da24284f2c8544ac82a6c95eb5713ece',
+    }; 
 
-
-
-    };
-    postAjax()
-    function postAjax() {
-        common.ajaxFun("post", "/getFormList", parem, success, "err")
+    //声明函数
+    function beginGet() {
+        //jquery获取复选框值    
+        var chk_value = [];//定义一个数组    
+        $('input[name="chronic"]:checked').each(function () {//遍历每一个名字为interest的复选框，其中选中的执行函数    
+            chk_value.push($(this).val());//将选中的值添加到数组chk_value中    
+        });
+        console.log(chk_value)
     }
 
 
@@ -86,8 +113,8 @@
 
         }
     }
-    function err() { }
 
+    function err() { }
 </script>
 
 </html>
