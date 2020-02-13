@@ -315,7 +315,7 @@
 
 
     //获取图表数据
-
+    common.ajaxFun("get", "getNewestForm/" + ls.token + ""+"/1", "", newsuccess, newerror);
 
     //获取最新一条数据
     common.ajaxFun("get", "getNewestForm/" + ls.token + ""+"/1", "", newsuccess, newerror);
@@ -330,7 +330,7 @@
                         <p>性别: <span>${res.data.usersex == 1 ? '男' : '女'}</span></p>
                         <div>
                             <p>录入状态: <span>${res.data.status == 0 ? '未完成' : '已完成'}</span></p>
-                            <p>录入日期: <span>${res.data.createtime}</span></p>
+                            <p>录入日期: <span>${res.data.createtime.substr(0,10)}</span></p>
                         </div>
                     </div>
                     <img src="${HOST+res.data.useridcardimg}">
