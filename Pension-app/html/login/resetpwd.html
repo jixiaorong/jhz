@@ -12,6 +12,7 @@
     <link rel="stylesheet" type="text/css" href="../../css/login/resetpwd.css">
     <script type="text/javascript" src="../../js/jquery.min.js"></script>
     <script type="text/javascript" src="../../js/fontSize.js"></script>
+    <script type="text/javascript" src="../../js/common.js"></script>
 
 </head>
 
@@ -57,7 +58,7 @@
     <script src="../../js/NativeCommon.js"></script>
 
     <script>
-        var da = {
+        var pageda = {
             phonenum: '18842316080',
             smscode: '7641',
             password: '',
@@ -65,7 +66,8 @@
             type: '2', //2为忘记密码 0为修改密码 1为初次设置密码
             id: ''
         };
-
+        var da = JSON.parse(localStorage.getItem('LS'));
+        console.log(da)
         var isJump = true;
 
         var rgx = /(?=.*?[a-zA-Z])(?=.*?[0-9])[a-zA-Z0-9]{6,}$/; //验证密码
@@ -89,42 +91,43 @@
                 "username": ""
             }
         };
-        common.getBaseInfo();
+        
 
+        pushData(da.TData); //页面参数值初始化
         function pushData(data) {
-            data = common.disposeData(data);
-            $("#title").text(data.title);
+            console.log(data);
             $("#myTel").text(commonTools.splitTel(data.phonenum));
-            da.phonenum = data.phonenum;
-            da.smscode = data.smscode;
-            da.type = data.type;
-            da.id = data.id;
+             pageda.phonenum = data.phonenum;
+             pageda.smscode = data.smscode;
+             pageda.type = data.type;
+             pageda.id = data.id;
             if (data.type == '0') {
                 $("#ymm").show();
             } else {
                 $("#ymm").hide();
                 $("#tisi").text("您的手机号已注册，为确保安全请您设置登录密码")
             }
-            commonTools.closeLoading(); //关闭加载动画
+            // commonTools.closeLoading(); //关闭加载动画
         }
 
-        //获取本人信息
-        function BaseInfo(data) {
-            if (!data || data.token == '') {
+        // //获取本人信息
+        // function BaseInfo(data) {
+        //     if (!data || data.token == '') {
 
-            } else {
-                userdata = data;
-            }
-        }
+        //     } else {
+        //         userdata = data;
+        //     }
+        // }
 
 
         $("#btn").click(function () {
 
-            da.password = $.trim($("#password").val());
-            da.confirm = $.trim($("#repsword").val());
+             pageda.password = $.trim($("#password").val());
+             pageda.confirm = $.trim($("#repsword").val());
             var orpsword = $.trim($("#orpsword").val());
-            if (da.password != '' && da.confirm != '') {
-                if (!rgx.test(da.password) || !MYCOMMON.isUsername(da.password) || !MYCOMMON.isUsername(da
+            console.log("orpsword:"+orpsword)
+            if ( pageda.password != '' &&  pageda.confirm != '') {
+                if (!rgx.test( pageda.password) || !MYCOMMON.isUsername( pageda.password) || !MYCOMMON.isUsername(da
                     .confirm)) {
                     commonTools.Eject('密码格式错误');
                     isJump = true
@@ -134,14 +137,14 @@
 
 
             //如果是首次登陆 smscode传token
-            if (da.type == '1') {
-                da.smscode = userdata.token;
+            if ( pageda.type == '1') {
+                 pageda.smscode = userdata.token;
 
 
             }
 
             //如果修改密码smscode 传原密码
-            if (da.type == '0') {
+            if ( pageda.type == '0') {
 
                 if (orpsword == '') {
                     commonTools.Eject('原密码不能为空');
@@ -151,32 +154,32 @@
 
 
 
-                if (orpsword != '' && da.password != '' && da.confirm != '' && !rgx.test(da.password) || !MYCOMMON.isUsername(da.password) || !MYCOMMON.isUsername(da
+                if (orpsword != '' &&  pageda.password != '' &&  pageda.confirm != '' && !rgx.test( pageda.password) || !MYCOMMON.isUsername( pageda.password) || !MYCOMMON.isUsername(da
                     .confirm)) {
                     commonTools.Eject('密码格式错误');
                 }
 
-                da.smscode = orpsword;
+                 pageda.smscode = orpsword;
             }
 
 
-            if (da.password == '') {
+            if ( pageda.password == '') {
                 commonTools.Eject('密码不能为空');
                 isJump = true
                 return false;
             }
 
-            if (da.confirm == '') {
+            if ( pageda.confirm == '') {
                 commonTools.Eject('确认密码不能为空');
                 isJump = true
                 return false;
             }
-            if (orpsword == da.password && orpsword == da.confirm) {
+            if (orpsword ==  pageda.password && orpsword ==  pageda.confirm) {
                 commonTools.Eject('新密码与原密码相同');
                 isJump = true
                 return false;
             }
-            if (da.password != da.confirm) {
+            if ( pageda.password !=  pageda.confirm) {
                 commonTools.Eject('两次密码不同，请重新输入');
                 isJump = true;
                 return false;
@@ -187,8 +190,26 @@
             }
             isJump = false;
 
-            common.ajaxFun("post", "member/api/resetPassword", da, 'Success', 'Error');
-            // common.ajaxFun("post","member/api/validMsg",da,Success,Error);
+            // common.ajaxFun("post", "member/api/resetPassword", da, 'Success', 'Error');
+            var params = {
+                confirmpwd: pageda.confirm,
+                phone: pageda.phonenum,
+                pwd: pageda.password
+            }
+            $.ajax({
+                type: "POST",
+                contentType: "application/json;charset=UTF-8",
+                url: HOST + "/api/findPwd",
+                data: JSON.stringify(params),
+                success: function (res) {
+                    console.log("设置密码：")
+                    console.log(res)
+                    Success(res)
+                },
+                error: function (e) {
+                    Error(e)
+                }
+            });
         });
 
 
@@ -197,19 +218,19 @@
          * **/
         function Success(data) {
             if (data.code == '1000') {
-                if (da.type == '0') {
+                if ( pageda.type == '0') {
                     isJump = false;
                     commonTools.Eject('密码修改成功', function () {
-                        Determine()
+                        LoginSucess();
 
                     });
-                } else if (da.type == '2') {
+                } else if ( pageda.type == '2') {
                     isJump = false;
-                    Determine();
-                } else if (da.type == '1') {
+                    LoginSucess();
+                } else if ( pageda.type == '1') {
                     isJump = false;
                     commonTools.Eject('密码设置成功', function () {
-                        Determine()
+                        LoginSucess();
                     });
                 }
 
@@ -219,18 +240,18 @@
             }
         }
 
-        function Determine() {
-            userdata.token = '';
-            userdata.userId = 0;
-            userdata.userInfo.username = '';
-            userdata.userInfo.phone = '';
-            userdata.userInfo.age = '';
-            userdata.userInfo.faceimage = '';
-            userdata.userInfo.muuid = '';
-            common.setBaseInfo(userdata);
-            common.sinGout();
+        // function Determine() {
+        //     userdata.token = '';
+        //     userdata.userId = 0;
+        //     userdata.userInfo.username = '';
+        //     userdata.userInfo.phone = '';
+        //     userdata.userInfo.age = '';
+        //     userdata.userInfo.faceimage = '';
+        //     userdata.userInfo.muuid = '';
+        //     common.setBaseInfo(userdata);
+        //     common.sinGout();
 
-        }
+        // }
 
         /**
          * 请求失败
@@ -243,8 +264,7 @@
          * 保存登录数据成功
          * **/
         function LoginSucess(data) {
-            common.openwin('new/html/login/phoneLogin', '', '');
-            common.goback();
+            window.location.replace("login.html");
         }
 
         //返回上一页
