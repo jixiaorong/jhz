@@ -120,6 +120,8 @@
             reader.readAsDataURL(event.target.files[0]);
             reader.onload = function (e) {
                 console.log(e)
+                //插入遮罩
+                commonTools.maskLayer();
                 imageBase = e.target.result;
                 imageBase = imageBase.split(",")[1];
                 // imageBase = e.target.result;
@@ -172,6 +174,12 @@
                         }*/
 
                         if(card_side == "front"){
+                            //判断是否解析出来
+                            if(!da.姓名.words){  //未解析出来
+                                frontClear();
+                                commonTools.Eject("请上传正确且清晰的身份证照片");
+                                return false;
+                            }
                             params.name = da.姓名.words;  //姓名
                             params.sex = da.性别.words;  //性别
                             params.nation = da.民族.words;  //民族
@@ -180,6 +188,12 @@
                             params.address = da.住址.words;    //家挺地址
                         }
                         if(card_side == "back"){
+                            //判断是否解析出来
+                            if(!da.签发机关.words){  //未解析出来
+                                backClear();
+                                commonTools.Eject("请上传正确且清晰的身份证照片");
+                                return false;
+                            }
                             params.issue = da.签发机关.words;    //签发机关
                             params.startDate = da.签发日期.words;   //有效期开始时间
                             params.endDate = da.失效日期.words;   //有效期结束时间
@@ -210,6 +224,12 @@
             $("#frontID").parent().hide()
             $("#frontImage").parent().show()
             $("#frontImage").val("");
+            params.name = '';  //姓名
+            params.sex = '';  //性别
+            params.nation = '';  //民族
+            params.date = '';    //出生日期
+            params.idCard = '';   //身份证号
+            params.address = '';    //家挺地址
             params.frontImg = '';
         }
         function backClear(){
@@ -217,7 +237,10 @@
             $("#backID").parent().hide()
             $("#backImage").parent().show()
             //上传成功后清空file元素中的内容，否则选择同一文件无法触发change事件
-            $("#backImage").val("");
+            params.issue = '';    //签发机关
+            params.startDate = '';   //有效期开始时间
+            params.endDate = '';   //有效期结束时间
+
 
             params.backImg = '';
         }
@@ -232,6 +255,10 @@
                 } else {
                     params.backImg = data.data.url || "";  //身份证背面图片路径 ,
                 }
+
+                //删除遮罩
+                commonTools.closemaskLayer();
+
                 //不显示审核状态
                 if(data.data.type == '2'){
                     //判断是否是二次注册

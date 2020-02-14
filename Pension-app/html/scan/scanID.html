@@ -47,7 +47,7 @@
                     </div>
                 </div>
                 
-                <div class="boxID">
+                <div class="boxID" style="margin-top:0.2rem;">
                     <div class="headID">
                         <span>证件照反面</span>
                         <span onclick="backClear()">清空</span>
@@ -74,28 +74,57 @@
                 </div>
             </div>
             
-            <div class="_btn">
-                <button id="subBtn">确定</button>
-            </div>
-            
+        </div>
+        <!--页尾-->
+        <div class="pageFooter">
+            <button class="btn-big Darkgreen" id="subBtn">确定</button>
         </div>
     </div>
 
     <script src="../../js/NativeCommon.js"></script>
     <script>
-        var HOST ="http://47.94.3.197:28180/";
         var access_token = ""; // 这里填写你的access_token
+        var params = {} // 扫描获取的数据
+        var zf = 'front';
+        var isShow = {
+            front : false,
+            back : false
+        }
+        var ls = JSON.parse(localStorage.getItem("LS"));
+        //测试
+/*        var ls = {
+            token : 'da24284f2c8544ac82a6c95eb5713ece',    //token
+            userInfo : {},    //登录的用户信息
+            TData : {}     //页面跳转需要传递的数据
+        };*/
+
         var curr = {
-            token: 'da24284f2c8544ac82a6c95eb5713ece',
-            mechanismuuid: "",
-            caccountuuid: "",
-            useruuid: "",
             status:'', // 扫描完状态
             step:'' ,   // 扫描完检测步骤
+            formid : '', //表单ID
         }
-        var baiduParams = {} // 扫描获取的数据
-        var compareObj = {}  // 比较对象
-        var zf = 'front';
+
+        //被采集人所有ID
+        var fromData = {
+            allergyid: 0,  //过敏史id
+            bloodfatid: 0,   // 血脂id
+            bloodoxygenid: 0,   // 血氧id
+            bloodpressureid: 0,   //血压id
+            bloodsugarid: 0,    // 血糖id
+            caccountuuid: "",   //采集人账号uuid
+            choid: 0,    //总胆固醇id
+            chronicdiseaseid: 0,    // 慢性病id
+            ecgid: "",  //心电/心率对应mongodbid
+            exposureid: 0,   //暴露史id
+            formid: 0,    //表单id
+            mechanismuuid: "",   //机构uuid
+            status: 0,   //当前表单状态 0未完成 1已完成
+            step: 0,   //当前完成位置 1心电 2血液血氧 3血脂血压 4尿液 5过敏史暴露史慢性病
+            type: 0,    //类型： 0用户 1采集员
+            uaid: 0,   //尿酸id
+            urineid: 0,   //尿液id
+            useruuid: ""   //用户uuid
+        };
 
         // 获取百度token
         getToken()
@@ -105,6 +134,8 @@
         function baiduSuccess(data){
             if(data.code == '1000'){
                 access_token = data.data;
+            }else{
+                commonTools.Eject(data.msg)
             }
         };
 
@@ -120,7 +151,8 @@
             var reader = new FileReader();
             reader.readAsDataURL(event.target.files[0]);
             reader.onload = function (e) {
-                console.log(e)
+                //插入遮罩
+                commonTools.maskLayer();
                 imageBase = e.target.result;
                 imageBase = imageBase.split(",")[1];
                 if(card_side=="front"){
@@ -153,40 +185,55 @@
                     timeout: 30000,
                     success: function (data) {
                         console.log("解析成功");
-                        console.log(JSON.stringify(data));
+                        console.log(data);
                         var da = data.words_result;
-                        // 清空数据时，清空对应缓存
-                        compareObj[card_side] = data.words_result
+                        if(card_side == "front"){
+                            //判断是否解析出来
+                            if(!da.姓名.words){  //未解析出来
+                                frontClear();
+                                commonTools.Eject("请上传正确且清晰的身份证照片");
+                                return false;
+                            }
+                            isShow.front = true;
+                            params.name = da.姓名.words;  //姓名
+                            params.sex = da.性别.words;  //性别
+                            params.nation = da.民族.words;  //民族
+                            params.date = da.出生.words;    //出生日期
+                            params.idCard = da.公民身份号码.words;   //身份证号
+                            params.address = da.住址.words;    //家挺地址
+                        }
+                        if(card_side == "back"){
+                            //判断是否解析出来
+                            if(!da.签发机关.words){  //未解析出来
+                                backClear();
+                                commonTools.Eject("请上传正确且清晰的身份证照片");
+                                return false;
+                            }
+                            isShow.back = true;
+                            params.issue = da.签发机关.words;    //签发机关
+                            params.startDate = da.签发日期.words;   //有效期开始时间
+                            params.endDate = da.失效日期.words;   //有效期结束时间
+                        }
 
-                        let assignOObj = $.extend({},baiduParams.words_result,data.words_result); // 合并对象
-                        baiduParams.words_result = assignOObj // 赋值
+                        //本页显示识别信息
+                        if(isShow.front && isShow.back ){
+                            $("#username").text(params.name);
+                            $("#useridcard").text(params.idCard);
+                            $(".scanInfo").show();
+                        }
 
-                        // 扫描正面获取到姓名、身份证号数据
-                        if(data.words_result['姓名']){
-                            baiduParams.username =  data.words_result['姓名'].words || ''
+                        // 上传图片
+                        var upImg = {
+                            img :"data:image/png;base64," + imageBase, // base64图片 ,
+                            type: 1 //1身份证上传,2心电图片上传
                         }
-                        if(data.words_result['公民身份号码']){
-                            baiduParams.useridcard =  data.words_result['公民身份号码'].words || ''
-                        }
-                        // 判断有数据时的显示
-                        if(baiduParams.username || baiduParams.useridcard){
-                            $(".scanInfo").show()
-                            $("#username").text(baiduParams.username)
-                            $("#useridcard").text(baiduParams.useridcard)
-                        }
-                        console.log(baiduParams)
+                        upLoad(upImg,card_side)
                     },
                     error: function (xhr) {
                         console.log("请求解析失败");
                     }
                 });
-                
-                // 上传图片
-                let params= {
-                    img :"data:image/png;base64," + imageBase, // base64图片 ,
-                    type: 1 //1身份证上传,2心电图片上传
-                }
-                upLoad(params,card_side)
+
                 
             }
         }
@@ -197,189 +244,195 @@
             $("#frontID").parent().hide()
             $("#frontImage").parent().show()
             $("#frontImage").val("");
-            baiduParams.useridcardimg = ''
-            
-            //遍历
-            for(var key in baiduParams.words_result){
-                for(var k in compareObj['front']) {
-                    if(k == key){
-                        delete baiduParams.words_result[key]
-                        if(key=='姓名'){
-                            baiduParams.username =''
-                        }
-                        if(key=='公民身份号码'){
-                            baiduParams.useridcard =''
-                        }
-                    }
-                }  
-            }
-            // 判断无数据时的显示
-            if(!baiduParams.username && !baiduParams.useridcard){
-                $(".scanInfo").hide()
-            }
-            console.log(baiduParams)
+            $(".scanInfo").hide();
+            isShow.front = false;
+            params.name = '';  //姓名
+            params.sex = '';  //性别
+            params.nation = '';  //民族
+            params.date = '';    //出生日期
+            params.idCard = '';   //身份证号
+            params.address = '';    //家挺地址
+            params.frontImg = '';
         }
         function backClear(){
             $("#backID").prop("src","")
             $("#backID").parent().hide()
             $("#backImage").parent().show()
             $("#backImage").val("");
-            
-            baiduParams.useridcardimgb = ''
-            //遍历
-            for(var key in baiduParams.words_result){
-                for(var k in compareObj['back']) {
-                    if(k == key){
-                        delete baiduParams.words_result[key]
-                        if(key=='姓名'){
-                            baiduParams.username =''
-                        }
-                        if(key=='公民身份号码'){
-                            baiduParams.useridcard =''
-                        }
-                    }
-                }  
-            }
-            // 判断无数据时的显示
-            if(!baiduParams.username && !baiduParams.useridcard){
-                $(".scanInfo").hide()
-            }
-            console.log(baiduParams)
+            $(".scanInfo").hide();
+            isShow.back = false;
+            //上传成功后清空file元素中的内容，否则选择同一文件无法触发change事件
+            params.issue = '';    //签发机关
+            params.startDate = '';   //有效期开始时间
+            params.endDate = '';   //有效期结束时间
+            params.backImg = '';
         }
 
         // 上传服务器，获取图片路径
-        function upLoad(params,flag){
-            $.ajax({
-                url:  HOST+ "api/uploadImg", // 目标资源
-                data: JSON.stringify(params),
-                dataType: "json", // 服务器响应的数据类型
-                contentType:"application/json",
-                type: "POST", // 请求方式
-                success: function (res) {
-                    console.log(res)
-                    if(res.code == '1000'){
-                        if(flag == "front"){
-                            baiduParams.useridcardimg = res.data.url || ""
-                        }
-                        if(flag == "back"){
-                            baiduParams.useridcardimgb = res.data.url || ""
-                        }
-                    }
+        function upLoad(upImg,flag){
+            common.ajaxFun("post", "api/uploadImg" , upImg, upSuccess, upError);
+        }
+
+        //获取图片地址成功
+        function upSuccess(data){
+            console.log(data)
+            if(data.code == '1000'){
+                if(zf == "front"){
+                    params.frontImg = data.data.url || ""
                 }
-            });
+                if(zf == "back"){
+                    params.backImg = data.data.url || ""
+                }
+
+                //删除遮罩
+                commonTools.closemaskLayer();
+            }else{
+                commonTools.Eject(data.msg)
+            }
+        };
+
+        //获取图片地址失败
+        function upError(){
+            commonTools.Eject("网络连接异常");
         }
         
         // 获取最新表单数据
         $("#subBtn").on("click",function(){
+            console.log(params);
+            if(params.backImg == '' || params.frontImg == ''){
+                commonTools.Eject("请您录入完整身份证图片");
+                return false;
+            }
+
             // 1、上传身份证信息，并获取useruuid
-            if(baiduParams.words_result){ // 解析出数据
-                let personInfo = baiduParams.words_result || {}
+            if(params){ // 解析出数据
                 var getuuidObj = {
-                    token: curr.token,
-                    caccountuuid: "" , //采集人账号uuid ,
-                    idcardeffectivetime: personInfo['失效日期'] ? personInfo['失效日期'].words : "" , //身份证有效期 ,
-                    issueorganization: personInfo['签发机关'] ? personInfo['签发机关'].words : "" ,//发证机关 ,
-                    nation : personInfo['民族'] ? personInfo['民族'].words : "" , //民族 ,
-                    useraddress : personInfo['住址'] ? personInfo['住址'].words :"" , //地址 ,
-                    userage : personInfo['出生'] ? personInfo['出生'].words :"" , //生日 ,
-                    useridcard : personInfo['公民身份号码'] ? personInfo['公民身份号码'].words : "" , //身份证号 ,
-                    username : personInfo['姓名'] ? personInfo['姓名'].words : "" , //姓名 ,
-                    usersex : personInfo['性别'] ? personInfo['性别'].words=='男'?'1':'2' : "" , //性别 1男 2女
-                    useridcardimg: baiduParams.useridcardimg , //身份证正面图片路径,用户信息上传时必传,数据监测扫描时有用户可不传 ,
-                    useridcardimgb: baiduParams.useridcardimgb, //身份证背面图片路径,用户信息上传时必传,数据监测扫描时有用户可不传 ,
-                }
-                $.ajax({
-                    url:  HOST+ "getIdcard", 
-                    data: JSON.stringify(getuuidObj),
-                    dataType: "json", // 服务器响应的数据类型
-                    contentType:"application/json",
-                    type: "POST", // 请求方式
-                    success: function (response) {
-                        console.log(response)
-                        if(response.code == '1000'){
-                            
-                            // 扫描身份证获取到的信息，存本地form
-                            let currScanCard = res.data || {}
-                            localStorage.setItem("currScanCard",JSON.stringify(currScanCard))
-                            curr.useruuid = response.data.useruuid || "" // 赋值
+                    token: ls.token,
+                    caccountuuid: ls.userInfo.accountuuid, //采集人账号uuid ,
+                    idcardeffectivetime: params.endDate, //身份证有效期 ,
+                    issueorganization: params.issue,//发证机关 ,
+                    nation : params.nation , //民族 ,
+                    useraddress : params.address, //地址 ,
+                    userage : params.date, //生日 ,
+                    useridcard : params.idCard , //身份证号 ,
+                    username : params.name , //姓名 ,
+                    usersex : params.sex , //性别 1男 2女
+                    useridcardimg: params.frontImg , //身份证正面图片路径,用户信息上传时必传,数据监测扫描时有用户可不传 ,
+                    useridcardimgb: params.backImg, //身份证背面图片路径,用户信息上传时必传,数据监测扫描时有用户可不传 ,
+                };
+                console.log(getuuidObj);
+                common.ajaxFun("post", "getIdcard" , getuuidObj, getuuidSuccess, getuuidError);
 
-                            // 2、是否存在相同用户相同检测人的未完成表单
-                            $.ajax({
-                                url:  HOST+ "getExistForm/" +curr.token+"/"+curr.mechanismuuid+"/"+curr.caccountuuid+"/"+curr.useruuid , 
-                                dataType: "json", 
-                                contentType:"application/json",
-                                type: "get", 
-                                success: function (res) {
-                                    console.log(res)
-                                    if(res.code == '1000'){
-
-                                        // 存本地form
-                                        let currForm = res.data || {}
-                                        localStorage.setItem("currForm",JSON.stringify(currForm))
-                                        // 当前页赋值
-                                        curr.status = res.data.status
-                                        curr.step = res.data.step
-
-                                        // 未完成
-                                        if(res.data.status==0){
-                                            // 弹窗
-                                            commonTools.popup({
-                                                title: '提示', //不传title 位置为空
-                                                msg: ['当前用户有未完成的检验流程'], // 消息文字为数组类型，
-                                                btn: [
-                                                        { name: '放弃', cla: '', fun: cancel_btn },
-                                                        { name: '保留', cla: 'msgPopupActivn', fun: goStep },
-                                                    ]
-                                            })
-                                        }
-
-                                        // 已完成
-                                        if(res.data.status==1){
-                                            // 跳心电检测
-                                        }
-                                    
-                                    }
-                                }
-                            });
-                            // 2、结束
-                            
-                        }
-                    }
-                });
             } else {
                 // 解析出现问题
             }
-            
-            
-            
-            
-        })
+        });
+
+        //获取用户uuid成功
+        function getuuidSuccess(data){
+            console.log(data);
+            if(data.code == '1000'){
+                ls.patient = data.data; // 保存患者信息到本地
+                // 扫描身份证获取到的信息，存本地form
+             /*   let currScanCard = res.data || {}
+                localStorage.setItem("currScanCard",JSON.stringify(currScanCard))
+                curr.useruuid = response.data.useruuid || "" // 赋值
+*/
+
+                // 2、判断是否录入过数据
+                common.ajaxFun("get", "getExistForm/"+ls.token+"/"+ls.userInfo.mechanismuuid+"/"+ls.userInfo.caccountuuid+"/"+ls.patient.useruuid  , '', isSuccess, isError);
+
+                // 2、结束
+            }else{
+                commonTools.Eject(data.msg)
+            }
+        }
+
+        //获取用户uuid失败
+        function getuuidError() {
+            commonTools.Eject("网络连接异常");
+        }
+
+        //判断是否录入数据接口成功
+        function isSuccess(data){
+            if(data.code == '1000'){
+                // 当前页赋值
+                ls.TData  = data.data;
+                curr.status = data.data.status;
+                curr.step = data.data.step;
+
+                // 未完成
+                if(data.data.status==0){
+                    // 弹窗
+                    commonTools.popup({
+                        title: '提示', //不传title 位置为空
+                        msg: ['当前用户有未完成的检验流程'], // 消息文字为数组类型，
+                        btn: [
+                            { name: '放弃', cla: '', fun: cancel_btn },
+                            { name: '保留', cla: 'msgPopupActivn', fun: goStep },
+                        ]
+                    })
+                }
+
+                // 已完成
+                if(res.data.status==1){
+                    // 跳心电检测
+                }
+            }else{
+                commonTools.Eject(data.msg)
+            }
+        }
+
+        //判断是否录入数据接口失败
+        function isError(){
+            commonTools.Eject("网络连接异常");
+        }
 
         // 放弃
         function cancel_btn(){
-            var localForm = JSON.parse(localStorage.getItem("currForm")) 
             // 2、是否存在相同用户相同检测人的未完成表单
-            $.ajax({
-                url:  HOST+ "giveupAgain/" +curr.token+"/"+localForm.formid+"/"+localForm.mechanismuuid+"/"+localForm.caccountuuid+"/"+localForm.useruuid , 
-                dataType: "json", 
-                contentType:"application/json",
-                type: "get", 
-                success: function (res) {
-                    console.log(res)
-                    if(res.code == '1000'){
-                    // 改变本地form
-                    localForm.status = 0
-                    localForm.step = 1
-                    localStorage.setItem("currForm",JSON.stringify(localForm) )
-                    // 跳心电检测 	
-                    window.location.href = "../inputData/inputHeartRate.html";
-                    }
-                }
-            });
+            common.ajaxFun("get", "getExistForm/" +curr.token+"/"+ls.TData.formid+"/"+ls.userInfo.mechanismuuid+"/"+ls.userInfo.caccountuuid+"/"+ls.userInfo.useruuid , '', giveupSuccess, giveupError);
+        }
+
+        //放弃当前当前表单成功
+        function giveupSuccess(data){
+            console.log(data)
+            if(res.code == '1000'){
+                fromData = {
+                    allergyid: 0,  //过敏史id
+                    bloodfatid: 0,   // 血脂id
+                    bloodoxygenid: 0,   // 血氧id
+                    bloodpressureid: 0,   //血压id
+                    bloodsugarid: 0,    // 血糖id
+                    choid: 0,    //总胆固醇id
+                    chronicdiseaseid: 0,    // 慢性病id
+                    ecgid: "",  //心电/心率对应mongodbid
+                    exposureid: 0,   //暴露史id
+                    formid: 0,    //表单id
+                    status: 0,   //当前表单状态 0未完成 1已完成
+                    step: 1,   //当前完成位置 1心电 2血液血氧 3血脂血压 4尿液 5过敏史暴露史慢性病
+                    type: 0,    //类型： 0用户 1采集员
+                    uaid: 0,   //尿酸id
+                    urineid: 0,   //尿液id
+                };
+
+                ls.TData  = fromData;
+                localStorage.setItem("LS",ls);
+                // 跳心电检测
+                window.location.href = "../inputData/inputHeartRate.html";
+            }else{
+                commonTools.Eject(data.msg)
+            }
+        }
+
+        //放弃当前当前表单失败
+        function giveupError(){
+            commonTools.Eject("网络连接异常");
         }
 
         // 保留
         function goStep(){
+            localStorage.setItem("LS",ls);
             // 跳检测流程 1心电 2血液血氧 3血脂血压 4尿液 5过敏史暴露史慢性病
             switch(curr.step) {
                 case 1:

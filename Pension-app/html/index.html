@@ -15,7 +15,7 @@
 </head>
 
 <body>
-    <div class="">
+    <div class="pageFrame">
         <!--页头-->
         <div class="pageHeader">
             <div class="headerLeft">
@@ -92,7 +92,7 @@
         </div>
         <!--页尾-->
         <div class="pageFooter">
-            <input class="btn-big Darkgreen" type="button" value="扫描采集">
+            <input id="scanning" class="btn-big Darkgreen" type="button" value="扫描采集">
         </div>
     </div>
 </body>
@@ -105,14 +105,7 @@
         TData : {}     //页面跳转需要传递的数据
     }
     localStorage.setItem('LS',JSON.stringify(da));*/
-    var ls = localStorage.getItem("LS")
-    var ls = {
-        token : 'da24284f2c8544ac82a6c95eb5713ece',
-        caccountuuid : '03e3c9bdc82d42fdb6eb8f02262c5867',
-        // caccountuuid : '222222',
-        mechanismuuid: "beea1e018c034c4fbd783a28210915a0",
-        useruuid: "b1f8c362c3ba415ca5456195406c95af",
-    }
+    var ls = JSON.parse(localStorage.getItem("LS"))
 
     var _info = {
         EpageN: 0, //当前页数
@@ -281,7 +274,7 @@
     }
 
     //获取图表数据
-    common.ajaxFun("get", "getCollectorNum/{"+ls.token+'/'+ls.caccountuuid , "", chartsDataSuccess, chartsDataError);
+    common.ajaxFun("get", "getCollectorNum/{"+ls.token+'/'+ls.userInfo.accountuuid , "", chartsDataSuccess, chartsDataError);
 
     //图表数据成功
     function chartsDataSuccess(data){
@@ -307,7 +300,7 @@
 
 
     //获取图表数据
-    common.ajaxFun("get", "getCollectorListNum/"+ls.token+'/'+ls.caccountuuid+'/0/10' , "", chartsSuccess, chartsError);
+    common.ajaxFun("get", "getCollectorListNum/"+ls.token+'/'+ls.userInfo.accountuuid+'/0/10' , "", chartsSuccess, chartsError);
 
     //图表数据成功
     function chartsSuccess(data){
@@ -325,13 +318,14 @@
     }
 
     //获取最新一条数据
-    common.ajaxFun("get", "getNewestForm/" + ls.token + ""+"/1", "", newsuccess, newerror);
+    common.ajaxFun("get", "getNewestForm/" + ls.token + "/"+ ls.userInfo.type, "", newsuccess, newerror);
     
     //获取最新一条数据成功
     function newsuccess(data) {
         console.log(data);
         if(commonTools.interface(data)){
-            var str = `
+            if(data.data != ''){
+                var str = `
                 <div class="_item">
                     <div class="_itemL">
                         <p>姓名: <span>${data.data.username}</span></p>
@@ -344,7 +338,8 @@
                     <img src="${imgUrl+data.data.useridcardimg}">
                 </div>
             `;
-            $(".collectionList").append(str);
+                $(".collectionList").append(str);
+            }
         }
     }
     
@@ -354,7 +349,7 @@
     }
 
     //获取个人信息
-    common.ajaxFun("get", "getUserinfo/"+ls.token+'/'+ls.useruuid , "", userSuccess, userError);
+    common.ajaxFun("get", "getUserinfo/"+ls.token+'/'+ls.userInfo.useruuid , "", userSuccess, userError);
 
     //图表数据成功
     function userSuccess(data){
@@ -377,5 +372,9 @@
     function userError(){
         commonTools.Eject("网络连接异常")
     }
+
+    $("#scanning").click(function(){
+        window.location.href = 'scan/scanID.html'
+    })
 </script>
 </html>

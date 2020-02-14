@@ -714,6 +714,20 @@ var commonTools = {
                 break;
         }
         return true;
+    },
+
+    /**
+     * 禁止点击遮罩
+     * **/
+    maskLayer : function(){
+        var str = `<div id="maskLayer" style="position:fixed;top:0;left:0;right:0;bottom:0;z-index: 10000;"></div>`;
+        $("body").append(str);
+    },
+    /**
+     * 关闭 禁止点击遮罩
+     * **/
+    closemaskLayer : function(){
+        $("#maskLayer").remove();
     }
 };
 
