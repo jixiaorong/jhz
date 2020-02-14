@@ -71,35 +71,31 @@
     var code = '';  //验证码
     var regexPhone = /^1[1,3,5,6,7,8,9]\d{9}$/;  //手机号验证规则
     var rgx = /(?=.*?[a-zA-Z])(?=.*?[0-9])[a-zA-Z0-9]{6,}$/; //验证密码
+
     var da = JSON.parse(localStorage.getItem('LS'));
-    console.log(da.TData.times);
-    var usertype = 1; //1：采集员 ，2：用户
-    var times = da.TData.times;
-    console.log(da);
-    console.log(HOST)
-    var loginData = JSON.parse(localStorage.getItem('loginData'));
-    console.log(loginData)
-        
     var TData = {
-        usertype:usertype,//1：采集员 ，2：用户
-        times:times, // 0：首次，1：非首次,默认是0，重新认证时是1
-        caccountuuid: caccountuuid, //采集员账号uuid
+        usertype:da.TData.usertype,//1：采集员 ，2：用户
+        times:da.TData.times, // 0：首次，1：非首次,默认是0，重新认证时是1
+        
+        caccountuuid: da.TData.caccountuuid, //采集员账号uuid
+        idcardeffectivetime: da.TData.idcardeffectivetime, //身份证有效期 ,
+        issueorganization: da.TData.issueorganization, //发证机关 ,
+        nation: da.TData.nation, //民族 ,
+        useraccount: da.TData.useraccount, //账号 ,
+        useraddress: da.TData.useraddress, //地址 ,
+        userage: da.TData.userage, //生日 ,
+        useridcard: da.TData.useridcard, //身份证号 ,
+        useridcardimg: da.TData.useridcardimg, //: 身份证正面图片路径 ,
+        useridcardimgb: da.TData.useridcardimgb, //身份证背面图片路径 ,
+        username: da.TData.username, //姓名 ,
+        usersex: da.TData.usersex, //性别 1男 2女
 
-        idcardeffectivetime: idcardeffectivetime, //身份证有效期 ,
-        issueorganization: issueorganization, //发证机关 ,
-        nation: nation, //民族 ,
-        useraccount: useraccount, //账号 ,
-        useraddress: useraddress, //地址 ,
-        userage: userage, //生日 ,
-        useridcard: useridcard, //身份证号 ,
-        useridcardimg: useridcardimg, //: 身份证正面图片路径 ,
-        useridcardimgb: useridcardimgb, //身份证背面图片路径 ,
-        username: username, //姓名 ,
-        usersex: usersex, //性别 1男 2女
-
-        collectoraccount: collectoraccount, //采集员账号,
-        mechanismuuid: mechanismuuid,  //采集员机构uuid,
+        collectoraccount:da.TData.collectoraccount, //采集员账号,
+        mechanismuuid: da.TData.mechanismuuid,  //采集员机构uuid,
     }
+    console.log(da);
+    console.log(TData);
+
     document.body.addEventListener('touchstart', function () { }); //移动端给元素添加:active效果
 
 
