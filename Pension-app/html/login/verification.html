@@ -73,8 +73,8 @@
     </div>
 
 
-    <script type="text/javascript"
-        src="http://api.map.baidu.com/api?v=2.0&ak=QYOFLMzGwijnSGp0DgaL0jg239iLHw3E"></script>
+    <!-- <script type="text/javascript"
+        src="http://api.map.baidu.com/api?v=2.0&ak=QYOFLMzGwijnSGp0DgaL0jg239iLHw3E"></script> -->
     <script src="../../js/NativeCommon.js"></script>
     <script>
         var _this = {
@@ -217,6 +217,13 @@
          * **/
         valCodeInput.on('input propertychange change', (e) => {
             valCodeLength = valCodeInput.val().length;
+            // if (valCodeInput.val() && regex.test(valCodeInput.val())) {
+            //     for(var i =1;i<=valCodeLength;i++){
+            //         $(valCodeItems[i - 1]).addClass('available');
+            //         $(valCodeItems[i - 1]).text(valCodeInput.val().substring(i - 1, 1));
+            //         console.log(valCodeInput.val().substring(i - 1, 1))
+            //     }
+            // }
             if (valCodeInput.val() && regex.test(valCodeInput.val())) {
                 $(valCodeItems[valCodeLength - 1]).addClass('available');
                 $(valCodeItems[valCodeLength - 1]).text(valCodeInput.val().substring(valCodeLength - 1, valCodeLength));
@@ -328,23 +335,7 @@
         }
 
 
-        /**
-         * 查找ID成功
-         * **/
-        function locaSuccess(data) {
-            if (data.code == '1000') {
-                // $("#Location").text(data.data.areaname);
-                // $("#Location").attr("cid", data.data.areaid);
-                userdata.userInfo.cityid = data.data.areaid;
-                userdata.userInfo.cityname = data.data.areaname;
-                userdata.userInfo.sex = '1';
-                userdata.userInfo.age = Screening.timestampToTime((new Date()).getTime());
-                common.setBaseInfo(userdata);
-                common.goback();
-            } else {
-                commonTools.Eject(data.msg)
-            }
-        }
+        
         /**
          * 查找ID失败
          * **/
@@ -360,31 +351,6 @@
             commonTools.Eject("网络连接异常");
         }
 
-
-        /**
-         * 登录成功
-         * **/
-        function LoginSucess() {
-            switch (_this.isLogin) {
-                //已注册
-                case '0':
-                    // common.openwin('new/html/home/Main', '', '');
-                    common.goback();
-                    //存储数据
-                    break;
-                //未注册
-                case '1':
-                    var da = {
-                        title: '设置密码',
-                        phonenum: _this.phone,
-                        smscode: _this.code,
-                        type: '1'
-                    };
-                    common.openwin('new/html/login/resetpwd', '', da);
-                    common.goback();
-                    break;
-            }
-        }
 
         //重置密码
         $('#forgetpas').click(function () {
