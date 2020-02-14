@@ -175,9 +175,9 @@
 
     //登录
     $('#loginBtn').on('click', function () {
-        var type = $('#tab').find('.select').index();
-        console.log(type)
-        if (type == 0) { //账号密码登录
+        var logintype = $('#tab').find('.select').index();
+        console.log(logintype)
+        if (logintype == 0) { //账号密码登录
             var useraccount = $.trim($('.account').val());
             var password = $.trim($('.password').val());
             var params = {
@@ -204,7 +204,7 @@
                     console.log(res);
 
                     if (res.code == '1000') {
-                        loginSuccess(res);
+                        loginSuccess(res,logintype);
                     } else {
                         commonTools.Eject(res.msg);
                         return false;
@@ -216,7 +216,7 @@
                     console.log(e.responseText);
                 }
             });
-        } else if (type == 1) {  //快捷登录
+        } else if (logintype == 1) {  //快捷登录
             var useraccount = $.trim($('.phone').val());
             var msgcode = $.trim($('.code').val());
             var params = {
@@ -245,7 +245,7 @@
                 success: function (res) {
                     console.log(res);
                     if (res.code == '1000') {
-                        loginSuccess(res);
+                        loginSuccess(res,logintype);
                     } else {
                         commonTools.Eject(res.msg);
                         return false;
@@ -260,26 +260,27 @@
         }
     })
 
-    function loginSuccess(res) {
+    function loginSuccess(res,logintype) {
         var examinestatus  = res.data.examinestatus ;// 采集员审核状态 0待审核 1已通过 2已拒绝 
         var type = res.data.type;// 账号类型 1采集员 2用户 ,
-        
+
+        if(logintype == '1'){
+            //清除定时器
+            clearInterval(Timer);
+            countdown = 60;
+            $('#getCodeBtn').show();
+            $('.countdown').hide();
+        }
+
         if(type == 1 && examinestatus == 2){
-           
-            window.location.href = "examineFail.html"; //审核失败
+            window.location.href = "../register/AuditFail.html"; //审核失败
+
         }if(type == 1 && examinestatus == 0){
-            var TData = {
-                title: '注册',
-                times: 1, //注册次数
-            };
-            da.TData = TData;
-            localStorage.setItem('LS',JSON.stringify(da));
-            window.location.href = "register.html"; //等待审核中
+            window.location.href = "../register/AuditProgress.html"; //等待审核中
+
         }else{
             da.userInfo = res.data;
             localStorage.setItem('LS', JSON.stringify(da));
-
-            console.log(localStorage.getItem('LS', JSON.stringify(da)))
             window.location.href = "../index.html";
         }
         
@@ -291,7 +292,7 @@
     })
     //注册
     $('#register').click(function () {
-        window.location.href = "register.html";
+        window.location.href = "../register/AuthenticationID.html";
     })
 </script>
 

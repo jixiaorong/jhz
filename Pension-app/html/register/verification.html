@@ -77,10 +77,14 @@
     var times = da.TData.times;
     console.log(da);
     console.log(HOST)
-    da.TData = {
+    var loginData = JSON.parse(localStorage.getItem('loginData'));
+    console.log(loginData)
+        
+    var TData = {
         usertype:usertype,//1：采集员 ，2：用户
         times:times, // 0：首次，1：非首次,默认是0，重新认证时是1
         caccountuuid: caccountuuid, //采集员账号uuid
+
         idcardeffectivetime: idcardeffectivetime, //身份证有效期 ,
         issueorganization: issueorganization, //发证机关 ,
         nation: nation, //民族 ,
@@ -95,7 +99,6 @@
 
         collectoraccount: collectoraccount, //采集员账号,
         mechanismuuid: mechanismuuid,  //采集员机构uuid,
-
     }
     document.body.addEventListener('touchstart', function () { }); //移动端给元素添加:active效果
 
@@ -179,13 +182,10 @@
 
     //下一步
     $('#nextStep').on('click', function () {
-
         var phone = $.trim($('.phone').val());
         var code = $.trim($('.code').val());
         var pwd = $.trim($('#pwd').val());
         var confirmpwd = $.trim($('#confirmpwd').val());
-
-        console.log("phone:" + phone + " &code:" + code + " &pwd:" + pwd + " &confirmpwd:" + confirmpwd)
 
         if (phone == '') {
             commonTools.Eject('请输入手机号');
@@ -207,9 +207,6 @@
             commonTools.Eject('两次密码不一致，请重新填写密码');
             return false;
         }
-        console.log(rgx.test(da.pwd))
-        console.log(MYCOMMON.isUsername(pwd))
-        console.log(!MYCOMMON.isUsername(confirmpwd))
         if (!rgx.test(pwd) || !MYCOMMON.isUsername(pwd) || !MYCOMMON.isUsername(confirmpwd)) {
             commonTools.Eject('密码格式错误');
             return false;
@@ -261,14 +258,11 @@
             $.ajax({
                 type: "POST",
                 contentType: "application/json;charset=UTF-8",
-                url: HOST + "/api/userRegister",
+                url: HOST + "/registerCollector",
                 data: JSON.stringify(params),
                 success: function (res) {
                     console.log(res);
-                    if (res.code == '1000') {
-                        window.loaction.href = "../login/login.html"
-                    }
-
+                    CollectorSuccess(res);
                 },
                 error: function (e) {
                     console.log(e.status);
@@ -292,25 +286,20 @@
                     userphone: userphone,
                     usersex: usersex
                 }
-                // $.ajax({
-                //     type: "POST",
-                //     contentType: "application/json;charset=UTF-8",
-                //     url: HOST + "/RepeatrRegister",
-                //     data: JSON.stringify(params),
-                //     success: function (res) {
-                //         console.log(res);
-                //         if (res.code == '1000') {
-                //             // da.userInfo = res.data;
-                //             // localStorage.setItem('LS',JSON.stringify(da));
-                //             // console.log(localStorage.getItem('LS',JSON.stringify(da)))
-                //         }
-
-                //     },
-                //     error: function (e) {
-                //         console.log(e.status);
-                //         console.log(e.responseText);
-                //     }
-                // });
+                $.ajax({
+                    type: "POST",
+                    contentType: "application/json;charset=UTF-8",
+                    url: HOST + "/RepeatrRegister",
+                    data: JSON.stringify(params),
+                    success: function (res) {
+                        console.log(res);
+                        CollectorSuccess(res);
+                    },
+                    error: function (e) {
+                        console.log(e.status);
+                        console.log(e.responseText);
+                    }
+                });
            }
         } else if (usertype == '2') { //普通用户
             var params = {
@@ -338,10 +327,9 @@
                     console.log(res);
                     if (res.code == '1000') {
                         commonTools.Eject("注册成功");
-                        window.loaction.href = "login.html"
-                        // da.userInfo = res.data;
-                        // localStorage.setItem('LS',JSON.stringify(da));
-                        // console.log(localStorage.getItem('LS',JSON.stringify(da)))
+                        setTimeout(function(){
+                            window.loaction.href = "../login/login.html"
+                        },1000)
                     } else {
                         commonTools.Eject(res.msg);
                     }
@@ -354,6 +342,25 @@
             });
         }
     }
+    //采集员注册成功
+    function CollectorSuccess(res){
+        if (res.code == '1000') {
+            var examinestatus  = res.data.examinestatus ;// 采集员审核状态 0待审核 1已通过 2已拒绝 
+            //判断审核状态
+            if (examinestatus == '0') { //待审核
+                window.loaction.href = "../AuditProgress.html"
+            }else if (examinestatus == '1') { //已通过
+                commonTools.Eject("注册成功");
+                setTimeout(function(){
+                    window.loaction.href = "../login/login.html"
+                },1000)
+            }else if (examinestatus == '2') { //已拒绝
+                window.loaction.href = "../AuditFail.html"
+            }
+        }else{
+            commonTools.Eject(res.msg);
+        }
+    }   
     //用户协议
     $('#agreement').click(function () {
         window.location.href = "../tips/userAgreement.html";

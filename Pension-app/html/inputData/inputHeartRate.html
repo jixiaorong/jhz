@@ -80,32 +80,49 @@
 <script src="../../js/NativeCommon.js"></script>
 <script src="../../js/common.js"></script>
 <script>
-    // var localData = localStorage.getItem("LS") ? JSON.parse(localStorage.getItem("LS")) : {};//本地的存储信息
-    var localData={
-        form:{
-            heartRcgid : ""
-        }
-    } 
+
+    var obj = {
+        caccountuuid: "03e3c9bdc82d42fdb6eb8f02262c5867",//localForm.caccountuuid//采集人账号uuid 
+        formid: "16",//localForm.formid// 表单id ,
+        mechanismuuid: "beea1e018c034c4fbd783a28210915a0",//localForm.mechanismuuid//机构端uuid
+        useruuid: "b1f8c362c3ba415ca5456195406c95af",//localForm.useruuid// userinfo的uuid
+        ecgid: "",
+        choid:"",
+        uaid:"",
+        bloodsugarid:"",
+        bloodoxygenid: ""
+    }
+    var obj2 = {
+        token: "da24284f2c8544ac82a6c95eb5713ece"
+    }
+    // localStorage.setItem("currForm",JSON.stringify(obj))
+    // localStorage.setItem("LS",JSON.stringify(obj2))
+
+
+    var localForm = localStorage.getItem("currForm") ? JSON.parse(localStorage.getItem("currForm")) : {};//本地的存储信息
+    var localToken = localStorage.getItem("LS") ? JSON.parse(localStorage.getItem("LS")) : { token: "" };//本地的存储信息
+    console.log(localForm)
     var local = {
-        token:"da24284f2c8544ac82a6c95eb5713ece",// localData.token,
-        uuid: "1",
+        token: localToken.token,
+        ecgid: localForm.ecgid,
         oldData: {
-            rate:"",
-            jlnormalrange:"",
-            ratenormalrange:""
+            rate: "",
+            jlnormalrange: "",
+            ratenormalrange: ""
 
         },//接口返回的上一次的数据
         newImgUrl: "",//新上传的图片的urlpe
-        type:"1",//0 检测  1手动
-        caccountuuid: "03e3c9bdc82d42fdb6eb8f02262c5867",//采集人账号uuid 
-        formid: "16",// 表单id ,
-        mechanismuuid: "beea1e018c034c4fbd783a28210915a0",//机构端uuid
-        useruuid: "b1f8c362c3ba415ca5456195406c95af",// userinfo的uuid
+        type: "1",//0 检测  1手动
+        caccountuuid: localForm.caccountuuid,//采集人账号uuid 
+        formid: localForm.formid,// 表单id ,
+        mechanismuuid: localForm.mechanismuuid,//机构端uuid
+        useruuid: localForm.useruuid// userinfo的uuid
     }
 
 
     $(function () {
-        // localData.form.heartRcgid?common.ajaxFun("get", "/getTargetecgDetail/" + local.token + "/" + local.uuid, "", getEcgSuccess, getEcgfail):""
+        console.log(88)
+        local.ecgid ? common.ajaxFun("get", "/getTargetecgDetail/" + local.token + "/" + local.ecgid, "", getEcgSuccess, getEcgfail) : ""
         // 请求成功
         function getEcgSuccess(data) {
             console.log(data);
@@ -155,7 +172,7 @@
             alert("您传入的图片大于5M请重新上传");
             return false;
         }
-       
+
         var reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = function (e) {
@@ -186,25 +203,25 @@
 
     // 新增心率数据
     function addNewData() {
-        if (!localData.form.heartRcgid || $("#heartRate").val() != local.oldData.rate || $("#rateRange").val() != local.oldData.ratenormalrange ||
+        if (!local.ecgid || $("#heartRate").val() != local.oldData.rate || $("#rateRange").val() != local.oldData.ratenormalrange ||
             $("#rhythm").val() != local.oldData.jlnormalrange || local.newImgUrl) {
-                var postData = {
+            var postData = {
                 collectoruuid: local.caccountuuid,//采集员uuid 
                 ecgimagefile: local.newImgUrl,//心电图图片文件服务器存储路径 ,
-                formid:local.formid,//表单id ,
+                formid: local.formid,//表单id ,
                 jlnormalrange: $("#rhythm").val(),// 节律正常范围 ,
-                mechanismuuid:local.mechanismuuid,//机构uuid ,
+                mechanismuuid: local.mechanismuuid,//机构uuid ,
                 rate: $("#heartRate").val(),//平均心率 ,
                 ratenormalrange: $("#rateRange").val(),//心率正常范围,
                 token: local.token,//token ,
-                type:local.type,// 数据来源 0检测 1手写
+                type: local.type,// 数据来源 0检测 1手写
                 useruuid: local.useruuid,//用户uuid
             }
             console.log(postData);
-            
+
             common.ajaxFun("post", "/addTargetecg", postData, addSuccess, addFail);
-        }else{//没有做任何修改就直接跳页
-            console.log(222)
+        } else {//没有做任何修改就直接跳页
+            alert(222)
             window.location.href = "./inputBloodOxygex.html"
         }
 
@@ -212,8 +229,9 @@
         function addSuccess(data) {
             console.log(data)
             if (data.code == 1000) {
-                localData.form.heartRcgid = data.data
-                localStorage.setItem("LS",JSON.stringify(localData))
+                alert(55)
+                localForm.ecgid = data.data.ecgid
+                localStorage.setItem("currForm", JSON.stringify(localForm))
                 window.location.href = "./inputBloodOxygex.html"
             }
         }
@@ -226,10 +244,10 @@
 
     // 上一页
     $(".headerLeft").click(function () {
-        window.history.go(-1);
+        window.location.href = "../scan/scanID.html" 
     })
     $(".pre_btn").click(function () {
-        window.history.go(-1);
+        window.location.href = "../scan/scanID.html" 
     })
 
     //下一页
