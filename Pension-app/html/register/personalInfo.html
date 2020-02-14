@@ -103,51 +103,50 @@
     
     <script src="../../js/NativeCommon.js"></script>
     <script>
-        var HOST ="http://47.94.3.197:28180/";
         // 获取本地缓存
         var LS = JSON.parse(localStorage.getItem('LS')) 
-        var personInfo = LS.register.words_result || {}
+        var personInfo = LS.TData || {}
         console.log(LS)
 
         // 注册普通用户
         var params = {
-            caccountuuid :"" , //采集员账号uuid ,
+            caccountuuid :personInfo.caccountuuid, //采集员账号uuid ,
             password :"" , //密码 ,
             useraccount :"" , //账号 ,
             userphone :"" , //电话 ,
-            idcardeffectivetime : personInfo['失效日期'] ? personInfo['失效日期'].words : "" , //身份证有效期 ,
-            issueorganization : personInfo['签发机关'] ? personInfo['签发机关'].words : "" , //发证机关 ,
-            nation : personInfo['民族'] ? personInfo['民族'].words : "" , //民族 ,
-            useraddress : personInfo['住址'] ? personInfo['住址'].words :"" , //地址 ,
-            userage : personInfo['出生'] ? personInfo['出生'].words :"" , //生日 ,
-            useridcard : personInfo['公民身份号码'] ? personInfo['公民身份号码'].words : "" , //身份证号 ,
-            username : personInfo['姓名'] ? personInfo['姓名'].words : "" , //姓名 ,
-            usersex : personInfo['性别'] ? personInfo['性别'].words=='男'?'1':'2' : "" , //性别 1男 2女
-            useridcardimg : LS.register.useridcardimg || "" , //身份证正面图片路径 ,
-            useridcardimgb : LS.register.useridcardimgb || "" , //身份证背面图片路径 ,
+            idcardeffectivetime : personInfo.endDate, //身份证有效期 ,
+            issueorganization : personInfo.issue , //发证机关 ,
+            nation : personInfo.nation , //民族 ,
+            useraddress : personInfo.address , //地址 ,
+            userage : personInfo.date, //生日 ,
+            useridcard : personInfo.idCard, //身份证号 ,
+            username : personInfo.name, //姓名 ,
+            usersex : personInfo.sex, //性别 1男 2女
+            useridcardimg : personInfo.frontImg, //身份证正面图片路径 ,
+            useridcardimgb : personInfo.backImg, //身份证背面图片路径 ,
         }
 
         // 注册采集员参数
-        var collectParams = {
+   /*     var collectParams = {
             collectoraccount:"" , //采集员账号 ,
             password:"" , //采集员密码 ,
             username:"" , //姓名 ,
             userphone:"" , //电话 ,
             mechanismuuid:"" , //机构uuid ,
-            idcardeffectivetime : params.idcardeffectivetime || "" , //身份证有效期 ,
-            issueorganization : params.issueorganization || "" , //发证机关 ,
-            nation : params.nation || "" , // 民族 ,
-            useraddress: params.useraddress || "" , //地址 ,
-            userage: params.userage || "" , //生日 格式为 yyyy-MM-dd ,
-            useridcard: params.useridcard || "" , //身份证号 ,
-            usersex: params.usersex || "" , //性别 1男 2女
-            useridcardimg: params.useridcardimg, //身份证正面图片 ,
-            useridcardimgb: params.useridcardimgb, //身份证背面图片 ,
-        }
+            idcardeffectivetime : personInfo.endDate, //身份证有效期 ,
+            issueorganization : personInfo.issue , //发证机关 ,
+            nation : personInfo.nation , //民族 ,
+            useraddress: personInfo.address , //地址 ,
+            userage: personInfo.date, //生日 ,
+            useridcard: personInfo.idCard, //身份证号 ,
+            usersex: personInfo.sex, //性别 1男 2女
+            useridcardimg: personInfo.frontImg, //身份证正面图片路径 ,
+            useridcardimgb: personInfo.backImg, //身份证背面图片路径 ,
+        }*/
 
         $(function(){
             $("#username").text(params.username);
-            $("#usersex").text( personInfo['性别'] ? personInfo['性别'].words : "");
+            $("#usersex").text(params.usersex);
             $("#nation").text(params.nation);
             $("#userage").text(params.userage);
             $("#useridcard").text(params.useridcard);
@@ -166,25 +165,27 @@
 
         // 提交跳页
         $("#subBtn").on("click",function(){
-            var checkStatus = getUrlParam('checkStatus');
+           /* var checkStatus = getUrlParam('checkStatus');
             // 判断审核（失败跳审核失败，成功跳下一页）
-            // 0待审核 1已通过 2已拒绝 
+            // 0待审核 1已通过 2已拒绝
             if(checkStatus== 0 || checkStatus ==1){
                 // 跳手机号密码页
                 window.location.href='../login/register.html'
             } else {
                 // 审核失败
                 window.location.href='AuditFail.html'
-            }
+            }*/
+
+            window.location.href='../login/register.html'
         })
  
         //获取url中的参数
-        function getUrlParam(name) {
+   /*     function getUrlParam(name) {
             var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
             var r = window.location.search.substr(1).match(reg);  //匹配目标参数
             if (r != null) return unescape(r[2]); return null; //返回参数值
         }
-
+*/
 
 
     </script>

@@ -43,7 +43,7 @@
                     </div>
                 </div>
                 
-                <div class="boxID">
+                <div class="boxID" style="margin-top:0.2rem;">
                     <div class="headID">
                         <span>证件照反面</span>
                         <span onclick="backClear()">清空</span>
@@ -72,86 +72,11 @@
     <script>
         // var HOST = common.HOST || "http://47.94.3.197:28180/";
         var access_token = ""; // 这里填写你的access_token
-        var curr = {
-            token: 'da24284f2c8544ac82a6c95eb5713ece',
-        }
         var regType = getUrlParam("usertype") || "" // 1采集员 2用户
         var checkStatus = null // 审核状态
         var compareObj = {}// 比较对象
-             
-
-        // 身份证数据解析
-        var getBaiDuIdParams={
-            "log_id": 2648325511,
-            "direction": 0,
-            "image_status": "normal",
-            "idcard_type": "normal",
-            "edit_tool": "Adobe Photoshop CS3 Windows",
-            "photo": "/9j/4AAQSkZJRgABA......",
-            "photo_location": {
-                "width": 1189,
-                "top": 638,
-                "left": 2248,
-                "height": 1483
-            },
-            "words_result": {
-                "住址": {
-                    "location": {
-                        "left": 267,
-                        "top": 453,
-                        "width": 459,
-                        "height": 99
-                    },
-                    "words": "南京市江宁区弘景大道3889号"
-                },
-                "公民身份号码": {
-                    "location": {
-                        "left": 443,
-                        "top": 681,
-                        "width": 589,
-                        "height": 45
-                    },
-                    "words": "330881199904173914"
-                },
-                "出生": {
-                    "location": {
-                        "left": 270,
-                        "top": 355,
-                        "width": 357,
-                        "height": 45
-                    },
-                    "words": "19990417"
-                },
-                "姓名": {
-                    "location": {
-                        "left": 267,
-                        "top": 176,
-                        "width": 152,
-                        "height": 50
-                    },
-                    "words": "伍云龙"
-                },
-                "性别": {
-                    "location": {
-                        "left": 269,
-                        "top": 262,
-                        "width": 33,
-                        "height": 52
-                    },
-                    "words": "男"
-                },
-                "民族": {
-                    "location": {
-                        "left": 492,
-                        "top": 279,
-                        "width": 30,
-                        "height": 37
-                    },
-                    "words": "汉"
-                }
-            },
-            "words_result_num": 6
-        }
+        var params = {};
+        var zf = 'front';
 
         // 本地local数据存值
         var LS = {
@@ -164,27 +89,27 @@
                 caccountuuid: getUrlParam("caccountuuid") || "",  // 类型用户时，存在采集员账号uuid
                 mechanismuuid: getUrlParam("mechanismuuid") || "",// 类型采集员时，存在采集员机构uuid
             }
-        }
-        
+        };
+
+        params.usertype = getUrlParam("usertype") || ""; // 1：采集员 ，2：用户;
+        params.caccountuuid = getUrlParam("caccountuuid") || "";  // 类型用户时，存在采集员账号uuid
+        params.mechanismuuid = getUrlParam("mechanismuuid") || "";// 类型采集员时，存在采集员机构uuid
+        console.log(params);
         // 获取百度token
         getToken()
         function getToken() {
-            $.ajax({
-                type: "get",  // 请求方式
-                url: HOST+ "getBaiduToken/"+ curr.token,
-                dataType: "json", 
-                contentType:"application/json",
-                success: function (res) {
-                    console.log(res)
-                    if(res.code == '1000'){
-                        access_token = res.data
-                    }
-                },
-                error:function(e){
-                    console.log(e)
-                }
-            });
+            common.ajaxFun("get", "getBaiduToken" , '', baiduSuccess, baiduError);
         }
+        function baiduSuccess(data){
+            if(data.code == '1000'){
+                access_token = data.data;
+            }
+        };
+
+        function baiduError(){
+            commonTools.Eject("网络连接异常");
+        }
+
  
 
         // ***************************** 调取相机拍照   ***************************
@@ -195,14 +120,17 @@
             reader.readAsDataURL(event.target.files[0]);
             reader.onload = function (e) {
                 console.log(e)
-                // alert(e.target.result)
-                imageBase = e.target.result.replace("data:image/png;base64,","");
+                imageBase = e.target.result;
+                imageBase = imageBase.split(",")[1];
+                // imageBase = e.target.result;
                 if(card_side == "front"){
+                    zf = 'front';
                     $("#frontID").prop("src", "data:image/png;base64," + imageBase);
                     $("#frontID").parent().show()
                     $("#frontImage").parent().hide()
                 }
                 if(card_side == "back"){
+                    zf = 'back';
                     $("#backID").prop("src", "data:image/png;base64," + imageBase);
                     $("#backID").parent().show()
                     $("#backImage").parent().hide()
@@ -226,23 +154,46 @@
                     timeout: 30000,
                     success: function (data) {
                         console.log("解析成功");
-                        console.log(data);
+                        console.log(JSON.stringify(data));
+                        var da = data.words_result;
                         // 清空数据时，清空对应缓存
                         compareObj[card_side] = data.words_result
 
                         // 本地local数据存值
                         let assignOObj = $.extend({},LS.register.words_result,data.words_result); // 合并对象
                         LS.register.words_result = assignOObj
-                        localStorage.setItem('LS',JSON.stringify(LS))
 
                         
                         // 成功解析，才可获取到身份证号码，上传图片
-                        let params= {
+                      /*  var params= {
                             img :"data:image/png;base64," + imageBase, // base64图片 ,
                             useridcard: data.words_result['公民身份号码'] ? data.words_result['公民身份号码'].words : "",
                             type: regType // 1采集员 2用户
+                        }*/
+
+                        if(card_side == "front"){
+                            params.name = da.姓名.words;  //姓名
+                            params.sex = da.性别.words;  //性别
+                            params.nation = da.民族.words;  //民族
+                            params.date = da.出生.words;    //出生日期
+                            params.idCard = da.公民身份号码.words;   //身份证号
+                            params.address = da.住址.words;    //家挺地址
                         }
-                        upLoadImgRegister(params,card_side)
+                        if(card_side == "back"){
+                            params.issue = da.签发机关.words;    //签发机关
+                            params.startDate = da.签发日期.words;   //有效期开始时间
+                            params.endDate = da.失效日期.words;   //有效期结束时间
+                        }
+                        console.log(params);
+
+                        var upImg = {
+                            img: imageBase,
+                            useridcard: params.idCard,
+                            usertype: regType
+                        }
+                        console.log(upImg);
+                        //获取上传图片路径
+                        common.ajaxFun("post", "api/uploadImgRegister" , upImg, upSuccess, upError);
 
                     },
                     error: function (xhr) {
@@ -259,21 +210,7 @@
             $("#frontID").parent().hide()
             $("#frontImage").parent().show()
             $("#frontImage").val("");
-            // 改变本地存储的注册数据
-            let LS = JSON.parse(localStorage.getItem("LS"))
-            LS.register.useridcardimg = ''
-            //遍历
-            for(var key in LS.register.words_result){
-                for(var k in compareObj['front']) {
-                    if(k == key){
-                        delete LS.register.words_result[key]
-                    }
-                }  
-            }
-            localStorage.setItem("LS",JSON.stringify(LS) )
-
-            console.log(LS.register)
-
+            params.frontImg = '';
         }
         function backClear(){
             $("#backID").prop("src","")
@@ -281,53 +218,67 @@
             $("#backImage").parent().show()
             //上传成功后清空file元素中的内容，否则选择同一文件无法触发change事件
             $("#backImage").val("");
-            
-            // 改变本地存储的注册数据
-            let LS = JSON.parse(localStorage.getItem("LS"))
-            LS.register.useridcardimgb = ''
-            console.log(compareObj)
-            //遍历
-            for(var key in LS.register.words_result){
-                for(var k in compareObj['back']) {
-                    if(k == key){
-                        delete LS.register.words_result[key]
-                    }
-                }  
-            }
-            localStorage.setItem("LS",JSON.stringify(LS) )
-            console.log(LS.register)
+
+            params.backImg = '';
         }
 
-        // 上传服务器，获取图片路径
-        function upLoadImgRegister(params,flag){
-            $.ajax({
-                url:  HOST+ "api/uploadImgRegister",
-                data: JSON.stringify(params),
-                dataType: "json", // 服务器响应的数据类型
-                contentType:"application/json",
-                type: "POST", // 请求方式
-                success: function (res) {
-                    console.log(res)
-                    if(res.code == '1000'){
-                        if(flag == 1){ 
-                            LS.register.useridcardimg= res.data.url || ""  //身份证正面图片路径 ,
-                        } else {
-                            LS.register.useridcardimgb= res.data.url || ""  //身份证背面图片路径 ,
-                        }
-                        localStorage.setItem('LS',JSON.stringify(LS) )
-                        checkStatus = res.data.status 
+
+        // 获取图片路径成功
+        function upSuccess(data){
+            console.log(data);
+            if(data.code == '1000'){
+                if(zf == 'front'){
+                    params.frontImg = data.data.url || "" ;  //身份证正面图片路径 ,
+                } else {
+                    params.backImg = data.data.url || "";  //身份证背面图片路径 ,
+                }
+                //不显示审核状态
+                if(data.data.type == '2'){
+                    //判断是否是二次注册
+                    if(data.data.status == '3'){
+                        params.times = 1;
+                    }else{
+                        params.times = 0;
+                    }
+                }//显示审核状态
+                else if(data.data.type == '1'){
+                    //待审核
+                    if(data.data.status == '0'){
+                        window.location.href = '../register/AuditProgress.html'
+                    }
+                    //审核已通过
+                    if(data.data.status == '1'){
+                        window.location.href = '../login/login.html'
+                    }
+                    //审核未通过
+                    if(data.data.status == '2'){
+                        window.location.href = '../register/AuditFail.html'
                     }
                 }
-            });
+            }
+            checkStatus = data.data.status;
+
         }
+
+        //获取图片路径失败
+        function upError(){
+            commonTools.Eject("网络连接异常");
+        }
+
 
 
         // 跳页
         $("#subBtn").on("click",function(){
             if($("#frontID").attr("src") && $("#backID").attr("src") ){
-                window.location.href="personalInfo.html?checkStatus="+checkStatus
+                var da = {
+                    token : '',    //token
+                    userInfo : {},    //登录的用户信息
+                    TData : params     //页面跳转需要传递的数据
+                }
+                localStorage.setItem('LS',JSON.stringify(da))
+                window.location.href="personalInfo.html";
             } else {
-                alert("请您录入完整身份证图片")
+                commonTools.Eject("请您录入完整身份证图片");
             }
             
         })

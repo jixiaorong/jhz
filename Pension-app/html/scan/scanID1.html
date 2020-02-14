@@ -47,7 +47,7 @@
                     </div>
                 </div>
                 
-                <div class="boxID">
+                <div class="boxID" style="margin-top:0.2rem;">
                     <div class="headID">
                         <span>证件照反面</span>
                         <span onclick="backClear()">清空</span>
@@ -83,18 +83,8 @@
 
     <script src="../../js/NativeCommon.js"></script>
     <script>
-        var HOST ="http://47.94.3.197:28180/";
         var access_token = ""; // 这里填写你的access_token
-        var curr = {
-            token: 'da24284f2c8544ac82a6c95eb5713ece',
-            mechanismuuid: "",
-            caccountuuid: "",
-            useruuid: "",
-            status:'', // 扫描完状态
-            step:'' ,   // 扫描完检测步骤
-        }
-        var baiduParams = {} // 扫描获取的数据
-        var compareObj = {}  // 比较对象
+        var params = {} // 扫描获取的数据
         var zf = 'front';
 
         // 获取百度token

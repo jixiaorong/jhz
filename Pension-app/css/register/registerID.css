@@ -7,11 +7,12 @@
     padding: 0 0.32rem;
 }
 .scanID {
-    width: calc(100% - 0.64rem);
-    margin: 0 0.32rem;
+    /*width: calc(100% - 0.64rem);*/
+    /*margin: 0 0.32rem;*/
 }
 .boxID{
-    margin: 0.2rem auto 0.6rem;
+    padding: 0.2rem 0.3rem 0.6rem;
+    background-color: #fff;
 }
 .headID{
     display: flex;
