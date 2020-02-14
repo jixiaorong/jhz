@@ -258,25 +258,23 @@
                 userphone: userphone,
                 usersex: usersex
             }
-            // $.ajax({
-            //     type: "POST",
-            //     contentType: "application/json;charset=UTF-8",
-            //     url: HOST + "/api/userRegister",
-            //     data: JSON.stringify(params),
-            //     success: function (res) {
-            //         console.log(res);
-            //         if (res.code == '1000') {
-            //             // da.userInfo = res.data;
-            //             // localStorage.setItem('LS',JSON.stringify(da));
-            //             // console.log(localStorage.getItem('LS',JSON.stringify(da)))
-            //         }
+            $.ajax({
+                type: "POST",
+                contentType: "application/json;charset=UTF-8",
+                url: HOST + "/api/userRegister",
+                data: JSON.stringify(params),
+                success: function (res) {
+                    console.log(res);
+                    if (res.code == '1000') {
+                        window.loaction.href = "../login/login.html"
+                    }
 
-            //     },
-            //     error: function (e) {
-            //         console.log(e.status);
-            //         console.log(e.responseText);
-            //     }
-            // });
+                },
+                error: function (e) {
+                    console.log(e.status);
+                    console.log(e.responseText);
+                }
+            });
            }else{ //采集员非首次注册
                 var params = {
                     collectoraccount: collectoraccount,
