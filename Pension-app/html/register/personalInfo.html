@@ -105,9 +105,9 @@
     <script>
         var HOST ="http://47.94.3.197:28180/";
         // 获取本地缓存
-        var longinData = JSON.parse(localStorage.getItem('longinData')) 
-        var personInfo = longinData.register.words_result
-        console.log(longinData)
+        var LS = JSON.parse(localStorage.getItem('LS')) 
+        var personInfo = LS.register.words_result
+        console.log(LS)
 
         // 注册普通用户
         var params = {
@@ -123,8 +123,8 @@
             useridcard : personInfo['公民身份号码'] ? personInfo['公民身份号码'].words : "" , //身份证号 ,
             username : personInfo['姓名'] ? personInfo['姓名'].words : "" , //姓名 ,
             usersex : personInfo['性别'] ? personInfo['性别'].words=='男'?'1':'2' : "" , //性别 1男 2女
-            useridcardimg : longinData.register.useridcardimg || "" , //身份证正面图片路径 ,
-            useridcardimgb : longinData.register.useridcardimgb || "" , //身份证背面图片路径 ,
+            useridcardimg : LS.register.useridcardimg || "" , //身份证正面图片路径 ,
+            useridcardimgb : LS.register.useridcardimgb || "" , //身份证背面图片路径 ,
         }
 
         // 注册采集员参数

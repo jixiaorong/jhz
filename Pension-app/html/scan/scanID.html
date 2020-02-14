@@ -87,7 +87,9 @@
         var access_token = ""; // 这里填写你的access_token
         var curr = {
             token: 'da24284f2c8544ac82a6c95eb5713ece',
-            type:'1', // 1采集员 2用户
+            mechanismuuid: "",
+            caccountuuid: "",
+            useruuid: "",
             status:'', // 扫描完状态
             step:'' ,   // 扫描完检测步骤
         }
@@ -151,6 +153,8 @@
                     success: function (data) {
                         console.log("解析成功");
                         console.log(data);
+                        let assignOObj = $.extend({},baiduParams,data); // 合并对象
+                        baiduParams = assignOObj // 赋值
 
                         // 扫描正面获取到姓名、身份证号数据
                         if(data.words_result['姓名']){
@@ -205,7 +209,12 @@
                 success: function (res) {
                     console.log(res)
                     if(res.code == '1000'){
-                        
+                        if(flag == "front"){
+                            baiduParams.useridcardimg = res.data.url || ""
+                        }
+                        if(flag == "back"){
+                            baiduParams.useridcardimgb = res.data.url || ""
+                        }
                     }
                 }
             });
@@ -213,64 +222,131 @@
         
         // 获取最新表单数据
         $("#subBtn").on("click",function(){
-            // 获取最新表单记录
+            // 1、上传身份证信息，并获取useruuid
+            if(baiduParams.words_result){ // 解析出数据
+                let personInfo = baiduParams.words_result
+                var getuuidObj = {
+                    token: curr.token,
+                    caccountuuid: "" , //采集人账号uuid ,
+                    idcardeffectivetime: personInfo['失效日期'] ? personInfo['失效日期'].words : "" , //身份证有效期 ,
+                    issueorganization: personInfo['签发机关'] ? personInfo['签发机关'].words : "" ,//发证机关 ,
+                    nation : personInfo['民族'] ? personInfo['民族'].words : "" , //民族 ,
+                    useraddress : personInfo['住址'] ? personInfo['住址'].words :"" , //地址 ,
+                    userage : personInfo['出生'] ? personInfo['出生'].words :"" , //生日 ,
+                    useridcard : personInfo['公民身份号码'] ? personInfo['公民身份号码'].words : "" , //身份证号 ,
+                    username : personInfo['姓名'] ? personInfo['姓名'].words : "" , //姓名 ,
+                    usersex : personInfo['性别'] ? personInfo['性别'].words=='男'?'1':'2' : "" , //性别 1男 2女
+                    useridcardimg: baiduParams.useridcardimg , //身份证正面图片路径,用户信息上传时必传,数据监测扫描时有用户可不传 ,
+                    useridcardimgb: baiduParams.useridcardimgb, //身份证背面图片路径,用户信息上传时必传,数据监测扫描时有用户可不传 ,
+                }
+                $.ajax({
+                    url:  HOST+ "getIdcard", 
+                    data: JSON.stringify(getuuidObj),
+                    dataType: "json", // 服务器响应的数据类型
+                    contentType:"application/json",
+                    type: "POST", // 请求方式
+                    success: function (response) {
+                        console.log(response)
+                        if(response.code == '1000'){
+                            
+                            // 扫描身份证获取到的信息，存本地form
+                            let currScanCard = res.data || {}
+                            localStorage.setItem("currScanCard",JSON.stringify(currScanCard))
+                            curr.useruuid = response.data.useruuid || "" // 赋值
+
+                            // 2、是否存在相同用户相同检测人的未完成表单
+                            $.ajax({
+                                url:  HOST+ "getExistForm/" +curr.token+"/"+curr.mechanismuuid+"/"+curr.caccountuuid+"/"+curr.useruuid , 
+                                dataType: "json", 
+                                contentType:"application/json",
+                                type: "get", 
+                                success: function (res) {
+                                    console.log(res)
+                                    if(res.code == '1000'){
+
+                                        // 存本地form
+                                        let currForm = res.data || {}
+                                        localStorage.setItem("currForm",JSON.stringify(currForm))
+                                        // 当前页赋值
+                                        curr.status = res.data.status
+                                        curr.step = res.data.step
+
+                                        // 未完成
+                                        if(res.data.status==0){
+                                            // 弹窗
+                                            commonTools.popup({
+                                                title: '提示', //不传title 位置为空
+                                                msg: ['当前用户有未完成的检验流程'], // 消息文字为数组类型，
+                                                btn: [
+                                                        { name: '放弃', cla: '', fun: cancel_btn },
+                                                        { name: '保留', cla: 'msgPopupActivn', fun: goStep },
+                                                    ]
+                                            })
+                                        }
+
+                                        // 已完成
+                                        if(res.data.status==1){
+                                            // 跳心电检测
+                                        }
+                                    
+                                    }
+                                }
+                            });
+                            // 2、结束
+                            
+                        }
+                    }
+                });
+            } else {
+                // 解析出现问题
+            }
+            
+            
+            
+            
+        })
+
+        // 放弃
+        function cancel_btn(){
+            var localForm = JSON.parse(localStorage.getItem("currForm")) 
+            // 2、是否存在相同用户相同检测人的未完成表单
             $.ajax({
-                url:  HOST+ "getNewestForm/" +curr.token+"/"+curr.type, 
+                url:  HOST+ "giveupAgain/" +curr.token+"/"+localForm.formid+"/"+localForm.mechanismuuid+"/"+localForm.caccountuuid+"/"+localForm.useruuid , 
                 dataType: "json", 
                 contentType:"application/json",
                 type: "get", 
                 success: function (res) {
                     console.log(res)
                     if(res.code == '1000'){
-
-                        // 存本地form
-                        let currForm = res.data || {}
-                        localStorage.setItem("currForm",JSON.stringify(currForm))
-                        // 当前页赋值
-                        curr.status = res.data.status
-                        curr.step = res.data.step
-
-                        // 未完成
-                        if(res.data.status==0){
-                            // 弹窗
-                            commonTools.popup({
-                                title: '提示', //不传title 位置为空
-                                msg: ['当前用户有未完成的检验流程'], // 消息文字为数组类型，
-                                btn: [
-                                        { name: '放弃', cla: '', fun: cancel_btn },
-                                        { name: '保留', cla: 'msgPopupActivn', fun: goStep },
-                                    ]
-                            })
-                        }
-
-                        // 已完成
-                        if(res.data.status==1){
-                            // 跳心电检测
-                        }
-                      
+                    // 改变本地form
+                    localForm.status = 0
+                    localForm.step = 1
+                    localStorage.setItem("currForm",JSON.stringify(localForm) )
+                    // 跳心电检测 	
+                    window.location.href = "../inputData/inputHeartRate.html";
                     }
                 }
             });
-            
-            
-        })
-
-        function cancel_btn(){
-            // 改变本地form
-            let currForm = JSON.parse(localStorage.getItem("currForm"))
-            currForm.status = 0
-            currForm.step = 1
-            localStorage.setItem("currForm",JSON.stringify(currForm) )
-            // 跳心电检测
         }
+
+        // 保留
         function goStep(){
-            // 跳检测流程
+            // 跳检测流程 1心电 2血液血氧 3血脂血压 4尿液 5过敏史暴露史慢性病
             switch(curr.step) {
                 case 1:
-                    // 代码块
+                    window.location.href = "../inputData/inputHeartRate.html";
                     break;
                 case 2:
-                    // 代码块
+                    window.location.href = "../inputData/inputBloodOxygex.html";
+                    break;
+                case 3:
+                    window.location.href = "../inputData/inputPressFat.html";
+                    break;
+                case 4:
+                    window.location.href = "../check/ut/index.html";
+                    break;
+                case 5:
+                    window.location.href = "../collection/healthCollection.html";
                     break;
                 default:
                     // 默认代码块

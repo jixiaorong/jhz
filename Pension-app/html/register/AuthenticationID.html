@@ -75,7 +75,7 @@
         var curr = {
             token: 'da24284f2c8544ac82a6c95eb5713ece',
         }
-        var regType = '1' // 1采集员 2用户
+        var regType = getUrlParam("usertype") || "" // 1采集员 2用户
         var checkStatus = null // 审核状态
 
 
@@ -153,20 +153,20 @@
         }
 
         // 本地local数据存值
-        var longinData = {
+        var LS = {
             register:{
                 useridcardimg :"" , //身份证正面图片路径 ,
                 useridcardimgb :"" , //身份证背面图片路径 ,
                 words_result:"" , //百度OCR识别的数据 ,
+                times:0 , // 0：首次，1：非首次,默认是0，重新认证时是1
+                usertype: getUrlParam("usertype") || "",  // 1：采集员 ，2：用户
+                caccountuuid: getUrlParam("caccountuuid") || "",  // 类型用户时，存在采集员账号uuid
+                mechanismuuid: getUrlParam("mechanismuuid") || "",// 类型采集员时，存在采集员机构uuid
             }
         }
         
-        longinData.register.words_result = getBaiDuIdParams.words_result
-        localStorage.setItem('longinData',JSON.stringify(longinData) )
-        console.log()
-
-        getToken()
         // 获取百度token
+        getToken()
         function getToken() {
             $.ajax({
                 type: "get",  // 请求方式
@@ -227,14 +227,14 @@
                         console.log("解析成功");
                         console.log(data);
                         // 本地local数据存值
-                        let assignOObj = $.extend({},longinData.register.words_result,data.words_result); // 合并对象
-                        longinData.register.words_result = assignOObj
-                        localStorage.setItem('longinData',JSON.stringify(longinData))
+                        let assignOObj = $.extend({},LS.register.words_result,data.words_result); // 合并对象
+                        LS.register.words_result = assignOObj
+                        localStorage.setItem('LS',JSON.stringify(LS))
 
                         // 成功解析，才可获取到身份证号码，上传图片
                         let params= {
                             img :"data:image/png;base64," + imageBase, // base64图片 ,
-                            useridcard: data.words_result['公民身份号码'].words,
+                            useridcard: data.words_result['公民身份号码'] ? data.words_result['公民身份号码'].words : "",
                             type: regType // 1采集员 2用户
                         }
                         upLoadImgRegister(params,card_side)
@@ -254,18 +254,18 @@
             $("#frontID").parent().hide()
             $("#frontImage").parent().show()
             // 改变本地存储的注册数据
-            let longinData = JSON.parse(localStorage.getItem("longinData"))
-            longinData.register.useridcardimg = ''
-            localStorage.setItem("longinData",JSON.stringify(longinData) )
+            let LS = JSON.parse(localStorage.getItem("LS"))
+            LS.register.useridcardimg = ''
+            localStorage.setItem("LS",JSON.stringify(LS) )
         }
         function backClear(){
             $("#backID").prop("src","")
             $("#backID").parent().hide()
             $("#backImage").parent().show()
             // 改变本地存储的注册数据
-            let longinData = JSON.parse(localStorage.getItem("longinData"))
-            longinData.register.useridcardimgb = ''
-            localStorage.setItem("longinData",JSON.stringify(longinData) )
+            let LS = JSON.parse(localStorage.getItem("LS"))
+            LS.register.useridcardimgb = ''
+            localStorage.setItem("LS",JSON.stringify(LS) )
         }
 
         // 上传服务器，获取图片路径
@@ -280,11 +280,11 @@
                     console.log(res)
                     if(res.code == '1000'){
                         if(flag == 1){ 
-                            longinData.register.useridcardimg= res.data.url || ""  //身份证正面图片路径 ,
+                            LS.register.useridcardimg= res.data.url || ""  //身份证正面图片路径 ,
                         } else {
-                            longinData.register.useridcardimgb= res.data.url || ""  //身份证背面图片路径 ,
+                            LS.register.useridcardimgb= res.data.url || ""  //身份证背面图片路径 ,
                         }
-                        localStorage.setItem('longinData',JSON.stringify(longinData) )
+                        localStorage.setItem('LS',JSON.stringify(LS) )
                         checkStatus = res.data.status 
                     }
                 }
@@ -297,6 +297,14 @@
             // 1 采集员，2普通用户
             window.location.href='personalInfo.html?regType='+regType+"&checkStatus="+checkStatus
         })
+
+
+        //获取url中的参数
+        function getUrlParam(name) {
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
+            var r = window.location.search.substr(1).match(reg);  //匹配目标参数
+            if (r != null) return unescape(r[2]); return null; //返回参数值
+        }
         
 
     </script>

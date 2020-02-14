@@ -34,59 +34,59 @@
         <ul class="ut-list">
              <li>
                 <label class="_title">尿胆原 <span>(UBG)</span></label>
-                <label><input type="text" id="UBG" class="_text" ><i></i></label>
+                <label><input type="text" id="uro" class="_text" ><i></i></label>
             </li>
             <li>
                 <label class="_title">胆红素 <span>(BIL)</span></label>
-                <label><input type="text" id="BIL" class="_text"><i></i></label>
+                <label><input type="text" id="bil" class="_text"><i></i></label>
             </li>
             <li>
                 <label class="_title">酮体 <span>(KET)</span></label>
-                <label><input type="text" id="KET" class="_text" ><i></i></label>
+                <label><input type="text" id="ket" class="_text" ><i></i></label>
             </li>
             <li>
                 <label class="_title">潜血 <span>(BLD)</span></label>
-                <label><input type="text" id="BLD" class="_text" ><i></i></label>
+                <label><input type="text" id="bld" class="_text" ><i></i></label>
             </li>
             <li>
                 <label class="_title">蛋白质 <span>(PRO)</span></label>
-                <label><input type="text" id="PRO" class="_text" ><i></i></label>
+                <label><input type="text" id="pro" class="_text" ><i></i></label>
             </li>
             <li>
                 <label class="_title">亚硝酸盐 <span>(NIT)</span></label>
-                <label><input type="text" id="NIT" class="_text" ><i></i></label>
+                <label><input type="text" id="nit" class="_text" ><i></i></label>
             </li>
             <li>
                 <label class="_title">白细胞 <span>(WBC)</span></label>
-                <label><input type="text" id="WBC" class="_text" ><i></i></label>
+                <label><input type="text" id="leu" class="_text" ><i></i></label>
             </li>
             <li>
                 <label class="_title">葡萄糖 <span>(GLU)</span></label>
-                <label><input type="text" id="GLU" class="_text" ><i></i></label>
+                <label><input type="text" id="glu" class="_text" ><i></i></label>
             </li>
             <li>
                 <label class="_title">抗坏血酸 <span>(VC)</span></label>
-                <label><input type="text" id="VC" class="_text" ><i></i></label>
+                <label><input type="text" id="vc" class="_text" ><i></i></label>
             </li>
             <li>
                 <label class="_title">肌酐 <span>(CR)</span></label>
-                <label><input type="text" id="CR" class="_text" ><i></i></label>
+                <label><input type="text" id="cre" class="_text" ><i></i></label>
             </li>
             <li>
                 <label class="_title">尿钙 <span>(mmol/h)</span></label>
-                <label><input type="text" id="NG" class="_text" ><i></i></label>
+                <label><input type="text" id="uca" class="_text" ><i></i></label>
             </li>
             <li>
                 <label class="_title">低压微量白蛋白 <span>(mAib)</span></label>
-                <label><input type="text" id="mAib" class="_text" ><i></i></label>
+                <label><input type="text" id="mca" class="_text" ><i></i></label>
             </li>
             <li>
                 <label class="_title">酸碱度 <span>(pH)</span></label>
-                <label><input type="text" id="pH" class="_text" ><i></i></label>
+                <label><input type="text" id="ph" class="_text" ><i></i></label>
             </li>
             <li>
                 <label class="_title">比重 <span>(SG)</span></label>
-                <label><input type="text" id="SG" class="_text" ><i></i></label>
+                <label><input type="text" id="sg" class="_text" ><i></i></label>
             </li>
 
         </ul>
@@ -99,6 +99,23 @@
 </div>
 <script src="../../../js/NativeCommon.js"></script>
 <script>
+    var params = {
+        "bil": "string",
+        "bld": "string",
+        "cre": "string",
+        "glu": "string",
+        "ket": "string",
+        "leu": "string",
+        "mca": "string",
+        "nit": "string",
+        "ph": "string",
+        "pro": "string",
+        "sg": "string",
+        "uca": "string",
+        "uro": "string",
+        "vc": "string"
+    }
+
     var ls = {
         token : 'da24284f2c8544ac82a6c95eb5713ece',
         caccountuuid : '03e3c9bdc82d42fdb6eb8f02262c5867',
@@ -115,32 +132,36 @@
         }
     }
 
-    var ls = localStorage.getItem('LS');
+    // var ls = localStorage.getItem('currForm');
 
     //获取个人信息
-    common.ajaxFun("get", "getUrineDetail/"+ls.token+'/6' , "", Success, Error);
+    common.ajaxFun("get", "getUrineDetail/"+ls.token+'/8' , "", Success, Error);
 
-    //图表数据成功
+    //
     function Success(data){
         console.log(data);
         if(commonTools.interface(data)){
             var da = data.data;
+            //保存数据到本地
+            for(var key in params){
+                params[key] = da[key];
+            }
             //判断没有数据
             if(data.data != ''){
-                $("#BIL").val(da.bil);
-                $("#BLD").val(da.bld);
-                $("#CR").val(da.cre);
-                $("#GLU").val(da.glu);
-                $("#KET").val(da.ket);
-                $("#WBC").val(da.leu);
-                $("#mAib").val(da.mca);
-                $("#NIT").val(da.nit);
-                $("#pH").val(da.ph);
-                $("#PRO").val(da.pro);
-                $("#SG").val(da.sg);
-                $("#NG").val(da.uca);
-                $("#UBG").val(da.uro);
-                $("#VC").val(da.vc);
+                $("#bil").val(da.bil);
+                $("#bld").val(da.bld);
+                $("#cre").val(da.cre);
+                $("#glu").val(da.glu);
+                $("#ket").val(da.ket);
+                $("#leu").val(da.leu);
+                $("#mca").val(da.mca);
+                $("#nit").val(da.nit);
+                $("#ph").val(da.ph);
+                $("#pro").val(da.pro);
+                $("#sg").val(da.sg);
+                $("#uca").val(da.uca);
+                $("#uro").val(da.uro);
+                $("#vc").val(da.vc);
             }
         }
     }
@@ -153,49 +174,52 @@
 
     //提交数据
     $("#next").click(function(){
-        //如果页面没有修改则不用提交直接跳到下一页
-        if(false) {
-            window.location.href = '';
-            return false;
-        }
+
 
         //修改过
         var data ={
-            "bil": $("#BIL").val(),
-            "bld": $("#BLD").val(),
+            "bil": $("#bil").val(),
+            "bld": $("#bld").val(),
             "caccountuuid": ls.caccountuuid,
-            "cre": $("#CR").val(),
+            "cre": $("#cre").val(),
             "formid": 16,
-            "glu": $("#GLU").val(),
-            "ket": $("#KET").val(),
-            "leu": $("#WBC").val(),
-            "mca": $("#mAib").val(),
+            "glu": $("#glu").val(),
+            "ket": $("#ket").val(),
+            "leu": $("#leu").val(),
+            "mca": $("#mca").val(),
             "mechanismuuid": ls.mechanismuuid,
-            "nit": $("#NIT").val(),
-            "ph": $("#pH").val(),
-            "pro": $("#PRO").val(),
-            "sg": $("#SG").val(),
+            "nit": $("#nit").val(),
+            "ph": $("#ph").val(),
+            "pro": $("#pro").val(),
+            "sg": $("#sg").val(),
             "token": ls.token,
             "type": 1,
-            "uca": $("#NG").val(),
-            "uro": $("#UBG").val(),
+            "uca": $("#uca").val(),
+            "uro": $("#uro").val(),
             "useruuid": ls.useruuid,
-            "vc": $("#VC").val(),
+            "vc": $("#vc").val(),
         }
 
-        //提交接口
-        common.ajaxFun("post", "addUrine" , data, submitSuccess, submitError);
+
+        //如果页面没有修改则不用提交直接跳到下一页
+        if(isEdit(data)) {
+            //提交接口
+            common.ajaxFun("post", "addUrine" , data, submitSuccess, submitError);
+        }else{
+            window.location.href = '../../collection/healthCollection.html';
+            return false;
+        }
+
+
     })
 
     //提交成功
     function submitSuccess(data){
         console.log(data);
         if(commonTools.interface(data)){
-            //判断没有数据
-            if(data.data == ''){
-
-                return false;
-            }
+            window.location.href = '../../collection/healthCollection.html';
+            // localStorage.setItem('currForm')
+            return false;
         }
     }
 
@@ -204,6 +228,17 @@
         commonTools.Eject("网络连接异常")
     }
 
+    //判断是否修改过
+    function isEdit(data){
+        var bl = false;
+        for(var key in params){
+           if( params[key] != data[key]){
+               bl = true;
+               break;
+           }
+        }
+        return bl;
+    }
 </script>
 </body>
 </html>
