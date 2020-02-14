@@ -240,20 +240,20 @@
         if (usertype == '1') { //采集员
            if(times == 0){ //采集员首次注册
             var params = {
-                collectoraccount: collectoraccount, //采集员账号uuid
-                idcardeffectivetime: idcardeffectivetime,//身份证有效期 ,
-                issueorganization: issueorganization, //发证机关 ,
-                mechanismuuid: mechanismuuid, //机构uuid
-                nation: nation,
+                collectoraccount: TData.collectoraccount, //采集员账号uuid
+                idcardeffectivetime: TData.idcardeffectivetime,//身份证有效期 ,
+                issueorganization: TData.issueorganization, //发证机关 ,
+                mechanismuuid: TData.mechanismuuid, //机构uuid
+                nation: TData.nation,
                 password: password,
-                useraddress: useraddress,
-                userage: userage,
-                useridcard: useridcard,
-                useridcardimg: useridcardimg,
-                useridcardimgb: useridcardimgb,
-                username: username,
+                useraddress: TData.useraddress,
+                userage: TData.userage,
+                useridcard: TData.useridcard,
+                useridcardimg: TData.useridcardimg,
+                useridcardimgb: TData.useridcardimgb,
+                username: TData.username,
                 userphone: userphone,
-                usersex: usersex
+                usersex: TData.usersex
             }
             $.ajax({
                 type: "POST",
@@ -271,20 +271,20 @@
             });
            }else{ //采集员非首次注册
                 var params = {
-                    collectoraccount: collectoraccount,
-                    idcardeffectivetime: idcardeffectivetime,
-                    issueorganization: issueorganization,
-                    mechanismuuid: mechanismuuid,
-                    nation: nation,
+                    collectoraccount: TData.collectoraccount,
+                    idcardeffectivetime: TData.idcardeffectivetime,
+                    issueorganization: TData.issueorganization,
+                    mechanismuuid: TData.mechanismuuid,
+                    nation: TData.nation,
                     password: password,
-                    useraddress: useraddress,
-                    userage: userage,
-                    useridcard: useridcard,
-                    useridcardimg: useridcardimg,
-                    useridcardimgb: useridcardimgb,
-                    username: username,
+                    useraddress: TData.useraddress,
+                    userage: TData.userage,
+                    useridcard: TData.useridcard,
+                    useridcardimg: TData.useridcardimg,
+                    useridcardimgb: TData.useridcardimgb,
+                    username: TData.username,
                     userphone: userphone,
-                    usersex: usersex
+                    usersex: TData.usersex
                 }
                 $.ajax({
                     type: "POST",
@@ -303,20 +303,20 @@
            }
         } else if (usertype == '2') { //普通用户
             var params = {
-                caccountuuid: caccountuuid, //采集员账号uuid
-                idcardeffectivetime: idcardeffectivetime, //身份证有效期 ,
-                issueorganization: issueorganization, //发证机关 ,
-                nation: nation, //民族 ,
+                caccountuuid: TData.caccountuuid, //采集员账号uuid
+                idcardeffectivetime: TData.idcardeffectivetime, //身份证有效期 ,
+                issueorganization: TData.issueorganization, //发证机关 ,
+                nation: TData.nation, //民族 ,
                 password: password, //密码 ,
-                useraccount: useraccount, //账号 ,
-                useraddress: useraddress, //地址 ,
-                userage: userage, //生日 ,
-                useridcard: useridcard, //身份证号 ,
-                useridcardimg: useridcardimg, //: 身份证正面图片路径 ,
-                useridcardimgb: useridcardimgb, //身份证背面图片路径 ,
-                username: username, //姓名 ,
+                useraccount: TData.useraccount, //账号 ,
+                useraddress: TData.useraddress, //地址 ,
+                userage: TData.userage, //生日 ,
+                useridcard: TData.useridcard, //身份证号 ,
+                useridcardimg: TData.useridcardimg, //: 身份证正面图片路径 ,
+                useridcardimgb: TData.useridcardimgb, //身份证背面图片路径 ,
+                username: TData.username, //姓名 ,
                 userphone: userphone, //电话 ,
-                usersex: usersex, //性别 1男 2女
+                usersex: TData.usersex, //性别 1男 2女
             }
             $.ajax({
                 type: "POST",
