@@ -29,7 +29,7 @@
 .choosePwd input {
     display: none;
 }
-
+.history textarea{font-size: 0.28rem; color: #333; width: 100%;}
 .choosePwd input:checked+label {
     /* background: #2dcdb0; */
     color: #fff;
