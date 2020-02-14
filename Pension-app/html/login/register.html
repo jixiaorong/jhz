@@ -66,7 +66,6 @@
 </body>
 <script src="../../js/NativeCommon.js"></script>
 <script>
-    var usertype = 1; //1：采集员 ，2：用户
     var countdown = 60; //倒计时60s
     var Timer = ''; //定时器控制器
     var code = '';  //验证码
@@ -74,9 +73,30 @@
     var rgx = /(?=.*?[a-zA-Z])(?=.*?[0-9])[a-zA-Z0-9]{6,}$/; //验证密码
     var da = JSON.parse(localStorage.getItem('LS'));
     console.log(da.TData.times);
+    var usertype = 1; //1：采集员 ，2：用户
     var times = da.TData.times;
     console.log(da);
     console.log(HOST)
+    da.TData = {
+        usertype:usertype,//1：采集员 ，2：用户
+        times:times, // 0：首次，1：非首次,默认是0，重新认证时是1
+        caccountuuid: caccountuuid, //采集员账号uuid
+        idcardeffectivetime: idcardeffectivetime, //身份证有效期 ,
+        issueorganization: issueorganization, //发证机关 ,
+        nation: nation, //民族 ,
+        useraccount: useraccount, //账号 ,
+        useraddress: useraddress, //地址 ,
+        userage: userage, //生日 ,
+        useridcard: useridcard, //身份证号 ,
+        useridcardimg: useridcardimg, //: 身份证正面图片路径 ,
+        useridcardimgb: useridcardimgb, //身份证背面图片路径 ,
+        username: username, //姓名 ,
+        usersex: usersex, //性别 1男 2女
+
+        collectoraccount: collectoraccount, //采集员账号,
+        mechanismuuid: mechanismuuid,  //采集员机构uuid,
+
+    }
     document.body.addEventListener('touchstart', function () { }); //移动端给元素添加:active效果
 
 
