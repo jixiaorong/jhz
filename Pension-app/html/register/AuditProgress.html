@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>审核进度</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'>
+    <link rel="stylesheet" type="text/css" href="../../css/base.css">
+    <link rel="stylesheet" href="../../css/common.css">
+    <link rel="stylesheet" href="../../css/register/registerID.css">
+    <script type="text/javascript" src="../../js/jquery.min.js"></script>
+    <script type="text/javascript" src="../../js/fontSize.js"></script>
+    <script src="../../js/common.js"></script>
+    <style>
+        .pageContent{
+            width: calc(100% - 0.64rem);
+            margin: 0 0.32rem;
+        }
+        
+    </style>
+</head>
+
+
+
+<body>
+    <div class="pageFrame">
+        <!--页头-->
+        <div class="pageHeader">
+            <div class="headerLeft">
+                <img src="../../images/header/btn_return.png" id="goback" />
+            </div>
+            <div class="headerMiddle">
+                <span class="headerMiddle-text">审核进度</span>
+            </div>
+            <div class="headerRight">
+                <!-- <span id="register"></span> -->
+            </div>
+        </div>
+        <!--内容-->
+        <div class="pageContent">
+            <div class="progress">
+                <!-- active -->
+                <div class="item step1 ">
+                    <div class="num">1</div>
+                    <div class="text">填写信息</div>
+                </div>
+                <!-- currActive -->
+                <div class="item step2 ">
+                    <div class="num">2</div>
+                    <div class="text">审核等待</div>
+                </div>
+                <div class="item step3 ">
+                    <div class="num">3</div>
+                    <div class="text">认证成功</div>
+                </div>
+            </div>
+            <div class="pStatus">
+                <img src="../../images/register/ID_status.png" alt="">
+                <p>提交成功，请等待审核！</p>
+            </div>
+        </div>
+    </div>
+    
+
+    <script src="../../js/NativeCommon.js"></script>
+
+    <script>
+        // 0待审核 1已通过 2已拒绝 
+        // 获取本地缓存
+        var status = getUrlParam('status');
+        if(status == 0){
+            $(".step1").addClass("active")
+            $(".step2").addClass("currActive")
+        } else if(status == 1){
+            $(".step1").addClass("active")
+            $(".step2").addClass("active")
+            $(".step3").addClass("currActive")
+        }
+
+        //获取url中的参数
+        function getUrlParam(name) {
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
+            var r = window.location.search.substr(1).match(reg);  //匹配目标参数
+            if (r != null) return unescape(r[2]); return null; //返回参数值
+        }
+    
+     
+    </script>
+
+</body>
+
+</html>

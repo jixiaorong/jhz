@@ -115,6 +115,7 @@
         }
     }
 
+    var ls = localStorage.getItem('LS');
 
     //获取个人信息
     common.ajaxFun("get", "getUrineDetail/"+ls.token+'/6' , "", Success, Error);
@@ -152,8 +153,13 @@
 
     //提交数据
     $("#next").click(function(){
+        //如果页面没有修改则不用提交直接跳到下一页
+        if(false) {
+            window.location.href = '';
+            return false;
+        }
 
-
+        //修改过
         var data ={
             "bil": $("#BIL").val(),
             "bld": $("#BLD").val(),

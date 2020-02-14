@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>身份认证</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'>
+    <link rel="stylesheet" href="../../css/base.css">
+    <link rel="stylesheet" href="../../css/common.css">
+    <link rel="stylesheet" href="../../css/register/registerID.css">
+    <script type="text/javascript" src="../../js/jquery.min.js"></script>
+    <script type="text/javascript" src="../../js/fontSize.js"></script>
+    <script src="../../js/common.js"></script>
+</head>
+
+<body>
+    <div class="pageFrame">
+        <!--页头-->
+        <div class="pageHeader">
+            <div class="headerLeft">
+                <img src="../../images/header/btn_return.png" id="goback" />
+            </div>
+            <div class="headerMiddle">
+                <span class="headerMiddle-text">身份认证</span>
+            </div>
+            <div class="headerRight">
+            </div>
+        </div>
+        <!--内容-->
+        <div class="pageContent">
+            <div class="headTip">身份信息只用于注册，不泄露你的隐私</div>
+            <div class="scanID">
+                <div class="boxID">
+                    <div class="headID">
+                        <span>证件照正面</span>
+                        <span onclick="frontClear()">清空</span>
+                    </div>
+                    <div class="fileBox ">
+                        <input class="fileInput" type="file" id='frontImage' accept="image/*" capture='camera'  onchange="getImgData(event,'front')">
+                    </div>
+                    <div class="getPictureBox"  style="display: none;">
+                        <img class="picture" id="frontID" src="" alt=""  >
+                    </div>
+                </div>
+                
+                <div class="boxID">
+                    <div class="headID">
+                        <span>证件照反面</span>
+                        <span onclick="backClear()">清空</span>
+                    </div>
+                    <!-- 上传文件按钮 -->
+                    <div class="fileBox">
+                        <input class="fileInput" type="file" id='backImage' accept="image/*" capture='camera'  onchange="getImgData(event,'back')">
+                    </div>
+                    <!-- 获取的真正图片显示 -->
+                    <div class="getPictureBox"  style="display: none;">
+                        <img class="picture" id="backID" src="" alt=""  >
+                    </div>
+                </div>
+            </div>
+            <div class="_btn">
+                <button id="subBtn" >确定</button>
+            </div>
+        </div>
+    </div>
+    
+<script>
+   
+</script>
+    <script src="../../js/NativeCommon.js"></script>
+
+    <script>
+        var HOST ="http://47.94.3.197:28180/";
+        var access_token = ""; // 这里填写你的access_token
+        var curr = {
+            token: 'da24284f2c8544ac82a6c95eb5713ece',
+        }
+        var regType = '1' // 1采集员 2用户
+        var checkStatus = null // 审核状态
+
+
+        // 身份证数据解析
+        var getBaiDuIdParams={
+            "log_id": 2648325511,
+            "direction": 0,
+            "image_status": "normal",
+            "idcard_type": "normal",
+            "edit_tool": "Adobe Photoshop CS3 Windows",
+            "photo": "/9j/4AAQSkZJRgABA......",
+            "photo_location": {
+                "width": 1189,
+                "top": 638,
+                "left": 2248,
+                "height": 1483
+            },
+            "words_result": {
+                "住址": {
+                    "location": {
+                        "left": 267,
+                        "top": 453,
+                        "width": 459,
+                        "height": 99
+                    },
+                    "words": "南京市江宁区弘景大道3889号"
+                },
+                "公民身份号码": {
+                    "location": {
+                        "left": 443,
+                        "top": 681,
+                        "width": 589,
+                        "height": 45
+                    },
+                    "words": "330881199904173914"
+                },
+                "出生": {
+                    "location": {
+                        "left": 270,
+                        "top": 355,
+                        "width": 357,
+                        "height": 45
+                    },
+                    "words": "19990417"
+                },
+                "姓名": {
+                    "location": {
+                        "left": 267,
+                        "top": 176,
+                        "width": 152,
+                        "height": 50
+                    },
+                    "words": "伍云龙"
+                },
+                "性别": {
+                    "location": {
+                        "left": 269,
+                        "top": 262,
+                        "width": 33,
+                        "height": 52
+                    },
+                    "words": "男"
+                },
+                "民族": {
+                    "location": {
+                        "left": 492,
+                        "top": 279,
+                        "width": 30,
+                        "height": 37
+                    },
+                    "words": "汉"
+                }
+            },
+            "words_result_num": 6
+        }
+
+        // 本地local数据存值
+        var longinData = {
+            register:{
+                useridcardimg :"" , //身份证正面图片路径 ,
+                useridcardimgb :"" , //身份证背面图片路径 ,
+                words_result:"" , //百度OCR识别的数据 ,
+            }
+        }
+        
+        longinData.register.words_result = getBaiDuIdParams.words_result
+        localStorage.setItem('longinData',JSON.stringify(longinData) )
+        console.log()
+
+        getToken()
+        // 获取百度token
+        function getToken() {
+            $.ajax({
+                type: "get",  // 请求方式
+                url: HOST+ "getBaiduToken/"+ curr.token,
+                dataType: "json", 
+                contentType:"application/json",
+                success: function (res) {
+                    console.log(res)
+                    if(res.code == '1000'){
+                        access_token = res.data
+                    }
+                },
+                error:function(e){
+                    console.log(e)
+                }
+            });
+        }
+ 
+
+        // ***************************** 调取相机拍照   ***************************
+        // 监听
+        function getImgData(event,card_side) {
+            var imageBase = "";
+            var reader = new FileReader();
+            reader.readAsDataURL(event.target.files[0]);
+            reader.onload = function (e) {
+                console.log(e)
+                // alert(e.target.result)
+                imageBase = e.target.result.replace("data:image/png;base64,","");
+                if(card_side == "front"){
+                    $("#frontID").prop("src", "data:image/png;base64," + imageBase);
+                    $("#frontID").parent().show()
+                    $("#frontImage").parent().hide()
+                }
+                if(card_side == "back"){
+                    $("#backID").prop("src", "data:image/png;base64," + imageBase);
+                    $("#backID").parent().show()
+                    $("#backImage").parent().hide()
+                }
+                
+
+                // 百度OCR识别
+                $.ajax({
+                    header: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    type: "post",
+                    url: "https://aip.baidubce.com/rest/2.0/ocr/v1/idcard",
+                    async: true,
+                    data: {
+                        access_token: access_token,
+                        id_card_side: card_side,
+                        image: imageBase
+                    },
+                    dataType: "json",
+                    timeout: 30000,
+                    success: function (data) {
+                        console.log("解析成功");
+                        console.log(data);
+                        // 本地local数据存值
+                        let assignOObj = $.extend({},longinData.register.words_result,data.words_result); // 合并对象
+                        longinData.register.words_result = assignOObj
+                        localStorage.setItem('longinData',JSON.stringify(longinData))
+
+                        // 成功解析，才可获取到身份证号码，上传图片
+                        let params= {
+                            img :"data:image/png;base64," + imageBase, // base64图片 ,
+                            useridcard: data.words_result['公民身份号码'].words,
+                            type: regType // 1采集员 2用户
+                        }
+                        upLoadImgRegister(params,card_side)
+
+                    },
+                    error: function (xhr) {
+                        console.log("请求解析失败");
+                    }
+                });
+                
+            }
+        }
+        
+        // 清空操作
+        function frontClear(){
+            $("#frontID").prop("src","")
+            $("#frontID").parent().hide()
+            $("#frontImage").parent().show()
+            // 改变本地存储的注册数据
+            let longinData = JSON.parse(localStorage.getItem("longinData"))
+            longinData.register.useridcardimg = ''
+            localStorage.setItem("longinData",JSON.stringify(longinData) )
+        }
+        function backClear(){
+            $("#backID").prop("src","")
+            $("#backID").parent().hide()
+            $("#backImage").parent().show()
+            // 改变本地存储的注册数据
+            let longinData = JSON.parse(localStorage.getItem("longinData"))
+            longinData.register.useridcardimgb = ''
+            localStorage.setItem("longinData",JSON.stringify(longinData) )
+        }
+
+        // 上传服务器，获取图片路径
+        function upLoadImgRegister(params,flag){
+            $.ajax({
+                url:  HOST+ "api/uploadImgRegister",
+                data: JSON.stringify(params),
+                dataType: "json", // 服务器响应的数据类型
+                contentType:"application/json",
+                type: "POST", // 请求方式
+                success: function (res) {
+                    console.log(res)
+                    if(res.code == '1000'){
+                        if(flag == 1){ 
+                            longinData.register.useridcardimg= res.data.url || ""  //身份证正面图片路径 ,
+                        } else {
+                            longinData.register.useridcardimgb= res.data.url || ""  //身份证背面图片路径 ,
+                        }
+                        localStorage.setItem('longinData',JSON.stringify(longinData) )
+                        checkStatus = res.data.status 
+                    }
+                }
+            });
+        }
+
+
+        // 跳页
+        $("#subBtn").on("click",function(){
+            // 1 采集员，2普通用户
+            window.location.href='personalInfo.html?regType='+regType+"&checkStatus="+checkStatus
+        })
+        
+
+    </script>
+
+</body>
+
+</html>
