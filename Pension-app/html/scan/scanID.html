@@ -94,6 +94,7 @@
             step:'' ,   // 扫描完检测步骤
         }
         var baiduParams = {} // 扫描获取的数据
+        var compareObj = {}  // 比较对象
 
         getToken()
         // 获取百度token
@@ -153,8 +154,11 @@
                     success: function (data) {
                         console.log("解析成功");
                         console.log(data);
-                        let assignOObj = $.extend({},baiduParams,data); // 合并对象
-                        baiduParams = assignOObj // 赋值
+                        // 清空数据时，清空对应缓存
+                        compareObj[card_side] = data.words_result
+
+                        let assignOObj = $.extend({},baiduParams.words_result,data.words_result); // 合并对象
+                        baiduParams.words_result = assignOObj // 赋值
 
                         // 扫描正面获取到姓名、身份证号数据
                         if(data.words_result['姓名']){
@@ -169,7 +173,7 @@
                             $("#username").text(baiduParams.username)
                             $("#useridcard").text(baiduParams.useridcard)
                         }
-                        
+                        console.log(baiduParams)
                     },
                     error: function (xhr) {
                         console.log("请求解析失败");
@@ -191,11 +195,55 @@
             $("#frontID").prop("src","")
             $("#frontID").parent().hide()
             $("#frontImage").parent().show()
+            $("#frontImage").val("");
+            baiduParams.useridcardimg = ''
+            
+            //遍历
+            for(var key in baiduParams.words_result){
+                for(var k in compareObj['front']) {
+                    if(k == key){
+                        delete baiduParams.words_result[key]
+                        if(key=='姓名'){
+                            baiduParams.username =''
+                        }
+                        if(key=='公民身份号码'){
+                            baiduParams.useridcard =''
+                        }
+                    }
+                }  
+            }
+            // 判断无数据时的显示
+            if(!baiduParams.username && !baiduParams.useridcard){
+                $(".scanInfo").hide()
+            }
+            console.log(baiduParams)
         }
         function backClear(){
             $("#backID").prop("src","")
             $("#backID").parent().hide()
             $("#backImage").parent().show()
+            $("#backImage").val("");
+            
+            baiduParams.useridcardimgb = ''
+            //遍历
+            for(var key in baiduParams.words_result){
+                for(var k in compareObj['back']) {
+                    if(k == key){
+                        delete baiduParams.words_result[key]
+                        if(key=='姓名'){
+                            baiduParams.username =''
+                        }
+                        if(key=='公民身份号码'){
+                            baiduParams.useridcard =''
+                        }
+                    }
+                }  
+            }
+            // 判断无数据时的显示
+            if(!baiduParams.username && !baiduParams.useridcard){
+                $(".scanInfo").hide()
+            }
+            console.log(baiduParams)
         }
 
         // 上传服务器，获取图片路径
@@ -224,7 +272,7 @@
         $("#subBtn").on("click",function(){
             // 1、上传身份证信息，并获取useruuid
             if(baiduParams.words_result){ // 解析出数据
-                let personInfo = baiduParams.words_result
+                let personInfo = baiduParams.words_result || {}
                 var getuuidObj = {
                     token: curr.token,
                     caccountuuid: "" , //采集人账号uuid ,

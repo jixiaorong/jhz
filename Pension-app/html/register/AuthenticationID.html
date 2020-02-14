@@ -49,7 +49,7 @@
                         <span onclick="backClear()">清空</span>
                     </div>
                     <!-- 上传文件按钮 -->
-                    <div class="fileBox">
+                    <div class="fileBox ">
                         <input class="fileInput" type="file" id='backImage' accept="image/*" capture='camera'  onchange="getImgData(event,'back')">
                     </div>
                     <!-- 获取的真正图片显示 -->
@@ -70,14 +70,15 @@
     <script src="../../js/NativeCommon.js"></script>
 
     <script>
-        var HOST ="http://47.94.3.197:28180/";
+        // var HOST = common.HOST || "http://47.94.3.197:28180/";
         var access_token = ""; // 这里填写你的access_token
         var curr = {
             token: 'da24284f2c8544ac82a6c95eb5713ece',
         }
         var regType = getUrlParam("usertype") || "" // 1采集员 2用户
         var checkStatus = null // 审核状态
-
+        var compareObj = {}// 比较对象
+             
 
         // 身份证数据解析
         var getBaiDuIdParams={
@@ -226,11 +227,15 @@
                     success: function (data) {
                         console.log("解析成功");
                         console.log(data);
+                        // 清空数据时，清空对应缓存
+                        compareObj[card_side] = data.words_result
+
                         // 本地local数据存值
                         let assignOObj = $.extend({},LS.register.words_result,data.words_result); // 合并对象
                         LS.register.words_result = assignOObj
                         localStorage.setItem('LS',JSON.stringify(LS))
 
+                        
                         // 成功解析，才可获取到身份证号码，上传图片
                         let params= {
                             img :"data:image/png;base64," + imageBase, // base64图片 ,
@@ -253,19 +258,44 @@
             $("#frontID").prop("src","")
             $("#frontID").parent().hide()
             $("#frontImage").parent().show()
+            $("#frontImage").val("");
             // 改变本地存储的注册数据
             let LS = JSON.parse(localStorage.getItem("LS"))
             LS.register.useridcardimg = ''
+            //遍历
+            for(var key in LS.register.words_result){
+                for(var k in compareObj['front']) {
+                    if(k == key){
+                        delete LS.register.words_result[key]
+                    }
+                }  
+            }
             localStorage.setItem("LS",JSON.stringify(LS) )
+
+            console.log(LS.register)
+
         }
         function backClear(){
             $("#backID").prop("src","")
             $("#backID").parent().hide()
             $("#backImage").parent().show()
+            //上传成功后清空file元素中的内容，否则选择同一文件无法触发change事件
+            $("#backImage").val("");
+            
             // 改变本地存储的注册数据
             let LS = JSON.parse(localStorage.getItem("LS"))
             LS.register.useridcardimgb = ''
+            console.log(compareObj)
+            //遍历
+            for(var key in LS.register.words_result){
+                for(var k in compareObj['back']) {
+                    if(k == key){
+                        delete LS.register.words_result[key]
+                    }
+                }  
+            }
             localStorage.setItem("LS",JSON.stringify(LS) )
+            console.log(LS.register)
         }
 
         // 上传服务器，获取图片路径
@@ -294,8 +324,12 @@
 
         // 跳页
         $("#subBtn").on("click",function(){
-            // 1 采集员，2普通用户
-            window.location.href='personalInfo.html?regType='+regType+"&checkStatus="+checkStatus
+            if($("#frontID").attr("src") && $("#backID").attr("src") ){
+                window.location.href="personalInfo.html?checkStatus="+checkStatus
+            } else {
+                alert("请您录入完整身份证图片")
+            }
+            
         })
 
 

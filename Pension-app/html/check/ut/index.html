@@ -116,6 +116,10 @@
         "vc": "string"
     }
 
+
+    var ls = localStorage.getItem('LS');
+    var currForm = localStorage.getItem('currForm');
+
     var ls = {
         token : 'da24284f2c8544ac82a6c95eb5713ece',
         caccountuuid : '03e3c9bdc82d42fdb6eb8f02262c5867',
@@ -123,19 +127,10 @@
         mechanismuuid: "beea1e018c034c4fbd783a28210915a0",
         useruuid: "b1f8c362c3ba415ca5456195406c95af",
     }
-    var info = {
-        name : '',
-        id : '',
-        val : {
-            a : '', //阴阳性
-            b : ''  //数值
-        }
-    }
 
-    // var ls = localStorage.getItem('currForm');
-
-    //获取个人信息
-    common.ajaxFun("get", "getUrineDetail/"+ls.token+'/8' , "", Success, Error);
+    //获取尿液数据
+    // common.ajaxFun("get", "getUrineDetail/"+ls.token+'/'+ currForm.urineid , "", Success, Error);
+    common.ajaxFun("get", "getUrineDetail/"+ls.token+'/9' , "", Success, Error);
 
     //
     function Success(data){
@@ -217,8 +212,9 @@
     function submitSuccess(data){
         console.log(data);
         if(commonTools.interface(data)){
-            window.location.href = '../../collection/healthCollection.html';
-            // localStorage.setItem('currForm')
+            currForm.urineid = data.data.urineid;
+            localStorage.setItem('currForm',currForm)
+            // window.location.href = '../../collection/healthCollection.html';
             return false;
         }
     }
