@@ -83,53 +83,43 @@
 </body>
 <script src="../../js/NativeCommon.js"></script>
 <script>
-    console.log(localStorage.getItem("LS"))
+
     var localInfo = localStorage.getItem("LS") ? JSON.parse(localStorage.getItem("LS")) : {};//本地的存储信息
-    
-    var localData = {
-        token: "da24284f2c8544ac82a6c95eb5713ece",
-        form: {
-            caccountuuid: "03e3c9bdc82d42fdb6eb8f02262c5867",//采集人账号uuid 
-            formid: "16",// 表单id ,
-            mechanismuuid: "beea1e018c034c4fbd783a28210915a0",//机构端uuid
-            useruuid: "b1f8c362c3ba415ca5456195406c95af",// userinfo的uuid
-            choid:localInfo.form.choid || "",
-            uaid:localInfo.form.uaid || "",
-            bloodsugarid:localInfo.form.bloodsugarid || "",
-            bloodoxygenid:localInfo.form.bloodoxygenid || ""
-        }
-    }
+    var localForm = localStorage.getItem("currForm") ? JSON.parse(localStorage.getItem("currForm")) : {};//本地的存储信息
+    console.log("88")
+
     var local = {
-        token: localData.token,
-        blood1id: localData.form.choid,//总胆固醇的id
-        blood2id: localData.form.uaid,//尿酸的id
-        blood3id: localData.form.bloodsugarid,//血糖的id
-        bloodOxyenid: localData.form.bloodoxygenid ,//血氧的id
-        blood1:"",//旧的总胆固醇
-        blood2:"",//旧的尿酸
-        blood3:"",//旧的血糖
-        oldOxyData:"",//旧的血氧值
+        token: localInfo.token,
+        blood1id: localForm.choid,//总胆固醇的id
+        blood2id: localForm.uaid,//尿酸的id
+        blood3id: localForm.bloodsugarid,//血糖的id
+        bloodOxyenid: localForm.bloodoxygenid,//血氧的id
+        blood1: "",//旧的总胆固醇
+        blood2: "",//旧的尿酸
+        blood3: "",//旧的血糖
+        oldOxyData: "",//旧的血氧值
         type: "1",//手动
-        caccountuuid: localData.form.caccountuuid,//采集人账号uuid 
-        formid: localData.form.formid,// 表单id ,
-        mechanismuuid: localData.form.mechanismuuid,//机构端uuid
-        useruuid: localData.form.useruuid,// userinfo的uuid
+        caccountuuid: localForm.caccountuuid,//采集人账号uuid 
+        formid: localForm.formid,// 表单id ,
+        mechanismuuid: localForm.mechanismuuid,//机构端uuid
+        useruuid: localForm.useruuid,// userinfo的uuid
         blolean1: false,
         blolean2: false,
         blolean3: false,
         blolean4: false,
     }
 
-    $(function(){
-        localData.form.choid?getOldBlood1():""
-        localData.form.uaid?getOldBlood2():""
-        localData.form.bloodsugarid?getOldBlood3():""
-        localData.form.bloodoxygenid?getOldOxygen():""
+    $(function () {
+       local.blood1id ? getOldBlood1() : ""
+       local.blood2id? getOldBlood2() : ""
+       local.blood3id? getOldBlood3() : ""
+       local.bloodOxyenid ? getOldOxygen() : ""
     })
 
 
     // 获取旧的总胆固醇
     function getOldBlood1() {
+        console.log(local.blood1id)
         common.ajaxFun("get", "/getChoDetail/" + local.token + "/" + local.blood1id, "", getBlood1Success, getBloodFail)
         // 请求成功
         function getBlood1Success(data) {
@@ -185,7 +175,7 @@
             console.log(data);
             if (data.code == 1000) {
                 var newData = data.data;
-                local.oldOxyData = newData
+                local.oldOxyData = newData.bloodoxygen
                 $("#bloodOxygen").val(newData.bloodoxygen)
             }
         }
@@ -198,10 +188,10 @@
 
     // 上一页
     $(".headerLeft").click(function () {
-        window.history.go(-1);
+        window.location.href = "./inputHeartRate.html"
     })
     $(".pre_btn").click(function () {
-        window.history.go(-1);
+        window.location.href = "./inputHeartRate.html"
     })
 
     // 处理数据
@@ -236,6 +226,7 @@
     function allOk() {
         if (local.blolean1 && local.blolean2 && local.blolean3 && local.blolean4) {
             console.log(888);
+            alert("zou ")
             window.location.href = "./inputPressFat.html"
         }
     }
@@ -243,39 +234,39 @@
     // 添加胆固醇数据
     function addNewData() {
         // 添加胆固醇数据
-        if(local.blood1 || local.blood2 || local.blood3 || local.oldOxyData){
+        if (!local.blood1id && local.blood2id && local.blood3id && !local.bloodOxyenid) {
+            alert("不走")
             window.location.href = "./inputPressFat.html"
             return false;
         }
-        console.log($("#blood1").val() , local.blood1)
-        if ($("#blood1").val() != local.blood1 || !local.blood1) {
+        console.log($("#blood1").val(), local.blood1)
+        if (($("#blood1").val() != local.blood1 && local.blood1id) || !local.blood1id) {
             var newData = dealData("1", $("#blood1").val());
             console.log(newData);
             common.ajaxFun("post", "/addCho", newData, Blood1Success, addFail)
         }
         // // 添加尿酸数据
-        if ($("#blood2").val() != local.blood2 || !local.blood2) {
+        if (($("#blood2").val() != local.blood2 && local.blood2id) || !local.blood2id) {
             var newData = dealData("2", $("#blood2").val())
             common.ajaxFun("post", "/addUa", newData, Blood2Success, addFail)
         }
         // // 添加血糖数据
-        if ($("#blood3").val() != local.blood3 || !local.blood3) {
+        if (($("#blood3").val() != local.blood3 && local.blood3id) || !local.blood3id) {
             var newData = dealData("3", $("#blood3").val())
             common.ajaxFun("post", "/addBloodSugar", newData, Blood3Success, addFail)
         }
         // 血氧
-        if ($("#bloodOxygen").val() != local.oldOxyData || !local.oldOxyData) {
+        if (($("#bloodOxygen").val() != local.oldOxyData && local.bloodOxyenid) || !local.bloodOxyenid) {
             var newData = dealData("4", $("#bloodOxygen").val())
             common.ajaxFun("post", "/addBloodOxygen", newData, Blood4Success, addFail)
         }
-        
+
         function Blood1Success(data) {
             console.log(data)
             if (data.code == 1000) {
                 local.blolean1 = true;
-                // localData.form.choid  = data.data.choid 
-                localData.form.choid  = data.data 
-                localStorage.setItem("LS",JSON.stringify(localData))
+                localForm.choid = data.data.choid
+                localStorage.setItem("currForm", JSON.stringify(localForm))
                 allOk()
             }
         }
@@ -283,9 +274,8 @@
             console.log(data)
             if (data.code == 1000) {
                 local.blolean2 = true;
-                // localData.form.uaid  = data.data.uaid 
-                localData.form.uaid  = data.data
-                localStorage.setItem("LS",JSON.stringify(localData))
+                localForm.uaid = data.data.uaid
+                localStorage.setItem("currForm", JSON.stringify(localForm))
                 allOk()
             }
         }
@@ -293,19 +283,17 @@
             console.log(data)
             if (data.code == 1000) {
                 local.blolean3 = true;
-                // localData.form.bloodsugarid  = data.data.bloodsugarid  
-                localData.form.bloodsugarid  = data.data  
-                localStorage.setItem("LS",JSON.stringify(localData))
+                localForm.bloodsugarid = data.data.bloodsugarid
+                localStorage.setItem("currForm", JSON.stringify(localForm))
                 allOk()
             }
         }
         function Blood4Success(data) {
             console.log(data)
             if (data.code == 1000) {
-                local.blolean4 = true;
-                // localData.form.bloodoxygenid   = data.data.bloodoxygenid   
-                localData.form.bloodoxygenid   = data.data   
-                localStorage.setItem("LS",JSON.stringify(localData))
+                local.blolean4 = true;   
+                localForm.bloodoxygenid = data.data.bloodoxygenid
+                localStorage.setItem("currForm", JSON.stringify(localForm))
                 allOk()
             }
         }

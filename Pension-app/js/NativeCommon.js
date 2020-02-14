@@ -4,7 +4,6 @@ var imgUrl = "https://image.jinhuaze-health.com/"; // 正式环境图片地2址
 
 
 var _LocalTesting = true; //true本地测试
-var testImg = false; //是否是测试图片
 
 var common = {
     ajaxFun: function (type, url, data, suc, error, boolean) {

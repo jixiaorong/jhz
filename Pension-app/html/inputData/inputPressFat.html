@@ -109,31 +109,22 @@
 <script>
 
     var localInfo = localStorage.getItem("LS") ? JSON.parse(localStorage.getItem("LS")) : {};//本地的存储信息
-    var localData = {
-        token: "da24284f2c8544ac82a6c95eb5713ece",
-        form: {
-            caccountuuid: "03e3c9bdc82d42fdb6eb8f02262c5867",//采集人账号uuid 
-            formid: "16",// 表单id ,
-            mechanismuuid: "beea1e018c034c4fbd783a28210915a0",//机构端uuid
-            useruuid: "b1f8c362c3ba415ca5456195406c95af",// userinfo的uuid
-            bloodfatid: localInfo.form.bloodfatid || "",
-            bloodpressureid: localInfo.form.bloodpressureid || "",
-        }
-    }
+    var localForm = localStorage.getItem("currForm") ? JSON.parse(localStorage.getItem("currForm")) : {};//本地的存储信息
+    console.log(localForm)
 
     var local = {
-        token: localData.token,
-        bloodpressureid: localData.form.bloodpressureid,//血压的id
-        bloodfatid: localData.form.bloodfatid,//血脂的id
+        token: localInfo.token,
+        bloodpressureid: localForm.bloodpressureid,//血压的id
+        bloodfatid: localForm.bloodfatid,//血脂的id
         oldPressData: "",//旧的血压值
         oldFatData: "",//旧的血脂值
         isNextFat: false,
         isNext: false,
         type: "1",//手动
-        caccountuuid: localData.form.caccountuuid,//采集人账号uuid 
-        formid: localData.form.formid,// 表单id ,
-        mechanismuuid: localData.form.mechanismuuid,//机构端uuid
-        useruuid: localData.form.useruuid,// userinfo的uuid
+        caccountuuid: localForm.caccountuuid,//采集人账号uuid 
+        formid: localForm.formid,// 表单id ,
+        mechanismuuid: localForm.mechanismuuid,//机构端uuid
+        useruuid: localForm.useruuid,// userinfo的uuid
     }
 
     // 获取旧的血压值
@@ -187,65 +178,97 @@
 
     })
 
-
     // 添加血脂
     function addFat() {
-        if (!local.bloodfatid || $("#fat1").val() != local.oldFatData.tc || $("#fat2").val != local.oldFatData.hdl ||
-            $("#fat3").val() != local.oldFatData.ldl || $("#fat4").val() != local.oldFatData.tg ||
-            $("#fat5").val() != local.oldFatData.tcHdl) {
-            var postData = {
-                caccountuuid: local.caccountuuid,//采集员uuid 
-                formid: local.formid,//表单id ,
-                mechanismuuid: local.mechanismuuid,//机构uuid ,
-                token: local.token,//token ,
-                type: local.type,// 数据来源 0检测 1手写
-                useruuid: local.useruuid,//用户uuid
-                hdl: $("#fat2").val,//高密度 ,
-                ldl: $("#fat3").val(),//低密度
-                tc: $("#fat1").val(),//总胆固醇
-                tcHdl: $("#fat5").val(),//总胆固醇/ 高密
-                tg: $("#fat4").val(),//甘油三酯
-            }
-            common.ajaxFun("post", "/addBloodFat", postData, addSuccess, addFail);
-            function addSuccess(data) {
-                console.log(data)
-                if (data.code == 1000) {
-                    local.isNextFat = true;
-                    localData.form.bloodfatid = data.data
-                    localStorage.setItem("LS", JSON.stringify(localData))
-                    if (local.isNextFat && local.isNext) {
-                        window.location.href = "../check/ut/index备份.html"
-                    }
+        var postData = {
+            caccountuuid: local.caccountuuid,//采集员uuid 
+            formid: local.formid,//表单id ,
+            mechanismuuid: local.mechanismuuid,//机构uuid ,
+            token: local.token,//token ,
+            type: local.type,// 数据来源 0检测 1手写
+            useruuid: local.useruuid,//用户uuid
+            hdl: $("#fat2").val,//高密度 ,
+            ldl: $("#fat3").val(),//低密度
+            tc: $("#fat1").val(),//总胆固醇
+            tcHdl: $("#fat5").val(),//总胆固醇/ 高密
+            tg: $("#fat4").val(),//甘油三酯
+        }
+        common.ajaxFun("post", "/addBloodFat", postData, addSuccess, addFail);
+        function addSuccess(data) {
+            console.log(data)
+            if (data.code == 1000) {
+                local.isNextFat = true;
+                localForm.bloodfatid = data.data.bloodfatid
+                localStorage.setItem("currForm", JSON.stringify(localForm))
+                if (local.isNextFat && local.isNext) {
+                    console.log(88)
+                    // window.location.href = "../check/ut/index.html"
                 }
             }
         }
-        // 添加血压
-        if (!local.bloodpressureid || $("#heightPress").val() != local.oldPressData.hbp || $("#lowPress").val() != local.oldPressData.lbp) {
-            var postData = {
-                caccountuuid: local.caccountuuid,//采集员uuid 
-                formid: local.formid,//表单id ,
-                hbp: $("#heightPress").val(),// 收缩压  ,
-                lbp: $("#lowPress").val(),//舒张压  ,
-                mechanismuuid: local.mechanismuuid,//机构端uuid,
-                token: local.token,//token ,
-                type: local.type,// 数据来源 0检测 1手写
-                useruuid: local.useruuid,//用户uuid
-            }
-            console.log(postData)
-            common.ajaxFun("post", "/addBloodPressure", postData, addPresSuccess, addFail);
+    }
 
-            function addPresSuccess(data) {
-                console.log(data)
-                if (data.code == 1000) {
-                    local.isNext = true;
-                    localData.form.bloodpressureid = data.data
-                    localStorage.setItem("LS", JSON.stringify(localData))
-                    if (local.isNextFat && local.isNext) {
-                        window.location.href = "../check/ut/index备份.html"
-                    }
+    // 添加血压
+    function adPress() {
+        var postData = {
+            caccountuuid: local.caccountuuid,//采集员uuid 
+            formid: local.formid,//表单id ,
+            hbp: $("#heightPress").val(),// 收缩压  ,
+            lbp: $("#lowPress").val(),//舒张压  ,
+            mechanismuuid: local.mechanismuuid,//机构端uuid,
+            token: local.token,//token ,
+            type: local.type,// 数据来源 0检测 1手写
+            useruuid: local.useruuid,//用户uuid
+        }
+        console.log(postData)
+        common.ajaxFun("post", "/addBloodPressure", postData, addPresSuccess, addFail);
+
+        function addPresSuccess(data) {
+            console.log(data)
+            if (data.code == 1000) {
+                local.isNext = true;
+                localForm.bloodpressureid = data.data.bloodpressureid
+                localStorage.setItem("currForm", JSON.stringify(localForm))
+                if (local.isNextFat && local.isNext) {
+                    console.log(77)
+                    // window.location.href = "../check/ut/index.html"
                 }
             }
         }
+    }
+
+
+    // 添加数据
+    function addNewData() {
+        if (local.bloodfatid) {
+            if ($("#fat1").val() != local.oldFatData.tc || $("#fat2").val() != local.oldFatData.hdl ||
+                $("#fat3").val() != local.oldFatData.ldl || $("#fat4").val() != local.oldFatData.tg ||
+                $("#fat5").val() != local.oldFatData.tcHdl) {
+                    addFat()
+            } else {
+                local.isNextFat = true
+                if (local.isNextFat && local.isNext) {
+                    window.location.href = "../check/ut/index.html"
+                }
+            }
+        } else {
+            addFat()
+        }
+        console.log(33)
+        // 添加血压
+        if (local.bloodpressureid) {
+            if ($("#heightPress").val() != local.oldPressData.hbp || $("#lowPress").val() != local.oldPressData.lbp) {
+                adPress()
+            }else{
+                local.isNext = true
+                if (local.isNextFat && local.isNext) {
+                    window.location.href = "../check/ut/index.html"
+                }
+            }
+        }else{
+            adPress()
+        }
+
     }
 
 
@@ -256,15 +279,15 @@
 
     // 返回上一页
     $(".headerLeft").click(function () {
-        window.history.go(-1);
+        window.location.href = "./inputBloodOxygex.html"
     })
     $(".pre_btn").click(function () {
-        window.history.go(-1);
+        window.location.href = "./inputBloodOxygex.html"
     })
 
     //下一页
     $(".next_btn").click(function () {
-        addFat();
+        addNewData();
     })
 </script>
 
