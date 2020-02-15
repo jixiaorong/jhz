@@ -90,21 +90,8 @@
                     phonenum: $("#phone").val(),
                     smscodeType: 2 //短信类型 0:登录，1:注册，2：忘记密码
                 };
-
-                $.ajax({
-                    type: "POST",
-                    contentType: "application/json;charset=UTF-8",
-                    url: HOST + "/api/sendMsg",
-                    data: JSON.stringify(params),
-                    success: function (res) {
-                        console.log(res)
-                        Success(res);
-                    },
-                    error: function (e) {
-                        console.log(e.status);
-                        console.log(e.responseText);
-                    }
-                });
+                common.ajaxFun("post", "/api/sendMsg", params, Success, error)
+                
             }
 
         }
@@ -138,7 +125,7 @@
                 commonTools.Eject("手机号未注册");
                 setTimeout(function(){
                     window.location.replace("login.html");
-                },600)
+                },1000)
                 return false;
             }
 
@@ -156,7 +143,7 @@
                 commonTools.Eject(data.msg);
             }
         }
-
+        function error(e){}
 
 
 
