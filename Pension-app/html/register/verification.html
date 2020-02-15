@@ -74,28 +74,34 @@
 
     var da = JSON.parse(localStorage.getItem('LS'));
     var TData = {
-        usertype:da.TData.usertype,//1：采集员 ，2：用户
-        times:da.TData.times, // 0：首次，1：非首次,默认是0，重新认证时是1
+        usertype:da.TData.usertype?da.TData.usertype:2,//1：采集员 ，2：用户
+        times:da.TData.times?da.TData.times:0, // 0：首次，1：非首次,默认是0，重新认证时是1
         
         caccountuuid: da.TData.caccountuuid, //采集员账号uuid
-        idcardeffectivetime: da.TData.idcardeffectivetime, //身份证有效期 ,
-        issueorganization: da.TData.issueorganization, //发证机关 ,
+        idcardeffectivetime: FormatDate(da.TData.startDate)+"-"+FormatDate(da.TData.endDate), //身份证有效期 ,
+        issueorganization: da.TData.issue, //发证机关 ,
         nation: da.TData.nation, //民族 ,
-        useraccount: da.TData.useraccount, //账号 ,
-        useraddress: da.TData.useraddress, //地址 ,
-        userage: da.TData.userage, //生日 ,
-        useridcard: da.TData.useridcard, //身份证号 ,
-        useridcardimg: da.TData.useridcardimg, //: 身份证正面图片路径 ,
-        useridcardimgb: da.TData.useridcardimgb, //身份证背面图片路径 ,
-        username: da.TData.username, //姓名 ,
-        usersex: da.TData.usersex, //性别 1男 2女
+        //useraccount: da.TData.useraccount, //账号 ,
+        useraddress: da.TData.address, //地址 ,
+        userage: FormatDate(da.TData.date), //生日 ,
+        useridcard: da.TData.idCard, //身份证号 ,
+        useridcardimg: da.TData.frontImg, //: 身份证正面图片路径 ,
+        useridcardimgb: da.TData.backImg, //身份证背面图片路径 ,
+        username: da.TData.name, //姓名 ,
+        usersex: da.TData.sex=='女'?'2':'1', //性别 1男 2女
 
         collectoraccount:da.TData.collectoraccount, //采集员账号,
         mechanismuuid: da.TData.mechanismuuid,  //采集员机构uuid,
     }
     console.log(da);
     console.log(TData);
-
+    //日期格式转换19840416 =》 1984-04-16
+    function FormatDate(date){
+        var y = date.substr(0,4);
+        var m = date.substr(4,2);
+        var d = date.substr(6,2);
+        return y+'-'+m+'-'+d;
+    }
     document.body.addEventListener('touchstart', function () { }); //移动端给元素添加:active效果
 
 
@@ -233,8 +239,8 @@
 
     //注册请求
     function PostRegisterAjax(userphone,password) {
-        if (usertype == '1') { //采集员
-           if(times == 0){ //采集员首次注册
+        if (TData.usertype == '1') { //采集员
+           if(TData.times == 0){ //采集员首次注册
             var params = {
                 collectoraccount: TData.collectoraccount, //采集员账号uuid
                 idcardeffectivetime: TData.idcardeffectivetime,//身份证有效期 ,
@@ -251,6 +257,7 @@
                 userphone: userphone,
                 usersex: TData.usersex
             }
+            console.log(params)
             $.ajax({
                 type: "POST",
                 contentType: "application/json;charset=UTF-8",
@@ -282,6 +289,8 @@
                     userphone: userphone,
                     usersex: TData.usersex
                 }
+                console.log("采集员二次注册:")
+            console.log(params)
                 $.ajax({
                     type: "POST",
                     contentType: "application/json;charset=UTF-8",
@@ -297,14 +306,14 @@
                     }
                 });
            }
-        } else if (usertype == '2') { //普通用户
+        } else if (TData.usertype == '2') { //普通用户
             var params = {
                 caccountuuid: TData.caccountuuid, //采集员账号uuid
                 idcardeffectivetime: TData.idcardeffectivetime, //身份证有效期 ,
                 issueorganization: TData.issueorganization, //发证机关 ,
                 nation: TData.nation, //民族 ,
                 password: password, //密码 ,
-                useraccount: TData.useraccount, //账号 ,
+                useraccount: userphone, //账号 ,
                 useraddress: TData.useraddress, //地址 ,
                 userage: TData.userage, //生日 ,
                 useridcard: TData.useridcard, //身份证号 ,
@@ -314,10 +323,11 @@
                 userphone: userphone, //电话 ,
                 usersex: TData.usersex, //性别 1男 2女
             }
+            console.log(params)
             $.ajax({
                 type: "POST",
                 contentType: "application/json;charset=UTF-8",
-                url: HOST + "/registerCollector",
+                url: HOST + "/api/userRegister",
                 data: JSON.stringify(params),
                 success: function (res) {
                     console.log(res);
