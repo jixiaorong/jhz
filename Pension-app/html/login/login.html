@@ -37,7 +37,7 @@
             <div class="login_form">
                 <div class="form form1">
                     <div class="row">
-                        <input type="text" class="input account" placeholder="请输入账号/手机号/身份证号" value="13555765422" />
+                        <input type="text" class="input account" placeholder="请输入账号/手机号/身份证号" value="" />
                     </div>
                     <div class="row">
                         <input type="password" class="input password" placeholder="请输入密码" />
@@ -118,7 +118,6 @@
         Timer = setInterval(function () {
             $('.countdown').show().text(countdown + 's');
             countdown--;
-            //console.log(countdown)
             if (countdown == -1) {
                 clearInterval(Timer);
                 countdown = 60;
