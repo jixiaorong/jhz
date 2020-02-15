@@ -32,28 +32,28 @@
 
         <!--内容-->
         <div class="pageContent">
-                <p class="font28_86" id="tisi">当前为<span id="myTel" style="margin:0 0.1rem;"></span>的手机号重置登录密码</p>
-                <div id="ymm" class="input_pwd" style="display:none;">
-                    <span>原密码</span>
-                    <input type="password" placeholder="请输入原密码" id="orpsword">
-                </div>
-                <div class="input_pwd border_">
-                    <span>设置密码</span>
-                    <input type="password" placeholder="请设置登录密码" id="password">
-                </div>
-                <div class="input_pwd border_">
-                    <span>确认密码</span>
-                    <input type="password" placeholder="请再次输入登录密码" id="repsword">
-                </div>
-                <p class="font28_86">您的密码需是6位以上的数字和英文字母的组合，区分
-                    大小写</p>
-                <div class="Btn Btn-Activn Btn-radius" id="btn">
-                    确认
-                </div>
+            <p class="font28_86" id="tisi">当前为<span id="myTel" style="margin:0 0.1rem;"></span>的手机号重置登录密码</p>
+            <div id="ymm" class="input_pwd" style="display:none;">
+                <span>原密码</span>
+                <input type="password" placeholder="请输入原密码" id="orpsword">
+            </div>
+            <div class="input_pwd border_">
+                <span>设置密码</span>
+                <input type="password" placeholder="请设置登录密码" id="password">
+            </div>
+            <div class="input_pwd border_">
+                <span>确认密码</span>
+                <input type="password" placeholder="请再次输入登录密码" id="repsword">
+            </div>
+            <p class="font28_86">您的密码需是6位以上的数字和英文字母的组合，区分
+                大小写</p>
+            <div class="Btn Btn-Activn Btn-radius" id="btn">
+                确认
+            </div>
         </div>
     </div>
 
-   
+
     <script src="../../js/NativeCommon.js"></script>
 
     <script>
@@ -90,16 +90,16 @@
                 "username": ""
             }
         };
-        
+
 
         pushData(da.TData); //页面参数值初始化
         function pushData(data) {
             console.log(data);
             $("#myTel").text(commonTools.splitTel(data.phonenum));
-             pageda.phonenum = data.phonenum;
-             pageda.smscode = data.smscode;
-             pageda.type = data.type;
-             pageda.id = data.id;
+            pageda.phonenum = data.phonenum;
+            pageda.smscode = data.smscode;
+            pageda.type = data.type;
+            pageda.id = data.id;
             if (data.type == '0') {
                 $("#ymm").show();
             } else {
@@ -121,15 +121,11 @@
 
         $("#btn").click(function () {
 
-             pageda.password = $.trim($("#password").val());
-             pageda.confirm = $.trim($("#repsword").val());
+            pageda.password = $.trim($("#password").val());
+            pageda.confirm = $.trim($("#repsword").val());
             var orpsword = $.trim($("#orpsword").val());
-            console.log("password:"+pageda.password )
-            console.log("confirm:"+pageda.confirm)
-            console.log(rgx.test( pageda.password))
-            console.log(MYCOMMON.isUsername( pageda.password))
-            if ( pageda.password != '' &&  pageda.confirm != '') {
-                if (!rgx.test( pageda.password) || !MYCOMMON.isUsername( pageda.password) || !MYCOMMON.isUsername(da.confirm)) {
+            if (pageda.password != '' && pageda.confirm != '') {
+                if (!rgx.test(pageda.password) || !MYCOMMON.isUsername(pageda.password) || !MYCOMMON.isUsername(da.confirm)) {
                     commonTools.Eject('密码格式错误');
                     isJump = true
                     return false;
@@ -138,14 +134,14 @@
 
 
             //如果是首次登陆 smscode传token
-            if ( pageda.type == '1') {
-                 pageda.smscode = userdata.token;
+            if (pageda.type == '1') {
+                pageda.smscode = userdata.token;
 
 
             }
 
             //如果修改密码smscode 传原密码
-            if ( pageda.type == '0') {
+            if (pageda.type == '0') {
 
                 if (orpsword == '') {
                     commonTools.Eject('原密码不能为空');
@@ -155,32 +151,32 @@
 
 
 
-                if (orpsword != '' &&  pageda.password != '' &&  pageda.confirm != '' && !rgx.test( pageda.password) || !MYCOMMON.isUsername( pageda.password) || !MYCOMMON.isUsername(da
+                if (orpsword != '' && pageda.password != '' && pageda.confirm != '' && !rgx.test(pageda.password) || !MYCOMMON.isUsername(pageda.password) || !MYCOMMON.isUsername(da
                     .confirm)) {
                     commonTools.Eject('密码格式错误');
                 }
 
-                 pageda.smscode = orpsword;
+                pageda.smscode = orpsword;
             }
 
 
-            if ( pageda.password == '') {
+            if (pageda.password == '') {
                 commonTools.Eject('密码不能为空');
                 isJump = true
                 return false;
             }
 
-            if ( pageda.confirm == '') {
+            if (pageda.confirm == '') {
                 commonTools.Eject('确认密码不能为空');
                 isJump = true
                 return false;
             }
-            if (orpsword ==  pageda.password && orpsword ==  pageda.confirm) {
+            if (orpsword == pageda.password && orpsword == pageda.confirm) {
                 commonTools.Eject('新密码与原密码相同');
                 isJump = true
                 return false;
             }
-            if ( pageda.password !=  pageda.confirm) {
+            if (pageda.password != pageda.confirm) {
                 commonTools.Eject('两次密码不同，请重新输入');
                 isJump = true;
                 return false;
@@ -191,24 +187,13 @@
             }
             isJump = false;
 
-            // common.ajaxFun("post", "member/api/resetPassword", da, 'Success', 'Error');
             var params = {
                 confirmpwd: pageda.confirm,
                 phone: pageda.phonenum,
                 pwd: pageda.password
             }
-            $.ajax({
-                type: "POST",
-                contentType: "application/json;charset=UTF-8",
-                url: HOST + "/api/findPwd",
-                data: JSON.stringify(params),
-                success: function (res) {
-                    Success(res)
-                },
-                error: function (e) {
-                    Error(e)
-                }
-            });
+            common.ajaxFun("post", "/api/findPwd", params, Success, Error)
+
         });
 
 
@@ -217,16 +202,16 @@
          * **/
         function Success(data) {
             if (data.code == '1000') {
-                if ( pageda.type == '0') {
+                if (pageda.type == '0') {
                     isJump = false;
                     commonTools.Eject('密码修改成功', function () {
                         LoginSucess();
 
                     });
-                } else if ( pageda.type == '2') {
+                } else if (pageda.type == '2') {
                     isJump = false;
                     LoginSucess();
-                } else if ( pageda.type == '1') {
+                } else if (pageda.type == '1') {
                     isJump = false;
                     commonTools.Eject('密码设置成功', function () {
                         LoginSucess();
@@ -263,10 +248,10 @@
          * 保存登录数据成功
          * **/
         function LoginSucess(data) {
-            setTimeout(function(){
+            setTimeout(function () {
                 window.location.replace("login.html");
-            },600)
-            
+            }, 600)
+
         }
 
         //返回上一页
