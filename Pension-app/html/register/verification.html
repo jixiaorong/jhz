@@ -49,7 +49,7 @@
                         <input type="password" class="input password" placeholder="确认密码" id="confirmpwd" />
                         <i class="see_icon nosee isSee"><img src="../../images/login/nosee.png" /></i>
                     </div>
-                    <p class="font28_86"  style="color:#868686;font-size:.28rem;">您的密码需是6位以上的数字和英文字母的组合，区分
+                    <p class="font28_86" style="color:#868686;font-size:.28rem;">您的密码需是6位以上的数字和英文字母的组合，区分
                         大小写</p>
                 </div>
 
@@ -74,11 +74,11 @@
 
     var da = JSON.parse(localStorage.getItem('LS'));
     var TData = {
-        usertype:da.TData.usertype?da.TData.usertype:2,//1：采集员 ，2：用户
-        times:da.TData.times?da.TData.times:0, // 0：首次，1：非首次,默认是0，重新认证时是1
-        
+        usertype: da.TData.usertype ? da.TData.usertype : 2,//1：采集员 ，2：用户
+        times: da.TData.times ? da.TData.times : 0, // 0：首次，1：非首次,默认是0，重新认证时是1
+
         caccountuuid: da.TData.caccountuuid, //采集员账号uuid
-        idcardeffectivetime: FormatDate(da.TData.startDate)+"-"+FormatDate(da.TData.endDate), //身份证有效期 ,
+        idcardeffectivetime: FormatDate(da.TData.startDate) + "-" + FormatDate(da.TData.endDate), //身份证有效期 ,
         issueorganization: da.TData.issue, //发证机关 ,
         nation: da.TData.nation, //民族 ,
         //useraccount: da.TData.useraccount, //账号 ,
@@ -88,19 +88,19 @@
         useridcardimg: da.TData.frontImg, //: 身份证正面图片路径 ,
         useridcardimgb: da.TData.backImg, //身份证背面图片路径 ,
         username: da.TData.name, //姓名 ,
-        usersex: da.TData.sex=='女'?'2':'1', //性别 1男 2女
+        usersex: da.TData.sex == '女' ? '2' : '1', //性别 1男 2女
 
-        collectoraccount:da.TData.collectoraccount, //采集员账号,
+        collectoraccount: da.TData.collectoraccount, //采集员账号,
         mechanismuuid: da.TData.mechanismuuid,  //采集员机构uuid,
     }
     console.log(da);
     console.log(TData);
     //日期格式转换19840416 =》 1984-04-16
-    function FormatDate(date){
-        var y = date.substr(0,4);
-        var m = date.substr(4,2);
-        var d = date.substr(6,2);
-        return y+'-'+m+'-'+d;
+    function FormatDate(date) {
+        var y = date.substr(0, 4);
+        var m = date.substr(4, 2);
+        var d = date.substr(6, 2);
+        return y + '-' + m + '-' + d;
     }
     document.body.addEventListener('touchstart', function () { }); //移动端给元素添加:active效果
 
@@ -215,18 +215,14 @@
         }
 
         //校验验证码
+        common.ajaxFun("get", "/api/check/" + phone + "/" + code + "/1", '', registerSuccess, error);
         $.ajax({
             type: "GET",
             contentType: "application/json;charset=UTF-8",
             url: HOST + "/api/check/" + phone + "/" + code + "/1",
             success: function (res) {
                 console.log(res);
-                if (res.code == '1000') {
-                    console.log("提交注册")
-                    PostRegisterAjax(phone, pwd); //提交注册
-                }else{
-                    commonTools.Eject(res.msg);
-                }
+
 
             },
             error: function (e) {
@@ -238,135 +234,114 @@
     })
 
     //注册请求
-    function PostRegisterAjax(userphone,password) {
-        if (TData.usertype == '1') { //采集员
-           if(TData.times == 0){ //采集员首次注册
-            var params = {
-                collectoraccount: TData.collectoraccount, //采集员账号uuid
-                idcardeffectivetime: TData.idcardeffectivetime,//身份证有效期 ,
-                issueorganization: TData.issueorganization, //发证机关 ,
-                mechanismuuid: TData.mechanismuuid, //机构uuid
-                nation: TData.nation,
-                password: password,
-                useraddress: TData.useraddress,
-                userage: TData.userage,
-                useridcard: TData.useridcard,
-                useridcardimg: TData.useridcardimg,
-                useridcardimgb: TData.useridcardimgb,
-                username: TData.username,
-                userphone: userphone,
-                usersex: TData.usersex
-            }
-            console.log(params)
-            $.ajax({
-                type: "POST",
-                contentType: "application/json;charset=UTF-8",
-                url: HOST + "/registerCollector",
-                data: JSON.stringify(params),
-                success: function (res) {
-                    console.log(res);
-                    CollectorSuccess(res);
-                },
-                error: function (e) {
-                    console.log(e.status);
-                    console.log(e.responseText);
+    function registerSuccess(res) {
+        if (res.code == '1000') {
+            console.log("提交注册")
+            var userphone = $.trim($('.phone').val());
+            var password = $.trim($('#pwd').val());
+            if (TData.usertype == '1') { //采集员
+                if (TData.times == 0) { //采集员首次注册
+                    var params = {
+                        collectoraccount: TData.collectoraccount, //采集员账号uuid
+                        idcardeffectivetime: TData.idcardeffectivetime,//身份证有效期 ,
+                        issueorganization: TData.issueorganization, //发证机关 ,
+                        mechanismuuid: TData.mechanismuuid, //机构uuid
+                        nation: TData.nation,
+                        password: password,
+                        useraddress: TData.useraddress,
+                        userage: TData.userage,
+                        useridcard: TData.useridcard,
+                        useridcardimg: TData.useridcardimg,
+                        useridcardimgb: TData.useridcardimgb,
+                        username: TData.username,
+                        userphone: userphone,
+                        usersex: TData.usersex
+                    }
+                    console.log(params)
+                    common.ajaxFun("post", "/registerCollector", params, CollectorSuccess, Error)
+                    
+                } else { //采集员非首次注册
+                    var params = {
+                        collectoraccount: TData.collectoraccount,
+                        idcardeffectivetime: TData.idcardeffectivetime,
+                        issueorganization: TData.issueorganization,
+                        mechanismuuid: TData.mechanismuuid,
+                        nation: TData.nation,
+                        password: password,
+                        useraddress: TData.useraddress,
+                        userage: TData.userage,
+                        useridcard: TData.useridcard,
+                        useridcardimg: TData.useridcardimg,
+                        useridcardimgb: TData.useridcardimgb,
+                        username: TData.username,
+                        userphone: userphone,
+                        usersex: TData.usersex
+                    }
+                    console.log("采集员二次注册:")
+                    console.log(params)
+                    common.ajaxFun("post", "/RepeatrRegister", params, CollectorSuccess, Error)
+                    
                 }
-            });
-           }else{ //采集员非首次注册
+            } else if (TData.usertype == '2') { //普通用户
                 var params = {
-                    collectoraccount: TData.collectoraccount,
-                    idcardeffectivetime: TData.idcardeffectivetime,
-                    issueorganization: TData.issueorganization,
-                    mechanismuuid: TData.mechanismuuid,
-                    nation: TData.nation,
-                    password: password,
-                    useraddress: TData.useraddress,
-                    userage: TData.userage,
-                    useridcard: TData.useridcard,
-                    useridcardimg: TData.useridcardimg,
-                    useridcardimgb: TData.useridcardimgb,
-                    username: TData.username,
-                    userphone: userphone,
-                    usersex: TData.usersex
+                    caccountuuid: TData.caccountuuid, //采集员账号uuid
+                    idcardeffectivetime: TData.idcardeffectivetime, //身份证有效期 ,
+                    issueorganization: TData.issueorganization, //发证机关 ,
+                    nation: TData.nation, //民族 ,
+                    password: password, //密码 ,
+                    useraccount: userphone, //账号 ,
+                    useraddress: TData.useraddress, //地址 ,
+                    userage: TData.userage, //生日 ,
+                    useridcard: TData.useridcard, //身份证号 ,
+                    useridcardimg: TData.useridcardimg, //: 身份证正面图片路径 ,
+                    useridcardimgb: TData.useridcardimgb, //身份证背面图片路径 ,
+                    username: TData.username, //姓名 ,
+                    userphone: userphone, //电话 ,
+                    usersex: TData.usersex, //性别 1男 2女
                 }
-                console.log("采集员二次注册:")
-            console.log(params)
-                $.ajax({
-                    type: "POST",
-                    contentType: "application/json;charset=UTF-8",
-                    url: HOST + "/RepeatrRegister",
-                    data: JSON.stringify(params),
-                    success: function (res) {
-                        console.log(res);
-                        CollectorSuccess(res);
-                    },
-                    error: function (e) {
-                        console.log(e.status);
-                        console.log(e.responseText);
-                    }
-                });
-           }
-        } else if (TData.usertype == '2') { //普通用户
-            var params = {
-                caccountuuid: TData.caccountuuid, //采集员账号uuid
-                idcardeffectivetime: TData.idcardeffectivetime, //身份证有效期 ,
-                issueorganization: TData.issueorganization, //发证机关 ,
-                nation: TData.nation, //民族 ,
-                password: password, //密码 ,
-                useraccount: userphone, //账号 ,
-                useraddress: TData.useraddress, //地址 ,
-                userage: TData.userage, //生日 ,
-                useridcard: TData.useridcard, //身份证号 ,
-                useridcardimg: TData.useridcardimg, //: 身份证正面图片路径 ,
-                useridcardimgb: TData.useridcardimgb, //身份证背面图片路径 ,
-                username: TData.username, //姓名 ,
-                userphone: userphone, //电话 ,
-                usersex: TData.usersex, //性别 1男 2女
+                console.log(params)
+                common.ajaxFun("post", "/api/userRegister", params, UserSuccess, Error)
+                
             }
-            console.log(params)
-            $.ajax({
-                type: "POST",
-                contentType: "application/json;charset=UTF-8",
-                url: HOST + "/api/userRegister",
-                data: JSON.stringify(params),
-                success: function (res) {
-                    console.log(res);
-                    if (res.code == '1000') {
-                        commonTools.Eject("注册成功");
-                        setTimeout(function(){
-                            window.loaction.href = "../login/login.html"
-                        },1000)
-                    } else {
-                        commonTools.Eject(res.msg);
-                    }
-
-                },
-                error: function (e) {
-                    console.log(e.status);
-                    console.log(e.responseText);
-                }
-            });
+        } else {
+            commonTools.Eject(res.msg);
         }
+
     }
     //采集员注册成功
-    function CollectorSuccess(res){
+    function CollectorSuccess(res) {
+        console.log(res)
         if (res.code == '1000') {
-            var examinestatus  = res.data.examinestatus ;// 采集员审核状态 0待审核 1已通过 2已拒绝 
+            var examinestatus = res.data.examinestatus;// 采集员审核状态 0待审核 1已通过 2已拒绝 
             //判断审核状态
             if (examinestatus == '0') { //待审核
                 window.loaction.href = "../AuditProgress.html"
-            }else if (examinestatus == '1') { //已通过
+            } else if (examinestatus == '1') { //已通过
                 commonTools.Eject("注册成功");
-                setTimeout(function(){
+                setTimeout(function () {
                     window.loaction.href = "../login/login.html"
-                },1000)
-            }else if (examinestatus == '2') { //已拒绝
+                }, 1000)
+            } else if (examinestatus == '2') { //已拒绝
                 window.loaction.href = "../AuditFail.html"
             }
-        }else{
+        } else {
             commonTools.Eject(res.msg);
         }
-    }   
+    }
+    //普通用户登录成功
+    function UserSuccess(res){
+        console.log(res)
+        if (res.code == '1000') {
+            commonTools.Eject("注册成功");
+            setTimeout(function () {
+                window.loaction.href = "../login/login.html"
+            }, 1000)
+        } else {
+            commonTools.Eject(res.msg);
+        }
+    }
+    function Error(e){}
+
     //用户协议
     $('#agreement').click(function () {
         window.location.href = "../tips/userAgreement.html";
