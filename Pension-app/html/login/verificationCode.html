@@ -195,13 +195,6 @@
          * **/
         valCodeInput.on('input propertychange change', (e) => {
             valCodeLength = valCodeInput.val().length;
-            // if (valCodeInput.val() && regex.test(valCodeInput.val())) {
-            //     for(var i =1;i<=valCodeLength;i++){
-            //         $(valCodeItems[i - 1]).addClass('available');
-            //         $(valCodeItems[i - 1]).text(valCodeInput.val().substring(i - 1, 1));
-            //         console.log(valCodeInput.val().substring(i - 1, 1))
-            //     }
-            // }
             if (valCodeInput.val() && regex.test(valCodeInput.val())) {
                 $(valCodeItems[valCodeLength - 1]).addClass('available');
                 $(valCodeItems[valCodeLength - 1]).text(valCodeInput.val().substring(valCodeLength - 1, valCodeLength));
