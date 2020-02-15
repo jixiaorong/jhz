@@ -216,20 +216,7 @@
 
         //校验验证码
         common.ajaxFun("get", "/api/check/" + phone + "/" + code + "/1", '', registerSuccess, error);
-        $.ajax({
-            type: "GET",
-            contentType: "application/json;charset=UTF-8",
-            url: HOST + "/api/check/" + phone + "/" + code + "/1",
-            success: function (res) {
-                console.log(res);
-
-
-            },
-            error: function (e) {
-                console.log(e.status);
-                console.log(e.responseText);
-            }
-        });
+        
 
     })
 
@@ -258,7 +245,7 @@
                         usersex: TData.usersex
                     }
                     console.log(params)
-                    common.ajaxFun("post", "/registerCollector", params, CollectorSuccess, Error)
+                    common.ajaxFun("post", "/registerCollector", params, CollectorSuccess, error)
                     
                 } else { //采集员非首次注册
                     var params = {
@@ -279,7 +266,7 @@
                     }
                     console.log("采集员二次注册:")
                     console.log(params)
-                    common.ajaxFun("post", "/RepeatrRegister", params, CollectorSuccess, Error)
+                    common.ajaxFun("post", "/RepeatrRegister", params, CollectorSuccess, error)
                     
                 }
             } else if (TData.usertype == '2') { //普通用户
@@ -300,7 +287,7 @@
                     usersex: TData.usersex, //性别 1男 2女
                 }
                 console.log(params)
-                common.ajaxFun("post", "/api/userRegister", params, UserSuccess, Error)
+                common.ajaxFun("post", "/api/userRegister", params, UserSuccess, error)
                 
             }
         } else {
@@ -340,7 +327,7 @@
             commonTools.Eject(res.msg);
         }
     }
-    function Error(e){}
+    function error(e){}
 
     //用户协议
     $('#agreement').click(function () {
