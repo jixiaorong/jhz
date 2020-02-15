@@ -207,10 +207,16 @@
     })
 
     function loginSuccess(res) {
+        console.log(res)
         if (res.code == '1000') {
             var examinestatus  = res.data.examinestatus ;// 采集员审核状态 0待审核 1已通过 2已拒绝
             var usertype = res.data.type;// 账号类型 1采集员 2用户 ,
+            
             $('.phone').val('');
+            da.token = res.data.token;
+            da.userInfo = res.data;
+            localStorage.setItem('LS', JSON.stringify(da));
+
             if(logintype == '1'){
                 //清除定时器
                 clearInterval(Timer);
@@ -226,10 +232,7 @@
                 window.location.href = "../register/AuditProgress.html"; //等待审核中
 
             }else{
-                da.token = res.data.token;
-                da.userInfo = res.data;
-                localStorage.setItem('LS', JSON.stringify(da));
-                window.location.href = "../index.html";
+               window.location.href = "../index.html";
             }
         } else {
             commonTools.Eject(res.msg);
