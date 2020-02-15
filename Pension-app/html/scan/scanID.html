@@ -105,7 +105,7 @@
         }
 
         //被采集人所有ID
-        var fromData = {
+  /*      var fromData = {
             allergyid: 0,  //过敏史id
             bloodfatid: 0,   // 血脂id
             bloodoxygenid: 0,   // 血氧id
@@ -124,7 +124,7 @@
             uaid: 0,   //尿酸id
             urineid: 0,   //尿液id
             useruuid: ""   //用户uuid
-        };
+        };*/
 
         // 获取百度token
         getToken()
@@ -196,9 +196,9 @@
                             }
                             isShow.front = true;
                             params.name = da.姓名.words;  //姓名
-                            params.sex = da.性别.words;  //性别
+                            params.sex = da.性别.words == '男' ? 1 : '2';  //性别
                             params.nation = da.民族.words;  //民族
-                            params.date = da.出生.words;    //出生日期
+                            params.date = da.出生.words.slice(0,4)+'-'+da.出生.words.slice(4,6)+'-'+da.出生.words.slice(6);    //出生日期
                             params.idCard = da.公民身份号码.words;   //身份证号
                             params.address = da.住址.words;    //家挺地址
                         }
@@ -299,7 +299,8 @@
         // 获取最新表单数据
         $("#subBtn").on("click",function(){
             console.log(params);
-            if(params.backImg == '' || params.frontImg == ''){
+            //判断是否身份证照片传成功
+            if(!isShow.front || !isShow.back ){
                 commonTools.Eject("请您录入完整身份证图片");
                 return false;
             }
@@ -309,7 +310,7 @@
                 var getuuidObj = {
                     token: ls.token,
                     caccountuuid: ls.userInfo.accountuuid, //采集人账号uuid ,
-                    idcardeffectivetime: params.endDate, //身份证有效期 ,
+                    idcardeffectivetime: params.startDate+params.endDate, //身份证有效期 ,
                     issueorganization: params.issue,//发证机关 ,
                     nation : params.nation , //民族 ,
                     useraddress : params.address, //地址 ,
@@ -320,6 +321,8 @@
                     useridcardimg: params.frontImg , //身份证正面图片路径,用户信息上传时必传,数据监测扫描时有用户可不传 ,
                     useridcardimgb: params.backImg, //身份证背面图片路径,用户信息上传时必传,数据监测扫描时有用户可不传 ,
                 };
+
+                console.log(JSON.stringify(getuuidObj));
                 console.log(getuuidObj);
                 common.ajaxFun("post", "getIdcard" , getuuidObj, getuuidSuccess, getuuidError);
 
@@ -355,28 +358,40 @@
 
         //判断是否录入数据接口成功
         function isSuccess(data){
+            console.log(data);
             if(data.code == '1000'){
                 // 当前页赋值
                 ls.TData  = data.data;
                 curr.status = data.data.status;
                 curr.step = data.data.step;
-
+                //保存获取到的数据到本地
+                localStorage.setItem("LS",JSON.stringify(ls));
                 // 未完成
-                if(data.data.status==0){
-                    // 弹窗
-                    commonTools.popup({
-                        title: '提示', //不传title 位置为空
-                        msg: ['当前用户有未完成的检验流程'], // 消息文字为数组类型，
-                        btn: [
-                            { name: '放弃', cla: '', fun: cancel_btn },
-                            { name: '保留', cla: 'msgPopupActivn', fun: goStep },
-                        ]
-                    })
+                if(data.data.status == 0){
+                    if(data.data.step == 0){
+                        //未有填写的数据
+                        window.location.href = "../inputData/inputHeartRate.html";
+                    }else{
+                        //有已填写数据
+                        // 弹窗
+                        commonTools.popup({
+                            title: '提示', //不传title 位置为空
+                            msg: ['当前用户有未完成的检验流程'], // 消息文字为数组类型，
+                            btn: [
+                                { name: '放弃', cla: '', fun: cancel_btn },
+                                { name: '保留', cla: 'msgPopupActivn', fun: goStep },
+                            ]
+                        })
+                    }
+
                 }
 
                 // 已完成
-                if(res.data.status==1){
+                if(data.data.status==1){
                     // 跳心电检测
+                    commonTools.Eject("已完成一次采集",function(){
+                        window.location.href = "../inputData/inputHeartRate.html";
+                    })
                 }
             }else{
                 commonTools.Eject(data.msg)
@@ -397,29 +412,14 @@
         //放弃当前当前表单成功
         function giveupSuccess(data){
             console.log(data)
-            if(res.code == '1000'){
-                fromData = {
-                    allergyid: 0,  //过敏史id
-                    bloodfatid: 0,   // 血脂id
-                    bloodoxygenid: 0,   // 血氧id
-                    bloodpressureid: 0,   //血压id
-                    bloodsugarid: 0,    // 血糖id
-                    choid: 0,    //总胆固醇id
-                    chronicdiseaseid: 0,    // 慢性病id
-                    ecgid: "",  //心电/心率对应mongodbid
-                    exposureid: 0,   //暴露史id
-                    formid: 0,    //表单id
-                    status: 0,   //当前表单状态 0未完成 1已完成
-                    step: 1,   //当前完成位置 1心电 2血液血氧 3血脂血压 4尿液 5过敏史暴露史慢性病
-                    type: 0,    //类型： 0用户 1采集员
-                    uaid: 0,   //尿酸id
-                    urineid: 0,   //尿液id
-                };
+            if(data.code == '1000'){
 
-                ls.TData  = fromData;
-                localStorage.setItem("LS",ls);
-                // 跳心电检测
-                window.location.href = "../inputData/inputHeartRate.html";
+                ls.TData  = data.data;
+                localStorage.setItem("LS",JSON.stringify(ls));
+                commonTools.Eject('上次未完成采集已放弃',function(){
+                    // 跳心电检测
+                    window.location.href = "../inputData/inputHeartRate.html";
+                });
             }else{
                 commonTools.Eject(data.msg)
             }
@@ -432,7 +432,7 @@
 
         // 保留
         function goStep(){
-            localStorage.setItem("LS",ls);
+            localStorage.setItem("LS",JSON.stringify(ls));
             // 跳检测流程 1心电 2血液血氧 3血脂血压 4尿液 5过敏史暴露史慢性病
             switch(curr.step) {
                 case 1:

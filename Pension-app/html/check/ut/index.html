@@ -117,20 +117,19 @@
     }
 
 
-    var ls = localStorage.getItem('LS');
-    var currForm = localStorage.getItem('currForm');
+    var ls = JSON.parse(localStorage.getItem('LS'));
 
-    var ls = {
-        token : 'da24284f2c8544ac82a6c95eb5713ece',
-        caccountuuid : '03e3c9bdc82d42fdb6eb8f02262c5867',
-        // caccountuuid : '222222',
-        mechanismuuid: "beea1e018c034c4fbd783a28210915a0",
-        useruuid: "b1f8c362c3ba415ca5456195406c95af",
+    //判断是否时第一次录入
+    console.log(ls.TData.urineid);
+
+
+
+    if(ls.TData.urineid != 0){
+        //获取尿液数据
+        common.ajaxFun("get", "getUrineDetail/"+ls.token+'/'+ ls.TData.urineid , "", Success, Error);
     }
 
-    //获取尿液数据
-    // common.ajaxFun("get", "getUrineDetail/"+ls.token+'/'+ currForm.urineid , "", Success, Error);
-    common.ajaxFun("get", "getUrineDetail/"+ls.token+'/9' , "", Success, Error);
+
 
     //
     function Success(data){
@@ -167,6 +166,11 @@
     }
 
 
+    //上一步
+    $("#prev").click(function(){
+        window.location.href = '../../inputData/inputPressFat.html';
+    })
+
     //提交数据
     $("#next").click(function(){
 
@@ -201,7 +205,13 @@
             //提交接口
             common.ajaxFun("post", "addUrine" , data, submitSuccess, submitError);
         }else{
-            window.location.href = '../../collection/healthCollection.html';
+            //判断是否是首次录入
+            if(ls.TData.urineid == 0){
+                //提交接口
+                common.ajaxFun("post", "addUrine" , data, submitSuccess, submitError);
+            }else{
+                window.location.href = '../../collection/healthCollection.html';
+            }
             return false;
         }
 
@@ -212,9 +222,9 @@
     function submitSuccess(data){
         console.log(data);
         if(commonTools.interface(data)){
-            currForm.urineid = data.data.urineid;
-            localStorage.setItem('currForm',currForm)
-            // window.location.href = '../../collection/healthCollection.html';
+            ls.TData.urineid = data.data.urineid;
+            localStorage.setItem('LS',ls)
+            window.location.href = '../../collection/healthCollection.html';
             return false;
         }
     }
