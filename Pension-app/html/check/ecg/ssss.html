@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>百度AI-身份证识别</title>
+    <script src="../../../js/jquery.min.js"></script>
+</head>
+<body>
+<!--如果仅调取相机，使用： capture="camera"-->
+<input type="file" id="image" accept="image/*" />
+
+<script type="text/javascript">
+    var obj = {};
+
+    $(document).ready(function () {
+        // getBaiduToken();
+        $("#image").change(function () {
+            console.log(obj.BAIDU_TOKEN);
+            var reader = new FileReader();
+            reader.readAsDataURL(this.files[0]);
+            reader.onload = function (e) {
+                var base64Image = e.target.result;//或者 reader.result
+                base64Image = base64Image.split(",")[1];
+                console.log(base64Image);
+                parse(base64Image);
+            };
+        });
+    });
+
+    //百度识别
+    function parse(base64Image) {
+        var url = "https://aip.baidubce.com/rest/2.0/ocr/v1/qrcode?access_token=24.2488266159de13a8fa9d4bf3be92bb5c.2592000.1584257163.282335-18433074";
+        // var url = "https://aip.baidubce.com/rest/2.0/ocr/v1/general?access_token=24.f9ba9c5241b67688bb4adbed8bc91dec.2592000.1485570332.282335-8574074";
+        $.ajax({
+            url: url,
+            type: "post",
+            dataType: 'json',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded;'
+            },
+            data: {
+                image: base64Image,
+                // id_card_side: 'front'
+            },
+            success: function (data) {
+                console.log(data);
+                document.write(JSON.stringify(data));
+            },
+            error: function (xhr, type, errorThrown) {
+                alert('识别失败');
+            }
+        });
+    }
+
+    //获取百度识别token，这里需要后端处理，因为百度获取access-token的接口不支持跨域
+    function getBaiduToken() {
+        var url = "//www.xxx.com/getaccesstoken";
+        $.ajax({
+            url: url,
+            type: "get",
+            dataType: 'json',
+            success: function (json) {
+                obj.BAIDU_TOKEN = json.Data;
+            }
+        });
+    }
+</script>
+</body>
+</html>

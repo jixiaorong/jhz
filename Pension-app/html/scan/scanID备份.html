@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>身份证扫描</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'>
+    <link rel="stylesheet" type="text/css" href="../../css/base.css">
+    <link rel="stylesheet" href="../../css/common.css">
+    <link rel="stylesheet" href="../../css/register/registerID.css">
+    <script type="text/javascript" src="../../js/jquery.min.js"></script>
+    <script type="text/javascript" src="../../js/fontSize.js"></script>
+    <script src="../../js/common.js"></script>
+    <style>
+        ._btn button{
+            border-radius: 5px !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="pageFrame">
+        <!--页头-->
+        <div class="pageHeader">
+            <div class="headerLeft">
+                <img src="../../images/header/btn_return.png" id="goback" />
+            </div>
+            <div class="headerMiddle">
+                <span class="headerMiddle-text">身份证扫描</span>
+            </div>
+            <div class="headerRight">
+            </div>
+        </div>
+        <!--内容-->
+        <div class="pageContent">
+            <div class="scanID">
+                <div class="boxID">
+                    <div class="headID">
+                        <span>证件照正面</span>
+                        <span onclick="frontClear()">清空</span>
+                    </div>
+                    <div class="fileBox ">
+                        <input class="fileInput" type="file" id='frontImage' accept="image/*" capture='camera'  onchange="getImgData(event,'front')">
+                    </div>
+                    <div class="getPictureBox"  style="display: none;">
+                        <img class="picture" id="frontID" src="" alt=""  >
+                    </div>
+                </div>
+                
+                <div class="boxID">
+                    <div class="headID">
+                        <span>证件照反面</span>
+                        <span onclick="backClear()">清空</span>
+                    </div>
+                    <!-- 上传文件按钮 -->
+                    <div class="fileBox">
+                        <input class="fileInput" type="file" id='backImage' accept="image/*" capture='camera'  onchange="getImgData(event,'back')">
+                    </div>
+                    <!-- 获取的真正图片显示 -->
+                    <div class="getPictureBox"  style="display: none;">
+                        <img class="picture" id="backID" src="" alt=""  >
+                    </div>
+                </div>
+                <!-- 扫描获取的信息，默认不显示 -->
+                <div class="scanInfo" style="display: none;">
+                    <div class="item">
+                        <span>姓名</span>
+                        <span id="username"></span>
+                    </div>
+                    <div class="item">
+                        <span>身份证号码</span>
+                        <span id="useridcard"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="_btn">
+                <button id="subBtn">确定</button>
+            </div>
+            
+        </div>
+    </div>
+
+    <script src="../../js/NativeCommon.js"></script>
+    <script>
+        var HOST ="http://47.94.3.197:28180/";
+        var access_token = ""; // 这里填写你的access_token
+        var curr = {
+            token: 'da24284f2c8544ac82a6c95eb5713ece',
+            mechanismuuid: "",
+            caccountuuid: "",
+            useruuid: "",
+            status:'', // 扫描完状态
+            step:'' ,   // 扫描完检测步骤
+        }
+        var baiduParams = {} // 扫描获取的数据
+        var compareObj = {}  // 比较对象
+        var zf = 'front';
+
+        // 获取百度token
+        getToken()
+        function getToken() {
+            common.ajaxFun("get", "getBaiduToken" , '', baiduSuccess, baiduError);
+        }
+        function baiduSuccess(data){
+            if(data.code == '1000'){
+                access_token = data.data;
+            }
+        };
+
+        function baiduError(){
+            commonTools.Eject("网络连接异常");
+        }
+
+
+        // ***************************** 调取相机拍照   ***************************
+        // 监听身份证图片事件
+        function getImgData(event,card_side) {
+            var imageBase = "";
+            var reader = new FileReader();
+            reader.readAsDataURL(event.target.files[0]);
+            reader.onload = function (e) {
+                console.log(e)
+                imageBase = e.target.result;
+                imageBase = imageBase.split(",")[1];
+                if(card_side=="front"){
+                    zf = 'front';
+                    $("#frontID").prop("src", "data:image/png;base64," + imageBase);
+                    $("#frontID").parent().show()
+                    $("#frontImage").parent().hide()
+                }
+                if(card_side=="back"){
+                    zf = 'back';
+                    $("#backID").prop("src", "data:image/png;base64," + imageBase);
+                    $("#backID").parent().show()
+                    $("#backImage").parent().hide()
+                }
+                
+                // 百度OCR识别
+                $.ajax({
+                    header: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    type: "post",
+                    url: "https://aip.baidubce.com/rest/2.0/ocr/v1/idcard",
+                    async: true,
+                    data: {
+                        access_token: access_token,
+                        id_card_side: card_side,
+                        image: imageBase
+                    },
+                    dataType: "json",
+                    timeout: 30000,
+                    success: function (data) {
+                        console.log("解析成功");
+                        console.log(JSON.stringify(data));
+                        var da = data.words_result;
+                        // 清空数据时，清空对应缓存
+                        compareObj[card_side] = data.words_result
+
+                        let assignOObj = $.extend({},baiduParams.words_result,data.words_result); // 合并对象
+                        baiduParams.words_result = assignOObj // 赋值
+
+                        // 扫描正面获取到姓名、身份证号数据
+                        if(data.words_result['姓名']){
+                            baiduParams.username =  data.words_result['姓名'].words || ''
+                        }
+                        if(data.words_result['公民身份号码']){
+                            baiduParams.useridcard =  data.words_result['公民身份号码'].words || ''
+                        }
+                        // 判断有数据时的显示
+                        if(baiduParams.username || baiduParams.useridcard){
+                            $(".scanInfo").show()
+                            $("#username").text(baiduParams.username)
+                            $("#useridcard").text(baiduParams.useridcard)
+                        }
+                        console.log(baiduParams)
+                    },
+                    error: function (xhr) {
+                        console.log("请求解析失败");
+                    }
+                });
+                
+                // 上传图片
+                let params= {
+                    img :"data:image/png;base64," + imageBase, // base64图片 ,
+                    type: 1 //1身份证上传,2心电图片上传
+                }
+                upLoad(params,card_side)
+                
+            }
+        }
+        
+        // 清空操作
+        function frontClear(){
+            $("#frontID").prop("src","")
+            $("#frontID").parent().hide()
+            $("#frontImage").parent().show()
+            $("#frontImage").val("");
+            baiduParams.useridcardimg = ''
+            
+            //遍历
+            for(var key in baiduParams.words_result){
+                for(var k in compareObj['front']) {
+                    if(k == key){
+                        delete baiduParams.words_result[key]
+                        if(key=='姓名'){
+                            baiduParams.username =''
+                        }
+                        if(key=='公民身份号码'){
+                            baiduParams.useridcard =''
+                        }
+                    }
+                }  
+            }
+            // 判断无数据时的显示
+            if(!baiduParams.username && !baiduParams.useridcard){
+                $(".scanInfo").hide()
+            }
+            console.log(baiduParams)
+        }
+        function backClear(){
+            $("#backID").prop("src","")
+            $("#backID").parent().hide()
+            $("#backImage").parent().show()
+            $("#backImage").val("");
+            
+            baiduParams.useridcardimgb = ''
+            //遍历
+            for(var key in baiduParams.words_result){
+                for(var k in compareObj['back']) {
+                    if(k == key){
+                        delete baiduParams.words_result[key]
+                        if(key=='姓名'){
+                            baiduParams.username =''
+                        }
+                        if(key=='公民身份号码'){
+                            baiduParams.useridcard =''
+                        }
+                    }
+                }  
+            }
+            // 判断无数据时的显示
+            if(!baiduParams.username && !baiduParams.useridcard){
+                $(".scanInfo").hide()
+            }
+            console.log(baiduParams)
+        }
+
+        // 上传服务器，获取图片路径
+        function upLoad(params,flag){
+            $.ajax({
+                url:  HOST+ "api/uploadImg", // 目标资源
+                data: JSON.stringify(params),
+                dataType: "json", // 服务器响应的数据类型
+                contentType:"application/json",
+                type: "POST", // 请求方式
+                success: function (res) {
+                    console.log(res)
+                    if(res.code == '1000'){
+                        if(flag == "front"){
+                            baiduParams.useridcardimg = res.data.url || ""
+                        }
+                        if(flag == "back"){
+                            baiduParams.useridcardimgb = res.data.url || ""
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 获取最新表单数据
+        $("#subBtn").on("click",function(){
+            // 1、上传身份证信息，并获取useruuid
+            if(baiduParams.words_result){ // 解析出数据
+                let personInfo = baiduParams.words_result || {}
+                var getuuidObj = {
+                    token: curr.token,
+                    caccountuuid: "" , //采集人账号uuid ,
+                    idcardeffectivetime: personInfo['失效日期'] ? personInfo['失效日期'].words : "" , //身份证有效期 ,
+                    issueorganization: personInfo['签发机关'] ? personInfo['签发机关'].words : "" ,//发证机关 ,
+                    nation : personInfo['民族'] ? personInfo['民族'].words : "" , //民族 ,
+                    useraddress : personInfo['住址'] ? personInfo['住址'].words :"" , //地址 ,
+                    userage : personInfo['出生'] ? personInfo['出生'].words :"" , //生日 ,
+                    useridcard : personInfo['公民身份号码'] ? personInfo['公民身份号码'].words : "" , //身份证号 ,
+                    username : personInfo['姓名'] ? personInfo['姓名'].words : "" , //姓名 ,
+                    usersex : personInfo['性别'] ? personInfo['性别'].words=='男'?'1':'2' : "" , //性别 1男 2女
+                    useridcardimg: baiduParams.useridcardimg , //身份证正面图片路径,用户信息上传时必传,数据监测扫描时有用户可不传 ,
+                    useridcardimgb: baiduParams.useridcardimgb, //身份证背面图片路径,用户信息上传时必传,数据监测扫描时有用户可不传 ,
+                }
+                $.ajax({
+                    url:  HOST+ "getIdcard", 
+                    data: JSON.stringify(getuuidObj),
+                    dataType: "json", // 服务器响应的数据类型
+                    contentType:"application/json",
+                    type: "POST", // 请求方式
+                    success: function (response) {
+                        console.log(response)
+                        if(response.code == '1000'){
+                            
+                            // 扫描身份证获取到的信息，存本地form
+                            let currScanCard = res.data || {}
+                            localStorage.setItem("currScanCard",JSON.stringify(currScanCard))
+                            curr.useruuid = response.data.useruuid || "" // 赋值
+
+                            // 2、是否存在相同用户相同检测人的未完成表单
+                            $.ajax({
+                                url:  HOST+ "getExistForm/" +curr.token+"/"+curr.mechanismuuid+"/"+curr.caccountuuid+"/"+curr.useruuid , 
+                                dataType: "json", 
+                                contentType:"application/json",
+                                type: "get", 
+                                success: function (res) {
+                                    console.log(res)
+                                    if(res.code == '1000'){
+
+                                        // 存本地form
+                                        let currForm = res.data || {}
+                                        localStorage.setItem("currForm",JSON.stringify(currForm))
+                                        // 当前页赋值
+                                        curr.status = res.data.status
+                                        curr.step = res.data.step
+
+                                        // 未完成
+                                        if(res.data.status==0){
+                                            // 弹窗
+                                            commonTools.popup({
+                                                title: '提示', //不传title 位置为空
+                                                msg: ['当前用户有未完成的检验流程'], // 消息文字为数组类型，
+                                                btn: [
+                                                        { name: '放弃', cla: '', fun: cancel_btn },
+                                                        { name: '保留', cla: 'msgPopupActivn', fun: goStep },
+                                                    ]
+                                            })
+                                        }
+
+                                        // 已完成
+                                        if(res.data.status==1){
+                                            // 跳心电检测
+                                        }
+                                    
+                                    }
+                                }
+                            });
+                            // 2、结束
+                            
+                        }
+                    }
+                });
+            } else {
+                // 解析出现问题
+            }
+            
+            
+            
+            
+        })
+
+        // 放弃
+        function cancel_btn(){
+            var localForm = JSON.parse(localStorage.getItem("currForm")) 
+            // 2、是否存在相同用户相同检测人的未完成表单
+            $.ajax({
+                url:  HOST+ "giveupAgain/" +curr.token+"/"+localForm.formid+"/"+localForm.mechanismuuid+"/"+localForm.caccountuuid+"/"+localForm.useruuid , 
+                dataType: "json", 
+                contentType:"application/json",
+                type: "get", 
+                success: function (res) {
+                    console.log(res)
+                    if(res.code == '1000'){
+                    // 改变本地form
+                    localForm.status = 0
+                    localForm.step = 1
+                    localStorage.setItem("currForm",JSON.stringify(localForm) )
+                    // 跳心电检测 	
+                    window.location.href = "../inputData/inputHeartRate.html";
+                    }
+                }
+            });
+        }
+
+        // 保留
+        function goStep(){
+            // 跳检测流程 1心电 2血液血氧 3血脂血压 4尿液 5过敏史暴露史慢性病
+            switch(curr.step) {
+                case 1:
+                    window.location.href = "../inputData/inputHeartRate.html";
+                    break;
+                case 2:
+                    window.location.href = "../inputData/inputBloodOxygex.html";
+                    break;
+                case 3:
+                    window.location.href = "../inputData/inputPressFat.html";
+                    break;
+                case 4:
+                    window.location.href = "../check/ut/index.html";
+                    break;
+                case 5:
+                    window.location.href = "../collection/healthCollection.html";
+                    break;
+                default:
+                    // 默认代码块
+            } 
+        }
+    
+
+    </script>
+
+</body>
+
+</html>
